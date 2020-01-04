@@ -5,20 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.subsystems;
+package frc.robot.controlboard;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+public class ControlBoard {
+    private final int xboxPort = 1;
+    private final int extremePort = 2;
 
-public class ExampleSubsystem extends SubsystemBase {
-  /**
-   * Creates a new ExampleSubsystem.
-   */
-  public ExampleSubsystem() {
-
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    public final Xbox xbox = new Xbox(xboxPort);
+    public final Extreme extreme = new Extreme(extremePort);
 }
