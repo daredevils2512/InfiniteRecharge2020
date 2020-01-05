@@ -19,19 +19,18 @@ public class Drivetrain extends SubsystemBase {
   private final int m_leftDrive2ID = 2;
   private final int m_rightDrive1ID = 3;
   private final int m_rightDrive2ID = 4;
-  private final int m_shifterForwardChannel = 0;
-  private final int m_shifterReverseChannel = 1;
-  private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
-  private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
   private final WPI_TalonFX m_leftDrive1;
   private final WPI_TalonFX m_leftDrive2;
   private final WPI_TalonFX m_rightDrive1;
   private final WPI_TalonFX m_rightDrive2;
-
   private final DifferentialDrive m_differentialDrive;
 
+  private final int m_shifterForwardChannel = 0;
+  private final int m_shifterReverseChannel = 1;
   private final DoubleSolenoid m_shifter;
+  private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
+  private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
   /**
    * Creates a new Drivetrain.
