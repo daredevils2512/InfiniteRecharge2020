@@ -29,44 +29,44 @@ public class Limelight {
     }
   }
 
-  private NetworkTable table;
+  private NetworkTable m_table;
 
   public Limelight() {
-
+    m_table = NetworkTableInstance.getDefault().getTable("limelight");
   }
 
   @SuppressWarnings("unused")
   private void setPipeline(Pipeline pipeline) {
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(pipeline.getID());
+    m_table.getEntry("pipeline").setNumber(pipeline.getID());
   }
 
   @SuppressWarnings("unused")
   private boolean hasTarget() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1;
+    return m_table.getEntry("tv").getDouble(0) == 1;
   }
 
   @SuppressWarnings("unused")
   private double tx() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    return m_table.getEntry("tx").getDouble(0);
   }
 
   @SuppressWarnings("unused")
   private double ty() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+    return m_table.getEntry("ty").getDouble(0);
   }
 
   @SuppressWarnings("unused")
   private double ta() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
+    return m_table.getEntry("ta").getDouble(0);
   }
 
   @SuppressWarnings("unused")
   private double ts() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ts").getDouble(0);
+    return m_table.getEntry("ts").getDouble(0);
   }
 
   @SuppressWarnings("unused")
   private double tl() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tl").getDouble(0);
+    return m_table.getEntry("tl").getDouble(0);
   }
 }
