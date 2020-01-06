@@ -8,9 +8,9 @@
 package frc.robot.controlboard;
 
 public class ControlBoard {
-    private final int xboxPort = 1;
-    private final int extremePort = 2;
+  private final int xboxPort = 1;
+  private final int extremePort = 2;
 
-    public final Xbox xbox = new Xbox(xboxPort);
-    public final Extreme extreme = new Extreme(extremePort);
+  public final Xbox xbox = new Xbox(xboxPort);
+  public final Extreme extreme = new Extreme(extremePort);
 }

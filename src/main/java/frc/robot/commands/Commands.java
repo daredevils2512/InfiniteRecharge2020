@@ -34,68 +34,68 @@ import frc.robot.RobotContainer;
  * command definitions.
  */
 public final class Commands {
-    private static final class IntakeCommand extends CommandBase {
-        private final Intake m_intake;
+  private static final class IntakeCommand extends CommandBase {
+    private final Intake m_intake;
 
-        public IntakeCommand(Intake intake) {
-            m_intake = intake;
-            addRequirements(m_intake);
-        }
-
-        @Override
-        public void initialize() {
-            m_intake.setExtended(true);
-        }
-
-        @Override
-        public void execute() {
-            m_intake.run(1);
-        }
-
-        @Override
-        public void end(boolean interrupted) {
-            m_intake.run(0);
-            m_intake.setExtended(false);
-        }
+    public IntakeCommand(Intake intake) {
+      m_intake = intake;
+      addRequirements(m_intake);
     }
 
-    private Commands() {
-
+    @Override
+    public void initialize() {
+      m_intake.setExtended(true);
     }
 
-    public static Command arcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
-        return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()));
+    @Override
+    public void execute() {
+      m_intake.run(1);
     }
 
-    /**
-     * Extends and starts running the power cell intake
-     * @return New {@link Command}
-     */
-    public static Command startIntaking(Intake intake) {
-        return new InstantCommand(() -> intake.setExtended(true), intake)
-            .andThen(new RunCommand(() -> intake.run(1), intake));
+    @Override
+    public void end(boolean interrupted) {
+      m_intake.run(0);
+      m_intake.setExtended(false);
     }
+  }
 
-    /**
-     * Stops running and retracts the power cell intake
-     * @return New {@link Command}
-     */
-    public static Command stopIntaking(Intake intake) {
-        return new InstantCommand(() -> intake.run(0), intake)
-            .andThen(() -> intake.setExtended(false), intake);
-    }
+  private Commands() {
 
-    /**
-     * Extends and starts running the power cell intake
-     * 
-     * <p>Stops running and retracts the intake when interrupted
-     * @return New {@link Command}
-     */
-    public static Command intake(Intake intake) {
-        return new IntakeCommand(intake);
-    }
+  }
 
-    public static Command runShooter(Shooter shooter) {
-        return new StartEndCommand(() -> shooter.percentOutput(1), () -> shooter.percentOutput(0), shooter);
-    }
+  public static Command arcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
+    return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()));
+  }
+
+  /**
+   * Extends and starts running the power cell intake
+   * @return New {@link Command}
+   */
+  public static Command startIntaking(Intake intake) {
+    return new InstantCommand(() -> intake.setExtended(true), intake)
+      .andThen(new RunCommand(() -> intake.run(1), intake));
+  }
+
+  /**
+   * Stops running and retracts the power cell intake
+   * @return New {@link Command}
+   */
+  public static Command stopIntaking(Intake intake) {
+    return new InstantCommand(() -> intake.run(0), intake)
+      .andThen(() -> intake.setExtended(false), intake);
+  }
+
+  /**
+   * Extends and starts running the power cell intake
+   * 
+   * <p>Stops running and retracts the intake when interrupted
+   * @return New {@link Command}
+   */
+  public static Command intake(Intake intake) {
+    return new IntakeCommand(intake);
+  }
+
+  public static Command runShooter(Shooter shooter) {
+    return new StartEndCommand(() -> shooter.percentOutput(1), () -> shooter.percentOutput(0), shooter);
+  }
 }
