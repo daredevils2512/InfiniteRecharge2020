@@ -81,6 +81,8 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Left drive distance", getLeftDistance());
     SmartDashboard.putNumber("Right drive distance", getRightDistance());
+    SmartDashboard.putNumber("Left drive velocity", getLeftVelocity());
+    SmartDashboard.putNumber("Right drive velocity", getRightVelocity());
     SmartDashboard.putBoolean("Low gear", getLowGear());
   }
 
