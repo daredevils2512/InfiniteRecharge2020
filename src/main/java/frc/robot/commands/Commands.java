@@ -7,14 +7,29 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.RobotContainer;
 
 /**
- * Definition for all commands
+ * Definitions for all commands
+ * 
+ * <p>The reasoning here is that whether a command
+ * should be inlined or not should be up to the discretion
+ * of whoever is writing command based on their
+ * complexity and specific implementation, but
+ * anyone using commands should be able to access
+ * them all in the same manner, regardless of whether
+ * they are inlined or not. This class is meant to
+ * make both requirements possible and avoid overflowing
+ * the {@link RobotContainer} class with hard-to-read
+ * command definitions.
  */
 public final class Commands {
     private static final class IntakeCommand extends CommandBase {
@@ -46,6 +61,10 @@ public final class Commands {
 
     }
 
+    public static Command arcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
+        return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()));
+    }
+
     /**
      * Extends and starts running the power cell intake
      * @return New {@link Command}
@@ -67,7 +86,7 @@ public final class Commands {
     /**
      * Extends and starts running the power cell intake
      * 
-     * <p>Stops running and retracts intake when interrupted
+     * <p>Stops running and retracts the intake when interrupted
      * @return New {@link Command}
      */
     public static Command intake(Intake intake) {
