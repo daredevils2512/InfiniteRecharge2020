@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -30,7 +31,6 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
 
   private final Command m_autonomousCommand;
-
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -53,6 +53,8 @@ public class RobotContainer {
     // Toggle low gear
     m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
     
+    // Start/stop intaking
+    m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
   }
 
   /**
