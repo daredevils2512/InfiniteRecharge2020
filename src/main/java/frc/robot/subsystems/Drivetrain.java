@@ -17,12 +17,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// TODO: Determine whether we will be using build in or external encoders and adjust accordingly
+// TODO: Determine whether we will be using built in or external encoders and adjust accordingly
 public class Drivetrain extends SubsystemBase {
-  private final int m_encoderPulsesPerRevolution = 4096;
-  private final double m_wheelDiameterInches = 8;
+  private final int m_encoderPulsesPerRevolution = 4096; // TODO: Check drivetrain PPR
+  private final double m_wheelDiameterInches = 8; // TODO: Check wheel diameter
   private final double m_wheelCircumferenceInches = m_wheelDiameterInches * Math.PI;
 
+  // TODO: Configure drivetrain CAN
   private final int m_leftDrive1ID = 1;
   private final int m_leftDrive2ID = 2;
   private final int m_rightDrive1ID = 3;

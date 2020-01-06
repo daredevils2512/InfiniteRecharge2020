@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.RobotContainer;
 
 /**
@@ -91,5 +93,9 @@ public final class Commands {
      */
     public static Command intake(Intake intake) {
         return new IntakeCommand(intake);
+    }
+
+    public static Command runShooter(Shooter shooter) {
+        return new StartEndCommand(() -> shooter.percentOutput(1), () -> shooter.percentOutput(0), shooter);
     }
 }
