@@ -9,11 +9,11 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class PowerCellManager extends SubsystemBase {
+public class Magazine extends SubsystemBase {
   /**
    * Creates a new PowerCellManager.
    */
-  public PowerCellManager() {
+  public Magazine() {
 
   }
 
