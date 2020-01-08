@@ -91,6 +91,14 @@ public class Drivetrain extends SubsystemBase {
     m_differentialDrive.arcadeDrive(move, turn);
   }
 
+  public void driveLeft(double speed) {
+    m_differentialDrive.tankDrive(speed, 0);
+  }
+  
+  public void driveRight(double speed) {
+    m_differentialDrive.tankDrive(speed, 0);
+  }
+
   public void setLowGear(boolean wantsLowGear) {
     // If the gear is changing, store current drive distances
     // because the conversion cannot be done after shifting
