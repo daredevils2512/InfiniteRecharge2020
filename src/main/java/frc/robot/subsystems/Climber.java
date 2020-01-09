@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
+  //dont have numbers for these
   private final int m_leftClimberMasterID = -1;
   private final int m_rightClimberMasterID = -1;
   private final int m_leftHorizontalMasterID = -1;
