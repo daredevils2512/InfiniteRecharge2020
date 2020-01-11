@@ -11,27 +11,30 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-  private final int m_velocitySlot = 0;
-  // TODO: Tune shooter PIDF
-  private final double m_kP = 0;
-  private final double m_kI = 0;
-  private final double m_kD = 0;
-  private final double m_kF = 0;
+  private final NetworkTable m_networkTable;
+
+  private final int m_shooterID = 21; // TODO: Config shooter CAN
+  private final WPI_TalonSRX m_shooter;
 
   private final int m_encoderResolution = 4096; // TODO: Check shooter PPR
 
-  // TODO: Config shooter CAN
-  private final int m_shooterID = 21;
-  private final WPI_TalonSRX m_shooter;
+  private final int m_velocitySlot = 0;
+  // TODO: Tune shooter PID
+  private final double m_kP = 0;
+  private final double m_kI = 0;
+  private final double m_kD = 0;
 
   /**
    * Creates a new power cell shooter.
    */
   public Shooter() {
+    m_networkTable = NetworkTableInstance.getDefault().getTable(this.getName());
+
     m_shooter = new WPI_TalonSRX(m_shooterID);
 
     m_shooter.configFactoryDefault();
@@ -40,12 +43,12 @@ public class Shooter extends SubsystemBase {
     m_shooter.config_kP(m_velocitySlot, m_kP);
     m_shooter.config_kI(m_velocitySlot, m_kI);
     m_shooter.config_kD(m_velocitySlot, m_kD);
-    m_shooter.config_kF(m_velocitySlot, m_kF);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Shooter velocity", getVelocity());
+    m_networkTable.getEntry("Velocity").setDouble(getVelocity());
+    m_networkTable.getEntry("Percent output").setDouble(m_shooter.getMotorOutputPercent());
   }
 
   public void percentOutput(double speed) {
@@ -54,10 +57,10 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Set closed loop velocity control target
-   * @param targetVelocity Target velocity in RPM
+   * @param targetVelocity Target velocity in revolutions per minute
    */
-  public void setTargetVelocity(double targetVelocityRPM) {
-    int targetVelocityPulsesPer100MS = toPulsesPer100MS(targetVelocityRPM); // Convert to proper units
+  public void setTargetVelocity(double targetVelocity) {
+    int targetVelocityPulsesPer100MS = toPulsesPer100MS(targetVelocity); // Convert to proper units
     m_shooter.set(ControlMode.Velocity, targetVelocityPulsesPer100MS);
   }
 
@@ -66,7 +69,7 @@ public class Shooter extends SubsystemBase {
    * @return Velocity in RPM
    */
   public double getVelocity() {
-    return toRPM(m_shooter.getSelectedSensorPosition());
+    return toRPM(m_shooter.getSelectedSensorVelocity());
   }
 
   private int toPulsesPer100MS(double rpm) {
