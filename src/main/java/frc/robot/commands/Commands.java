@@ -73,8 +73,9 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command startIntaking(Intake intake) {
-    return new InstantCommand(() -> intake.setExtended(true), intake)
-      .andThen(new RunCommand(() -> intake.run(1), intake));
+    return
+      new InstantCommand(() -> intake.setExtended(true), intake).andThen(
+      new RunCommand(() -> intake.run(1), intake));
   }
 
   /**
@@ -82,8 +83,13 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command stopIntaking(Intake intake) {
-    return new InstantCommand(() -> intake.run(0), intake)
-      .andThen(() -> intake.setExtended(false), intake);
+    return
+      new InstantCommand(() -> intake.run(0), intake).andThen(
+      new InstantCommand(() -> intake.setExtended(false), intake));
+  }
+
+  public static Command runIntakeExtender_Temp(Intake intake, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> intake.runExtender_Temp(speedSupplier.getAsDouble()), intake);
   }
 
   /**
