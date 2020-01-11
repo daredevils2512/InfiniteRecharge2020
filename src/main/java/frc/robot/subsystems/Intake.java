@@ -18,8 +18,8 @@ public class Intake extends SubsystemBase {
   private final int m_intake1ID = 31;
   private final WPI_TalonSRX m_intake1;
 
-  private final int m_extenderForwardChannel = 0;
-  private final int m_extenderReverseChannel = 1;
+  private final int m_extenderForwardChannel = 2;
+  private final int m_extenderReverseChannel = 3;
   private final DoubleSolenoid m_extender;
   private final DoubleSolenoid.Value m_extendedValue = Value.kForward;
   private final DoubleSolenoid.Value m_retractedValue = Value.kReverse;

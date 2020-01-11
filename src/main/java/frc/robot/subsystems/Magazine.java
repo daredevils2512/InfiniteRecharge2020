@@ -17,6 +17,8 @@ public class Magazine extends SubsystemBase {
 
   }
 
+  
+
   @Override
   public void periodic() {
     

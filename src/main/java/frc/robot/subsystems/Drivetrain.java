@@ -26,8 +26,8 @@ public class Drivetrain extends SubsystemBase {
   // TODO: Configure drivetrain CAN
   private final int m_leftDrive1ID = 1;
   private final int m_leftDrive2ID = 2;
-  private final int m_rightDrive1ID = 3;
-  private final int m_rightDrive2ID = 4;
+  private final int m_rightDrive1ID = 4;
+  private final int m_rightDrive2ID = 6;
   private final int m_pigeonID = 5;
   
   private double m_leftEncoderLastTotalInches = 0;
@@ -104,7 +104,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
-    return m_shifter.get() == m_lowGearValue;
+    // return m_shifter.get() == m_lowGearValue;
+    return false; //just for testing with protobot
   }
 
   public void resetDriveEncoders() {

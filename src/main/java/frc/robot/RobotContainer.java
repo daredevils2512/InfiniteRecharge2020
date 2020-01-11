@@ -10,11 +10,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.Commands;
+import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.vision.Limelight.Pipeline;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -56,6 +57,7 @@ public class RobotContainer {
 
     // Run shooter at full speed
     m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter));
+    m_controlBoard.xbox.aButton.whileHeld(new FollowBall(m_drivetrain, Pipeline.PowerCells));
   }
 
   /**

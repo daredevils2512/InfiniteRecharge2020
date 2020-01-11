@@ -15,8 +15,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class Limelight {
   public enum Pipeline {
-    PowerCellTopTarget(0),
-    PowerCells(1);
+    PowerCellTopTarget(2),
+    PowerCellsLimelight(1),
+    PowerCells(0);
 
     private int m_id;
 
@@ -31,42 +32,47 @@ public class Limelight {
 
   private NetworkTable m_table;
 
+  private double lastPostion;
+
   public Limelight() {
     m_table = NetworkTableInstance.getDefault().getTable("limelight");
+    this.lastPostion = 1.0;
   }
 
-  @SuppressWarnings("unused")
-  private void setPipeline(Pipeline pipeline) {
+  //Limelight table getters
+
+  public void setPipeline(Pipeline pipeline) {
     m_table.getEntry("pipeline").setNumber(pipeline.getID());
   }
 
-  @SuppressWarnings("unused")
-  private boolean hasTarget() {
+  public boolean hasTarget() {
     return m_table.getEntry("tv").getDouble(0) == 1;
   }
 
-  @SuppressWarnings("unused")
-  private double tx() {
+  public double tx() {
     return m_table.getEntry("tx").getDouble(0);
   }
 
-  @SuppressWarnings("unused")
-  private double ty() {
+  public double ty() {
     return m_table.getEntry("ty").getDouble(0);
   }
 
-  @SuppressWarnings("unused")
-  private double ta() {
+  public double ta() {
     return m_table.getEntry("ta").getDouble(0);
   }
 
-  @SuppressWarnings("unused")
-  private double ts() {
+  public double ts() {
     return m_table.getEntry("ts").getDouble(0);
   }
 
-  @SuppressWarnings("unused")
-  private double tl() {
+  public double tl() {
     return m_table.getEntry("tl").getDouble(0);
+  }
+
+  public double getLastPosition() {
+    if (tx() != 0) { 
+      lastPostion = tx(); 
+    }
+    return lastPostion;
   }
 }
