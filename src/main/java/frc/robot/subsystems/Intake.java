@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase {
   private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
 
   // PID for intake extender
-  private final int m_pidSlot = 0;
+  private final int m_motionMagicSlot = 0;
   private final double m_pGain = 0;
   private final double m_iGain = 0;
   private final double m_dGain = 0;
@@ -66,9 +66,9 @@ public class Intake extends SubsystemBase {
     m_intakeBottom.configAllSettings(m_intakeConfig.intakeBottomConfig);
 
     // Config PID for intake extender
-    m_extender.config_kP(m_pidSlot, m_pGain);
-    m_extender.config_kI(m_pidSlot, m_iGain);
-    m_extender.config_kD(m_pidSlot, m_dGain);
+    m_extender.config_kP(m_motionMagicSlot, m_pGain);
+    m_extender.config_kI(m_motionMagicSlot, m_iGain);
+    m_extender.config_kD(m_motionMagicSlot, m_dGain);
   }
 
   @Override
