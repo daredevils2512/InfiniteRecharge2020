@@ -25,6 +25,7 @@ public class Intake extends SubsystemBase {
       intakeTopConfig = new TalonSRXConfiguration();
       intakeBottomConfig = new TalonSRXConfiguration();
 
+      // TODO: Measure intake extender 
       intakeExtenderConfig.motionCruiseVelocity = 0;
       intakeExtenderConfig.motionAcceleration = 0;
       intakeExtenderConfig.motionCurveStrength = 0;
@@ -33,23 +34,25 @@ public class Intake extends SubsystemBase {
 
   private final IntakeConfig m_intakeConfig;
   private final int m_extenderID = -1;
-  private final int m_intakeTopID = -1;
-  private final int m_intakeBottomID = -1;
+  private final int m_topIntakeID = -1;
+  private final int m_bottomIntakeID = -1;
   private final TalonSRX m_extender;
-  private final TalonSRX m_intakeTop;
-  private final TalonSRX m_intakeBottom;
+  private final TalonSRX m_topIntake;
+  private final TalonSRX m_bottomIntake;
 
-  private final int m_extenderEncoderRes = 4096; // TODO: Find intake extender encoder res
+  private final int m_extenderEncoderResolution = 4096; // TODO: Find intake extender encoder res
   private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
+  // TODO: Find the intake setpoint angles
+  // Assume zero degrees is horizontal
+  private final double m_retractedAngle = 90;
+  private final double m_extendedAngle = 0;
 
-  // PID for intake extender
+  // TODO: Configure PID for intake extender
   private final int m_pidSlot = 0;
   private final double m_pGain = 0;
   private final double m_iGain = 0;
   private final double m_dGain = 0;
-  private double m_arbitraryFeedForward = 0;
-
-  private final int m_extendedPosition = 0; // TODO: Find the intake encoder position for fully extended
+  private final double m_arbitraryFeedForward = 0;
 
   private boolean m_extended = false;
 
@@ -59,13 +62,13 @@ public class Intake extends SubsystemBase {
   public Intake() {
     m_intakeConfig = new IntakeConfig();
     m_extender = new TalonSRX(m_extenderID);
-    m_intakeTop = new TalonSRX(m_intakeTopID);
-    m_intakeBottom = new TalonSRX(m_intakeBottomID);
+    m_topIntake = new TalonSRX(m_topIntakeID);
+    m_bottomIntake = new TalonSRX(m_bottomIntakeID);
     m_extender.configAllSettings(m_intakeConfig.intakeExtenderConfig);
-    m_intakeTop.configAllSettings(m_intakeConfig.intakeTopConfig);
-    m_intakeBottom.configAllSettings(m_intakeConfig.intakeBottomConfig);
+    m_topIntake.configAllSettings(m_intakeConfig.intakeTopConfig);
+    m_bottomIntake.configAllSettings(m_intakeConfig.intakeBottomConfig);
 
-    // Config PID for intake extender
+    // Config PID for extender
     m_extender.config_kP(m_pidSlot, m_pGain);
     m_extender.config_kI(m_pidSlot, m_iGain);
     m_extender.config_kD(m_pidSlot, m_dGain);
@@ -73,9 +76,10 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double targetPosition = m_extended ? m_extendedPosition : 0;
-
-    m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward);
+    double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
+    double targetPosition = toSensorUnits(targetAngle);
+    double gravityScalar = Math.cos(Math.toRadians(targetAngle));
+    m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
   }
 
   public boolean getExtended() {
@@ -83,37 +87,45 @@ public class Intake extends SubsystemBase {
   }
 
   public void setExtended(boolean wantsExtended) {
-    int targetPosition = wantsExtended ? m_extendedPosition : 0;
-    // TODO: Configure intake extender PID
-    // m_intakeExtender.set(ControlMode.Position, targetPosition);
-    m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward);
     m_extended = wantsExtended;
   }
 
   public void run(double speed) {
-    m_intakeTop.set(ControlMode.PercentOutput, speed);
-    m_intakeBottom.set(ControlMode.PercentOutput, speed);
+    m_topIntake.set(ControlMode.PercentOutput, speed);
+    m_bottomIntake.set(ControlMode.PercentOutput, speed);
   }
 
   /**
    * Temporary function for testing/configuring the extender
    */
   public void runExtender_Temp(double speed) {
-    double pos = m_extender.getSelectedSensorPosition();
-    if (speed < 0 && pos <= 0) {
+    int position = m_extender.getSelectedSensorPosition();
+    double angle = toDegrees(position);
+    if (speed < 0 && angle <= m_retractedAngle) {
       speed = 0;
-    } else if (speed > 0 && pos >= m_extendedPosition) {
+    } else if (speed > 0 && angle >= m_extendedAngle) {
       speed = 0;
     }
     m_extender.set(ControlMode.PercentOutput, speed);
   }
 
   /**
-   * Convert from raw sensor units on the intake extender to an angle in degrees
-   * @param encoderPulses Raw sensor units of intake extender
+   * Convert from raw sensor units to an angle in degrees
+   * <p>Applies only the the extender
+   * @param sensorUnits
    * @return Angle in degrees
    */
   private double toDegrees(int sensorUnits) {
-    return (double)sensorUnits / m_extenderEncoderRes * m_extenderGearRatio;
+    return (double)sensorUnits / m_extenderEncoderResolution * m_extenderGearRatio * 360;
+  }
+
+  /**
+   * Convert from an angle in degrees to raw sensor units
+   * <p>Applies only to the extender
+   * @param degrees
+   * @return
+   */
+  private int toSensorUnits(double degrees) {
+    return (int)(degrees / 360 / m_extenderGearRatio * m_extenderEncoderResolution);
   }
 }
