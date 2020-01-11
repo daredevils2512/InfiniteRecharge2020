@@ -106,7 +106,16 @@ public final class Commands {
     return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
   }
 
-  public static Command runShooter(Shooter shooter) {
-    return new StartEndCommand(() -> shooter.percentOutput(1), () -> shooter.percentOutput(0), shooter);
+  /**
+   * Set shooter percent output
+   * @param shooter
+   * @return New {@link Command}
+   */
+  public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
+    return new StartEndCommand(() -> shooter.percentOutput(speedSupplier.getAsDouble()), () -> shooter.percentOutput(0), shooter);
+  }
+
+  public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
+    return null; // TODO: Implement shooter set velocity command
   }
 }
