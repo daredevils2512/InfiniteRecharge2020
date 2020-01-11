@@ -55,7 +55,7 @@ public class RobotContainer {
     m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
 
     // Run shooter at full speed
-    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter));
+    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
   }
 
   /**
