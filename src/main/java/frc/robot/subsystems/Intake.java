@@ -55,6 +55,8 @@ public class Intake extends SubsystemBase {
   private final double m_arbitraryFeedForward = 0;
 
   private boolean m_extended = false;
+  
+  private boolean m_motionMagicEnabled = false; // TODO: Use intake motion magic when ready (run periodically)
 
   /**
    * Creates a new power cell intake
@@ -76,10 +78,16 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
-    double targetPosition = toSensorUnits(targetAngle);
-    double gravityScalar = Math.cos(Math.toRadians(targetAngle));
-    m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
+    if(m_motionMagicEnabled) {
+      double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
+      double targetPosition = toSensorUnits(targetAngle);
+      double gravityScalar = Math.cos(Math.toRadians(targetAngle));
+      m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
+    }
+  }
+
+  public void setMotionMagicEnabled(boolean wantsEnabled) {
+    m_motionMagicEnabled = wantsEnabled;
   }
 
   public boolean getExtended() {
