@@ -86,7 +86,7 @@ public class Intake extends SubsystemBase {
     int targetPosition = wantsExtended ? m_extendedPosition : 0;
     // TODO: Configure intake extender PID
     // m_intakeExtender.set(ControlMode.Position, targetPosition);
-    m_intakeExtender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward);
+    m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward);
     m_extended = wantsExtended;
   }
 

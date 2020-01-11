@@ -22,25 +22,25 @@ public class Shooter extends SubsystemBase {
   private final double m_kD = 0;
   private final double m_kF = 0;
 
-  private final int m_encoderPulsesPerRevolution = 4096; // TODO: Check shooter PPR
+  private final int m_encoderResolution = 4096; // TODO: Check shooter PPR
 
   // TODO: Config shooter CAN
-  private final int m_shooter1ID = 21;
-  private final WPI_TalonSRX m_shooter1;
+  private final int m_shooterID = 21;
+  private final WPI_TalonSRX m_shooter;
 
   /**
    * Creates a new power cell shooter.
    */
   public Shooter() {
-    m_shooter1 = new WPI_TalonSRX(m_shooter1ID);
+    m_shooter = new WPI_TalonSRX(m_shooterID);
 
-    m_shooter1.configFactoryDefault();
-    m_shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+    m_shooter.configFactoryDefault();
+    m_shooter.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
-    m_shooter1.config_kP(m_velocitySlot, m_kP);
-    m_shooter1.config_kI(m_velocitySlot, m_kI);
-    m_shooter1.config_kD(m_velocitySlot, m_kD);
-    m_shooter1.config_kF(m_velocitySlot, m_kF);
+    m_shooter.config_kP(m_velocitySlot, m_kP);
+    m_shooter.config_kI(m_velocitySlot, m_kI);
+    m_shooter.config_kD(m_velocitySlot, m_kD);
+    m_shooter.config_kF(m_velocitySlot, m_kF);
   }
 
   @Override
@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void percentOutput(double speed) {
-    m_shooter1.set(ControlMode.PercentOutput, speed);
+    m_shooter.set(ControlMode.PercentOutput, speed);
   }
 
   /**
@@ -58,7 +58,7 @@ public class Shooter extends SubsystemBase {
    */
   public void setTargetVelocity(double targetVelocityRPM) {
     int targetVelocityPulsesPer100MS = toPulsesPer100MS(targetVelocityRPM); // Convert to proper units
-    m_shooter1.set(ControlMode.Velocity, targetVelocityPulsesPer100MS);
+    m_shooter.set(ControlMode.Velocity, targetVelocityPulsesPer100MS);
   }
 
   /**
@@ -66,14 +66,14 @@ public class Shooter extends SubsystemBase {
    * @return Velocity in RPM
    */
   public double getVelocity() {
-    return toRPM(m_shooter1.getSelectedSensorPosition());
+    return toRPM(m_shooter.getSelectedSensorPosition());
   }
 
   private int toPulsesPer100MS(double rpm) {
-    return (int)(rpm * m_encoderPulsesPerRevolution / 60 / 10);
+    return (int)(rpm * m_encoderResolution / 60 / 10);
   }
 
   private double toRPM(int pulsesPer100MS) {
-    return (double)(pulsesPer100MS * 10 * 60) / m_encoderPulsesPerRevolution;
+    return (double)(pulsesPer100MS * 10 * 60) / m_encoderResolution;
   }
 }
