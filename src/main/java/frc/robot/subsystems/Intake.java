@@ -12,6 +12,8 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -25,12 +27,14 @@ public class Intake extends SubsystemBase {
       intakeTopConfig = new TalonSRXConfiguration();
       intakeBottomConfig = new TalonSRXConfiguration();
 
-      // TODO: Measure intake extender 
+      // TODO: Measure intake extender velocity and acceleration
       intakeExtenderConfig.motionCruiseVelocity = 0;
       intakeExtenderConfig.motionAcceleration = 0;
       intakeExtenderConfig.motionCurveStrength = 0;
     }
   }
+
+  private final NetworkTable m_networkTable;
 
   private final IntakeConfig m_intakeConfig;
   private final int m_extenderID = -1;
@@ -40,7 +44,7 @@ public class Intake extends SubsystemBase {
   private final TalonSRX m_topIntake;
   private final TalonSRX m_bottomIntake;
 
-  private final int m_extenderEncoderResolution = 4096; // TODO: Find intake extender encoder res
+  private final int m_extenderEncoderResolution = 4096; // TODO: Find intake extender encoder resolution
   private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
   // TODO: Find the intake setpoint angles
   // Assume zero degrees is horizontal
@@ -48,7 +52,7 @@ public class Intake extends SubsystemBase {
   private final double m_extendedAngle = 0;
 
   // TODO: Configure PID for intake extender
-  private final int m_pidSlot = 0;
+  private final int m_motionMagicSlot = 0;
   private final double m_pGain = 0;
   private final double m_iGain = 0;
   private final double m_dGain = 0;
@@ -62,6 +66,8 @@ public class Intake extends SubsystemBase {
    * Creates a new power cell intake
    */
   public Intake() {
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+
     m_intakeConfig = new IntakeConfig();
     m_extender = new TalonSRX(m_extenderID);
     m_topIntake = new TalonSRX(m_topIntakeID);
@@ -71,9 +77,9 @@ public class Intake extends SubsystemBase {
     m_bottomIntake.configAllSettings(m_intakeConfig.intakeBottomConfig);
 
     // Config PID for extender
-    m_extender.config_kP(m_pidSlot, m_pGain);
-    m_extender.config_kI(m_pidSlot, m_iGain);
-    m_extender.config_kD(m_pidSlot, m_dGain);
+    m_extender.config_kP(m_motionMagicSlot, m_pGain);
+    m_extender.config_kI(m_motionMagicSlot, m_iGain);
+    m_extender.config_kD(m_motionMagicSlot, m_dGain);
   }
 
   @Override
@@ -84,6 +90,14 @@ public class Intake extends SubsystemBase {
       double gravityScalar = Math.cos(Math.toRadians(targetAngle));
       m_extender.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
     }
+
+    m_networkTable.getEntry("Extended").setBoolean(m_extended);
+    m_networkTable.getEntry("Top intake output").setDouble(m_topIntake.getMotorOutputPercent());
+    m_networkTable.getEntry("Bottom intake output").setDouble(m_bottomIntake.getMotorOutputPercent());
+    int extenderPosition = m_extender.getSelectedSensorPosition();
+    double extenderAngle = toDegrees(extenderPosition);
+    m_networkTable.getEntry("Extender position").setNumber(extenderPosition);
+    m_networkTable.getEntry("Extender angle").setDouble(extenderAngle);
   }
 
   public void setMotionMagicEnabled(boolean wantsEnabled) {
