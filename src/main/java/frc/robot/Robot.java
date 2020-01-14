@@ -7,9 +7,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import com.revrobotics.ColorSensorV3;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -18,9 +22,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
+  private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+  
+  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -42,6 +51,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    Color detectedColor = m_colorSensor.getColor();
+
+    //this will hypotheticly return a raw IR value of the infared light detected
+    // double Ir = m_colorSenor.getIR();
+    SmartDashboard.putNumber("Red", detectedColor.red);
+    SmartDashboard.putNumber("Green",detectedColor.green);
+    SmartDashboard.putNumber("Blue", detectedColor.blue);
+    //SmartDashbord.putNuber("IR",IR);
+
+    //int proximity = m_colorSensor.getProximity();
+    //SmartDashboard.putNumber("Proximity",proximity);
+
+
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
