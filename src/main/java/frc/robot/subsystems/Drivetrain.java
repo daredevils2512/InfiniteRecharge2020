@@ -28,7 +28,7 @@ public class Drivetrain extends SubsystemBase {
   private final int m_leftDrive1ID = 2;
   private final int m_rightDriveMasterID = 3;
   private final int m_rightDrive1ID = 4;
-  private final int m_pigeonID = 5;
+  private final int m_pigeonID = 0;
 
   private final WPI_TalonFX m_leftDriveMaster;
   private final WPI_TalonFX m_leftDrive1;
@@ -39,9 +39,11 @@ public class Drivetrain extends SubsystemBase {
 
   private final int m_shifterForwardChannel = 0;
   private final int m_shifterReverseChannel = 1;
-  private final DoubleSolenoid m_shifter;
+  // private final DoubleSolenoid m_shifter;
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
+
+  private double[] ypr = new double[3];
 
   /**
    * Creates a new Drivetrain.
@@ -66,11 +68,10 @@ public class Drivetrain extends SubsystemBase {
     m_rightDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
     m_differentialDrive = new DifferentialDrive(m_leftDriveMaster, m_rightDriveMaster);
-
+    
     m_pigeon = new PigeonIMU(m_pigeonID);
-    m_pigeon.configFactoryDefault();
 
-    m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
+    // m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
   }
 
   @Override
@@ -79,36 +80,61 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Right drive distance", getRightDistance());
     SmartDashboard.putNumber("Left drive velocity", getLeftVelocity());
     SmartDashboard.putNumber("Right drive velocity", getRightVelocity());
-    SmartDashboard.putBoolean("Low gear", getLowGear());
+    // SmartDashboard.putBoolean("Low gear", getLowGear());
+    SmartDashboard.putNumber("yaw", getYaw());
+    SmartDashboard.putNumber("pitch", getPitch());
+    SmartDashboard.putNumber("roll", getRoll());
   }
 
-  public void arcadeDrive(double move, double turn) {
+  public void arcadeDrive(final double move, final double turn) {
     m_differentialDrive.arcadeDrive(move, turn);
   }
 
-  public void driveLeft(double speed) {
-    m_differentialDrive.tankDrive(speed, 0);
-  }
-  
-  public void driveRight(double speed) {
+  public void driveLeft(final double speed) {
     m_differentialDrive.tankDrive(speed, 0);
   }
 
-  public void setLowGear(boolean wantsLowGear) {
-    m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
+  public void driveRight(final double speed) {
+    m_differentialDrive.tankDrive(speed, 0);
   }
 
-  public boolean getLowGear() {
-    return m_shifter.get() == m_lowGearValue;
+  public void setLowGear(final boolean wantsLowGear) {
+    // m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
   }
+
+  // public boolean getLowGear() {
+  //   return m_shifter.get() == m_lowGearValue;
+  // }
 
   public void resetDriveEncoders() {
     m_leftDriveMaster.setSelectedSensorPosition(0);
     m_rightDriveMaster.setSelectedSensorPosition(0);
   }
 
+  public double[] getYawPitchRoll() {
+    this.m_pigeon.getYawPitchRoll(ypr);
+    return ypr;
+  }
+
+  public double getYaw() {
+    return getYawPitchRoll()[0];
+  }
+
+  public double getPitch() {
+    return getYawPitchRoll()[1];
+  }
+
+  public double getRoll() {
+    return getYawPitchRoll()[2];
+  }
+
+  public void resetGyro() {
+    m_pigeon.setTemperatureCompensationDisable(false);
+  }
+
   /**
-   * Returns the distance in inches traveled by the left drive master since last shift or reset
+   * Returns the distance in inches traveled by the left drive master since last
+   * shift or reset
    */
   public double getLeftDistance() {
     return toInches(m_leftDriveMaster.getSelectedSensorPosition());
@@ -120,6 +146,7 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Get left drive velocity (measured by encoder)
+   * 
    * @return Velocity in inches per second
    */
   public double getLeftVelocity() {
@@ -129,6 +156,7 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Get right drive velocity (measured by encoder)
+   * 
    * @return Velocity in inches per second
    */
   public double getRightVelocity() {
@@ -139,7 +167,7 @@ public class Drivetrain extends SubsystemBase {
   /**
    * Convert from drive encoder pulses to inches
    */
-  private double toInches(int encoderPulses) {
+  private double toInches(final int encoderPulses) {
     return encoderPulses / m_encoderPulsesPerRevolution * m_gearRatio * m_wheelCircumferenceInches;
   }
 }
