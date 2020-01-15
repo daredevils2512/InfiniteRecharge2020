@@ -111,11 +111,15 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
-    return new RunCommand(() -> shooter.percentOutput(speedSupplier.getAsDouble()), shooter);
+    return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 
   public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
     return new RunCommand(() -> shooter.setTargetVelocity(velocitySupplier.getAsDouble()), shooter);
+  }
+
+  public static Command setShooterAngle(Shooter shooter, DoubleSupplier angleSupplier) {
+    return new RunCommand(() -> shooter.setTargetAngle(angleSupplier.getAsDouble()), shooter);
   }
 
   public static Command stopShooter(Shooter shooter) {
