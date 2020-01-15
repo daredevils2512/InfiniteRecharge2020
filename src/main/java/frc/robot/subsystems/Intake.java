@@ -20,7 +20,7 @@ public class Intake extends SubsystemBase {
 
   private final int m_extenderForwardChannel = 0;
   private final int m_extenderReverseChannel = 1;
-  // private final DoubleSolenoid m_extender;
+  private final DoubleSolenoid m_extender;
   private final DoubleSolenoid.Value m_extendedValue = Value.kForward;
   private final DoubleSolenoid.Value m_retractedValue = Value.kReverse;
 
@@ -31,7 +31,7 @@ public class Intake extends SubsystemBase {
     m_intake1 = new WPI_TalonSRX(m_intake1ID);
     m_intake1.configFactoryDefault();
 
-    // m_extender = new DoubleSolenoid(m_extenderForwardChannel, m_extenderReverseChannel);
+    m_extender = new DoubleSolenoid(m_extenderForwardChannel, m_extenderReverseChannel);
   }
 
   @Override
@@ -39,12 +39,12 @@ public class Intake extends SubsystemBase {
     
   }
 
-  // public boolean getExtended() {
-    // return m_extender.get() == m_extendedValue;
-  // }
+  public boolean getExtended() {
+    return m_extender.get() == m_extendedValue;
+  }
 
   public void setExtended(boolean wantsExtended) {
-    // m_extender.set(wantsExtended ? m_extendedValue : m_retractedValue);
+    m_extender.set(wantsExtended ? m_extendedValue : m_retractedValue);
   }
 
   public void run(double speed) {

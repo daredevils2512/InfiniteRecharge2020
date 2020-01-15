@@ -39,11 +39,11 @@ public class Drivetrain extends SubsystemBase {
 
   private final int m_shifterForwardChannel = 0;
   private final int m_shifterReverseChannel = 1;
-  // private final DoubleSolenoid m_shifter;
+  private final DoubleSolenoid m_shifter;
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
-  private double[] ypr = new double[3];
+  private double[] ypr;
 
   /**
    * Creates a new Drivetrain.
@@ -70,8 +70,9 @@ public class Drivetrain extends SubsystemBase {
     m_differentialDrive = new DifferentialDrive(m_leftDriveMaster, m_rightDriveMaster);
     
     m_pigeon = new PigeonIMU(m_pigeonID);
+    m_pigeon.configFactoryDefault();
 
-    // m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
+    m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
   }
 
   @Override
@@ -80,7 +81,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Right drive distance", getRightDistance());
     SmartDashboard.putNumber("Left drive velocity", getLeftVelocity());
     SmartDashboard.putNumber("Right drive velocity", getRightVelocity());
-    // SmartDashboard.putBoolean("Low gear", getLowGear());
+    SmartDashboard.putBoolean("Low gear", getLowGear());
     SmartDashboard.putNumber("yaw", getYaw());
     SmartDashboard.putNumber("pitch", getPitch());
     SmartDashboard.putNumber("roll", getRoll());
@@ -99,12 +100,12 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setLowGear(final boolean wantsLowGear) {
-    // m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
+    m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
   }
 
-  // public boolean getLowGear() {
-  //   return m_shifter.get() == m_lowGearValue;
-  // }
+  public boolean getLowGear() {
+    return m_shifter.get() == m_lowGearValue;
+  }
 
   public void resetDriveEncoders() {
     m_leftDriveMaster.setSelectedSensorPosition(0);
@@ -128,6 +129,7 @@ public class Drivetrain extends SubsystemBase {
     return getYawPitchRoll()[2];
   }
 
+  //this is super annoying, I cant figure out how to reset the gyro
   public void resetGyro() {
     m_pigeon.setTemperatureCompensationDisable(false);
   }
