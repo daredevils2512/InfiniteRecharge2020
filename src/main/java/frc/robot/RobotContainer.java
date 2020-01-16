@@ -14,6 +14,7 @@ import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 
 /**
@@ -27,6 +28,7 @@ public class RobotContainer {
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
+  private final Queue m_queue = new Queue();
 
   private final Command m_autonomousCommand;
 
@@ -61,6 +63,12 @@ public class RobotContainer {
 
     // Run shooter at full speed
     m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
+
+    //runs the queue. dont really have a button planned for it
+    m_controlBoard.extreme.baseFrontRight.whileHeld(Commands.runQueue(m_queue, 0.5));
+
+    //toggles the hard stop on the queue if there is one. also dont have a button for it
+    m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
   }
 
   /**

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Turret;
 import frc.robot.RobotContainer;
@@ -72,6 +73,14 @@ public final class Commands {
   //probly temporary
   public static Command climberUp(Climber climber, Double leftSpeed, Double rightSpeed) {
     return new RunCommand(() -> climber.climb(leftSpeed, rightSpeed), climber);
+  }
+
+  public static Command runQueue(Queue queue, Double speed) {
+    return new RunCommand(() -> queue.runQueue(speed), queue);
+  }
+
+  public static Command toggleQueueGate(Queue queue) {
+    return new RunCommand(() -> queue.toggleQueueGate(), queue);
   }
 
   /**
