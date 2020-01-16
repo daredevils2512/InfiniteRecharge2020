@@ -43,7 +43,7 @@ public class Drivetrain extends SubsystemBase {
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
-  private double[] ypr;
+  private double[] ypr = {0.0, 0.0, 0.0};
 
   /**
    * Creates a new Drivetrain.
@@ -112,26 +112,28 @@ public class Drivetrain extends SubsystemBase {
     m_rightDriveMaster.setSelectedSensorPosition(0);
   }
 
-  public double[] getYawPitchRoll() {
+  public double[] getYPR() {
     this.m_pigeon.getYawPitchRoll(ypr);
     return ypr;
   }
 
   public double getYaw() {
-    return getYawPitchRoll()[0];
+    return getYPR()[0];
   }
 
   public double getPitch() {
-    return getYawPitchRoll()[1];
+    return getYPR()[1];
   }
 
   public double getRoll() {
-    return getYawPitchRoll()[2];
+    return getYPR()[2];
   }
 
   //this is super annoying, I cant figure out how to reset the gyro
   public void resetGyro() {
-    m_pigeon.setTemperatureCompensationDisable(false);
+    getYPR()[0] = 0.0;
+    getYPR()[1] = 0.0;
+    getYPR()[2] = 0.0;
   }
 
   /**
