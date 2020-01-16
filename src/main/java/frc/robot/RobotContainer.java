@@ -30,11 +30,16 @@ public class RobotContainer {
 
   private final Command m_autonomousCommand;
 
+  private double m_intakeExtenderSlowify = 0.2;
+
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
+    
+    // Temporary controls for testing intake extender
+    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
 
     configureButtonBindings();
 
@@ -50,12 +55,12 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Toggle low gear
     m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
-    
+
     // Start/stop intaking
     m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
 
     // Run shooter at full speed
-    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter));
+    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
   }
 
   /**
