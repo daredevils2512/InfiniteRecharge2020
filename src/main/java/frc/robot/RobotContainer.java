@@ -15,6 +15,7 @@ import frc.robot.controlboard.ControlBoard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Spinner;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -23,10 +24,11 @@ import frc.robot.subsystems.Shooter;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final ControlBoard m_controlBoard = new ControlBoard();
-  private final Drivetrain m_drivetrain = new Drivetrain();
-  private final Intake m_intake = new Intake();
-  private final Shooter m_shooter = new Shooter();
+  // private final ControlBoard m_controlBoard = new ControlBoard();
+  // private final Drivetrain m_drivetrain = new Drivetrain();
+  // private final Intake m_intake = new Intake();
+  // private final Shooter m_shooter = new Shooter();
+  private final Spinner m_spinner = new Spinner();
 
   private final Command m_autonomousCommand;
 
@@ -39,7 +41,7 @@ public class RobotContainer {
    // m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
     
     // Temporary controls for testing intake extender
-    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
+    // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
 
     configureButtonBindings();
 
@@ -54,13 +56,13 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Toggle low gear
-    m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
+    // m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
 
-    // Start/stop intaking
-    m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
+    // // Start/stop intaking
+    // m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
 
-    // Run shooter at full speed
-    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
+    // // Run shooter at full speed
+    // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
   }
 
   /**
