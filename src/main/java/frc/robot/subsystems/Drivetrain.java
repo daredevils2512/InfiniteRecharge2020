@@ -7,7 +7,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
@@ -94,9 +97,31 @@ public class Drivetrain extends SubsystemBase {
   public void driveLeft(final double speed) {
     m_differentialDrive.tankDrive(speed, 0);
   }
-
   public void driveRight(final double speed) {
     m_differentialDrive.tankDrive(speed, 0);
+  }
+
+  /**
+   * Drive arcade style using percent output
+   * 
+   * <p>Alternative to using the {@link DifferentialDrive} provided by WPI.
+   * This gives the subsystem more control over the implimentation and configuration
+   * of arcade drive. For example, {@link TalonSRX} allows the use of velocity
+   * PID in place of standard percent output.
+   * @param move Forwards/backwards move speed (-1.0 to 1.0)
+   * @param turn Speed bias for left/right side (-1.0 to 1.0)
+   */
+  public void arcadeDriveAlt(final double move, final double turn) {
+    m_leftDriveMaster.set(ControlMode.PercentOutput, move, DemandType.ArbitraryFeedForward, turn);
+    m_rightDriveMaster.set(ControlMode.PercentOutput, move, DemandType.ArbitraryFeedForward, -turn);
+  }
+
+  public void driveLeftAlt(final double speed) {
+    m_leftDriveMaster.set(ControlMode.PercentOutput, speed);
+  }
+
+  public void driveRightAlt(final double speed) {
+    m_rightDriveMaster.set(ControlMode.PercentOutput, speed);
   }
 
   public void setLowGear(final boolean wantsLowGear) {
