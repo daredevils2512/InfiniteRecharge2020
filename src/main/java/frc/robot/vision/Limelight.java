@@ -14,10 +14,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * Limelight manager for power cell target tracking
  */
 public class Limelight {
+  // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
   public static final double RANGE_Y_DEGREES = 24.85;
-  public static final int RANGE_X_PIXELS = 320;
-  public static final int RANGE_Y_PIXELS = 320;
 
   public enum Pipeline {
     PowerCellTopTarget(2),
@@ -88,10 +87,6 @@ public class Limelight {
 
   public int tvert() {
     return m_table.getEntry("tvert").getNumber(0).intValue();
-  }
-
-  public double tvertAngle() {
-    return (double)tvert() / RANGE_Y_PIXELS;
   }
 
   public double getLastPosition() {
