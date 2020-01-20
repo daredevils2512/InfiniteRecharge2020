@@ -9,13 +9,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.Turret;
 import frc.robot.vision.Limelight.Pipeline;
 
 public class FindTarget extends CommandBase {
+  
+  private Turret m_turret;
+  
   /**
    * Creates a new FindTarget.
    */
-  public FindTarget() {
+  public FindTarget(Turret turret) {
+    m_turret = turret;
+    addRequirements(m_turret);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -29,7 +35,7 @@ public class FindTarget extends CommandBase {
   @Override
   public void execute() {
     if (Robot.m_limelight.hasTarget()) {
-      Robot.m_limelight.tx();
+      m_turret.setTargetAngle(m_turret.getAngle() + Robot.m_limelight.tx());
     }
   }
 

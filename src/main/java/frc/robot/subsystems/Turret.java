@@ -71,7 +71,7 @@ public class Turret extends SubsystemBase {
    */
   public double getAngle() {
     // Convert from encoder pulses to radians
-    return toRadians(getPosition());
+    return toDegrees(getPosition());
   }
 
   public void resetEncoder() {
@@ -90,11 +90,11 @@ public class Turret extends SubsystemBase {
     m_turretMaster.set(ControlMode.Position, toEncoderPulses(angle));
   }
 
-  private double toRadians(int encoderPulses) {
-    return (double)encoderPulses / m_encoderResolution * m_gearRatio * 2 * Math.PI;
+  private double toDegrees(int encoderPulses) {
+    return (double) (encoderPulses / m_encoderResolution) * 360;
   }
 
-  private double toEncoderPulses(double radians) {
-    return radians / Math.PI / 2 / m_gearRatio * m_encoderResolution;
+  private double toEncoderPulses(double angle) {
+    return (int) (angle / 360) * m_encoderResolution;
   }
 }
