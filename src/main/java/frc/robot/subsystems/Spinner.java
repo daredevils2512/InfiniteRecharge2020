@@ -40,4 +40,12 @@ public class Spinner extends SubsystemBase {
     return m_colorSensor.getColorMatchDetect();
   }
 
+  public void setExtended(boolean wantsExtended){
+    // Actuate somehow
+  }
+
+  public void run(double speed) {
+    // Spins somehow
+  }
+
 }

@@ -11,17 +11,19 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Spinner;
 
-public class SpinnerCounter extends CommandBase {
+public class RotationControl extends CommandBase {
   private final Spinner m_spinner;
+  private final double m_rotations;
   private ColorDetect pastColor;
   private int segmentCounter;
 
   /**
-   * Creates a new SpinnerCounter.
+   * Creates a new RotationControl.
    */
-  public SpinnerCounter(Spinner spinner) {
+  public RotationControl(Spinner spinner, double rotations) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_spinner = spinner;
+    m_rotations = rotations;
     addRequirements(m_spinner);
 
   }
@@ -35,21 +37,18 @@ public class SpinnerCounter extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    m_spinner.run(1.0);
     // get current color seen by sensor
     ColorDetect currentColor = m_spinner.getCurrentColor();
-    // get past color and compare them.
-    if (pastColor == currentColor) {
-      // TODO: if they are the same then you know you need to move more.
-    } else {
-      //  if they are different then you have moved 1/8 or one segment.
-      // keep track of how many 8ths you have moved.
+    if (currentColor != pastColor && currentColor != ColorDetect.Unknown) {
       segmentCounter++;
+      System.out.println("Moved " + segmentCounter + "segments");
     }
 
     // reset pastColor to current color
-    pastColor = currentColor;
-
-    // TODO: handle uknown variable 
+    if (currentColor != ColorDetect.Unknown) {
+      pastColor = currentColor;
+    }
 
   }
 
@@ -61,6 +60,9 @@ public class SpinnerCounter extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return segmentCounter >= m_rotations * 8;
   }
 }
+
+
+
