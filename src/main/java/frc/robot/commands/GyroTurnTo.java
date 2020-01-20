@@ -7,7 +7,7 @@ public class GyroTurnTo extends CommandBase {
   private final double m_toAngle;
   private final double m_threshold;
   private final double m_maxSpeed;
-  private final double kTurn = 0.1;
+  private final double kTurn = 0.02;
 
   private final Drivetrain m_drivetrain;
 
@@ -29,11 +29,11 @@ public class GyroTurnTo extends CommandBase {
   @Override
   public void execute() {
     //might not turn the right way
-    //also not done yet
+    //I cant do math right now i will have to finish later
     if (m_toAngle >= m_drivetrain.getYaw() + m_threshold) {
-      // m_drivetrain.arcadeDrive(0, Math.min(m_maxSpeed, ));
+      m_drivetrain.arcadeDrive(0, Math.min(m_maxSpeed, kTurn * (m_drivetrain.getYaw() - m_toAngle)));
     } else if (m_toAngle <= m_drivetrain.getYaw() - m_threshold) {
-      // m_drivetrain.arcadeDrive(0, Math.max(m_maxSpeed, ));
+      m_drivetrain.arcadeDrive(0, Math.max(m_maxSpeed, kTurn * (m_drivetrain.getYaw() - m_toAngle)));
     } else {
       isFinished = true;
     }
