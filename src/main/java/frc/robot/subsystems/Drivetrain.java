@@ -17,26 +17,23 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// TODO: Determine whether we will be using built in or external encoders and adjust accordingly
 public class Drivetrain extends SubsystemBase {
-  private final int m_encoderPulsesPerRevolution = 4096; // TODO: Check drivetrain PPR
+  private final int m_encoderPulsesPerRevolution = 2048; // TODO: Check drivetrain encoder PPR
+  private final double m_gearRatio = 3;
   private final double m_wheelDiameterInches = 8; // TODO: Check wheel diameter
   private final double m_wheelCircumferenceInches = m_wheelDiameterInches * Math.PI;
 
   // TODO: Configure drivetrain CAN
-  private final int m_leftDrive1ID = 1;
-  private final int m_leftDrive2ID = 2;
+  private final int m_leftDriveMasterID = 1;
+  private final int m_leftDrive1ID = 2;
+  private final int m_rightDriveMasterID = 3;
   private final int m_rightDrive1ID = 4;
-  private final int m_rightDrive2ID = 6;
   private final int m_pigeonID = 5;
-  
-  private double m_leftEncoderLastTotalInches = 0;
-  private double m_rightEncoderLastTotalInches = 0;
 
+  private final WPI_TalonFX m_leftDriveMaster;
   private final WPI_TalonFX m_leftDrive1;
-  private final WPI_TalonFX m_leftDrive2;
+  private final WPI_TalonFX m_rightDriveMaster;
   private final WPI_TalonFX m_rightDrive1;
-  private final WPI_TalonFX m_rightDrive2;
   private final PigeonIMU m_pigeon; 
   private final DifferentialDrive m_differentialDrive;
 
@@ -45,32 +42,30 @@ public class Drivetrain extends SubsystemBase {
   private final DoubleSolenoid m_shifter;
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
-  private final double m_highGearRatio = 1;
-  private final double m_lowGearRatio = 1;
 
   /**
    * Creates a new Drivetrain.
    */
   public Drivetrain() {
+    m_leftDriveMaster = new WPI_TalonFX(m_leftDriveMasterID);
     m_leftDrive1 = new WPI_TalonFX(m_leftDrive1ID);
-    m_leftDrive2 = new WPI_TalonFX(m_leftDrive2ID);
+    m_rightDriveMaster = new WPI_TalonFX(m_rightDriveMasterID);
     m_rightDrive1 = new WPI_TalonFX(m_rightDrive1ID);
-    m_rightDrive2 = new WPI_TalonFX(m_rightDrive2ID);
 
     // Config to factory defaults to prevent unexpected behavior
+    m_leftDriveMaster.configFactoryDefault();
     m_leftDrive1.configFactoryDefault();
-    m_leftDrive2.configFactoryDefault();
+    m_rightDriveMaster.configFactoryDefault();
     m_rightDrive1.configFactoryDefault();
-    m_rightDrive2.configFactoryDefault();
 
     // Designate drive masters
-    m_leftDrive2.follow(m_leftDrive1);
-    m_rightDrive2.follow(m_rightDrive1);
+    m_leftDrive1.follow(m_leftDriveMaster);
+    m_rightDrive1.follow(m_rightDriveMaster);
 
-    m_leftDrive1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-    m_rightDrive1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+    m_leftDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+    m_rightDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
-    m_differentialDrive = new DifferentialDrive(m_leftDrive1, m_rightDrive1);
+    m_differentialDrive = new DifferentialDrive(m_leftDriveMaster, m_rightDriveMaster);
 
     m_pigeon = new PigeonIMU(m_pigeonID);
     m_pigeon.configFactoryDefault();
@@ -92,14 +87,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setLowGear(boolean wantsLowGear) {
-    // If the gear is changing, store current drive distances
-    // because the conversion cannot be done after shifting
-    if(wantsLowGear != getLowGear()) {
-      m_leftEncoderLastTotalInches += getLeftDistanceSinceShift();
-      m_rightEncoderLastTotalInches += getRightDistanceSinceShift();
-      m_leftDrive1.setSelectedSensorPosition(0);
-      m_rightDrive1.setSelectedSensorPosition(0);
-    }
     m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
   }
 
@@ -109,51 +96,19 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetDriveEncoders() {
-    m_leftEncoderLastTotalInches = 0;
-    m_rightEncoderLastTotalInches = 0;
-    m_leftDrive1.setSelectedSensorPosition(0);
-    m_rightDrive1.setSelectedSensorPosition(0);
-  }
-
-  /**
-   * Returns the encoder pulses measured by the left drive master since last shift or reset
-   */
-  private int getLeftPosition() {
-    return m_leftDrive1.getSelectedSensorPosition();
-  }
-
-  /**
-   * Returns the encoder pulses measured by the right drive master since last shift or reset
-   */
-  private int getRightPosition() {
-    return m_rightDrive1.getSelectedSensorPosition();
-  }
-
-  /**
-   * Returns the distance traveled by the left drive master since last shift or reset
-   * @return Distance in inches
-   */
-  private double getLeftDistanceSinceShift() {
-    return toInches(getLeftPosition(), getLowGear());
-  }
-
-  /**
-   * Returns the distance traveled by the right drive master since last shift or reset
-   * @return Distance in inches
-   */
-  private double getRightDistanceSinceShift() {
-    return toInches(getRightPosition(), getLowGear());
+    m_leftDriveMaster.setSelectedSensorPosition(0);
+    m_rightDriveMaster.setSelectedSensorPosition(0);
   }
 
   /**
    * Returns the distance in inches traveled by the left drive master since last shift or reset
    */
   public double getLeftDistance() {
-    return m_leftEncoderLastTotalInches + getLeftDistanceSinceShift();
+    return toInches(m_leftDriveMaster.getSelectedSensorPosition());
   }
 
   public double getRightDistance() {
-    return m_rightEncoderLastTotalInches + getRightDistanceSinceShift();
+    return toInches(m_rightDriveMaster.getSelectedSensorPosition());
   }
 
   /**
@@ -162,7 +117,7 @@ public class Drivetrain extends SubsystemBase {
    */
   public double getLeftVelocity() {
     // Convert to seconds (from 100ms) and then to inches (from sensor units)
-    return toInches(m_leftDrive1.getSelectedSensorVelocity() * 10, getLowGear());
+    return toInches(m_leftDrive1.getSelectedSensorVelocity() * 10);
   }
 
   /**
@@ -171,17 +126,13 @@ public class Drivetrain extends SubsystemBase {
    */
   public double getRightVelocity() {
     // Convert to seconds (from 100ms) and then to inches (from sensor units)
-    return toInches(m_rightDrive1.getSelectedSensorVelocity() * 10, getLowGear());
+    return toInches(m_rightDrive1.getSelectedSensorVelocity() * 10);
   }
 
   /**
    * Convert from drive encoder pulses to inches
-   * <p> Because shifting changes the gearing of the drivetrain
-   * (assuming the encoder is installed on gearing input rather than output),
-   * this conversion depends on the current gear and does not work for
-   * encoder measurments accumulated over one or more gear changes
    */
-  private double toInches(int encoderPulses, boolean inLowGear) {
-    return encoderPulses / m_encoderPulsesPerRevolution * (inLowGear ? m_lowGearRatio : m_highGearRatio) * m_wheelCircumferenceInches;
+  private double toInches(int encoderPulses) {
+    return encoderPulses / m_encoderPulsesPerRevolution * m_gearRatio * m_wheelCircumferenceInches;
   }
 }

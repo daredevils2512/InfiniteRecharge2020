@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Turret;
 import frc.robot.RobotContainer;
 
 /**
@@ -93,6 +94,10 @@ public final class Commands {
    */
   public static Command intake(Intake intake) {
     return new IntakeCommand(intake);
+  }
+
+  public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
   }
 
   public static Command runShooter(Shooter shooter) {
