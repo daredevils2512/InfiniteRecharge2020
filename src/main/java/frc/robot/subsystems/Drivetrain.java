@@ -118,22 +118,28 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getYaw() {
-    return getYPR()[0];
+    return getYPR()[0] - resetGyro()[0];
   }
 
   public double getPitch() {
-    return getYPR()[1];
+    return getYPR()[1] - resetGyro()[1];
   }
 
   public double getRoll() {
-    return getYPR()[2];
+    return getYPR()[2] - resetGyro()[2];
   }
 
   //this is super annoying, I cant figure out how to reset the gyro
-  public void resetGyro() {
-    getYPR()[0] = 0.0;
-    getYPR()[1] = 0.0;
-    getYPR()[2] = 0.0;
+  public double[] resetGyro() {
+    double[] resetValue = new double[3];
+    resetValue[0] = getYPR()[0];
+    resetValue[1] = getYPR()[1];
+    resetValue[2] = getYPR()[2];
+    return resetValue;
+  }
+
+  public boolean getHasResetGyro() {
+    return m_pigeon.hasResetOccurred();
   }
 
   /**
