@@ -28,9 +28,9 @@ public class Turret extends SubsystemBase {
 
   // TODO: Tune position PID
   private final int m_positionSlot = 0;
-  private final double m_P = 0;
-  private final double m_I = 0;
-  private final double m_D = 0;
+  private double m_P = 0;
+  private double m_I = 0;
+  private double m_D = 0;
 
   /**
    * Creates a new turret
@@ -51,14 +51,18 @@ public class Turret extends SubsystemBase {
     m_turretMaster.setNeutralMode(NeutralMode.Brake);
     m_turretMaster.set(ControlMode.PercentOutput, 0);
     m_turretMaster.setSelectedSensorPosition(0);
+
+    m_networkTable.getEntry("P gain").setNumber(m_P);
+    m_networkTable.getEntry("I gain").setNumber(m_I);
+    m_networkTable.getEntry("D gain").setNumber(m_D);
   }
 
   @Override
   public void periodic() {
     m_networkTable.getEntry("Encoder position").setNumber(getPosition());
-    m_networkTable.getEntry("P gain").setNumber(m_P);
-    m_networkTable.getEntry("I gain").setNumber(m_I);
-    m_networkTable.getEntry("D gain").setNumber(m_D);
+    m_P = m_networkTable.getEntry("P gain").getDouble(0.0);
+    m_I = m_networkTable.getEntry("I gain").getDouble(0.0);
+    m_D = m_networkTable.getEntry("D gain").getDouble(0.0);
   }
 
   private int getPosition() {
@@ -91,7 +95,7 @@ public class Turret extends SubsystemBase {
   }
 
   private double toDegrees(int encoderPulses) {
-    return (double) (encoderPulses / m_encoderResolution) * 360;
+    return (double) (encoderPulses / m_encoderResolution) * 360 * m_gearRatio;
   }
 
   //returns a fused heading problaby
