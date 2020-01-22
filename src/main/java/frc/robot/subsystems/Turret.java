@@ -67,10 +67,10 @@ public class Turret extends SubsystemBase {
 
   /**
    * Get the current angle of the turret
-   * @return Angle in radians
+   * @return Angle in degrees
    */
   public double getAngle() {
-    // Convert from encoder pulses to radians
+    // Convert from encoder pulses to degrees
     return toDegrees(getPosition());
   }
 
@@ -84,7 +84,7 @@ public class Turret extends SubsystemBase {
 
   /**
    * Set a target angle for position PID
-   * @param angle Angle in radians
+   * @param angle Angle in degrees
    */
   public void setTargetAngle(double angle) {
     m_turretMaster.set(ControlMode.Position, toEncoderPulses(angle));
@@ -94,6 +94,7 @@ public class Turret extends SubsystemBase {
     return (double) (encoderPulses / m_encoderResolution) * 360;
   }
 
+  //returns a fused heading problaby
   private double toEncoderPulses(double angle) {
     return (int) (angle / 360) * m_encoderResolution;
   }
