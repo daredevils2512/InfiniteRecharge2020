@@ -6,11 +6,8 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
-
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.Commands;
 import frc.robot.commands.PrecisionControl;
@@ -50,7 +47,7 @@ public class RobotContainer {
 
     configureButtonBindings();
 
-    m_autonomousCommand = null;
+    m_autonomousCommand = null; 
   }
 
   /**

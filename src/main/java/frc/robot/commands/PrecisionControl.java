@@ -14,7 +14,8 @@ import frc.robot.subsystems.Spinner;
 public class PrecisionControl extends CommandBase {
   private final Spinner m_spinner;
   private ColorDetect m_targetColor;
-
+  // TODO: get the color of the percision control dispaed in the part of the smart dashboard 
+ // TODO: (ask game manual 4 help? ) 
   /**
    * Creates a new PrecisionControl.
    */
@@ -34,18 +35,21 @@ public class PrecisionControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // has this constantly running as the program is being run. 
     m_spinner.run(0.25);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    // this happens if the isFinished funcTion is called 
     m_spinner.run(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // retuns true if the currnet color is dthe same as the target color 
     return m_spinner.getCurrentColor() == m_targetColor;
   }
 }

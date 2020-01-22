@@ -40,13 +40,13 @@ public class RotationControl extends CommandBase {
     m_spinner.run(1.0);
     // get current color seen by sensor
     ColorDetect currentColor = m_spinner.getCurrentColor();
+    // if the current color is not the past color and the detected color is not unknown. 
     if (currentColor != pastColor && currentColor != ColorDetect.Unknown) {
+      // the segment counter just counts the amount of color CHANGES it detects.
       segmentCounter++;
+      // prints out the amount of segments moved in the DRIVER STATION CONSOLE not smart dashboard. 
       System.out.println("Moved " + segmentCounter + "segments");
-    }
-
-    // reset pastColor to current color
-    if (currentColor != ColorDetect.Unknown) {
+      // resets current color to past color
       pastColor = currentColor;
     }
 
@@ -60,9 +60,7 @@ public class RotationControl extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // retuns true if value of the segment counter is greater than or equal to 3 * 8, or 24. 
     return segmentCounter >= m_rotations * 8;
   }
 }
-
-
-
