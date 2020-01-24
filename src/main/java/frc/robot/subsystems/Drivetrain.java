@@ -14,30 +14,27 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
-  private final int m_encoderPulsesPerRevolution = 2048; // TODO: Check drivetrain encoder PPR
-  private final double m_gearRatio = 3;
-  private final double m_wheelDiameterInches = 8; // TODO: Check wheel diameter
-  private final double m_wheelCircumferenceInches = m_wheelDiameterInches * Math.PI;
+  private final NetworkTable m_networkTable;
 
   // TODO: Configure drivetrain CAN
-  private final int m_leftDriveMasterID = 1;
-  private final int m_leftDrive1ID = 2;
-  private final int m_rightDriveMasterID = 3;
-  private final int m_rightDrive1ID = 4;
-  private final int m_pigeonID = 0;
+  private final int m_leftDriveMasterID = -1;
+  private final int m_leftDrive1ID = -1;
+  private final int m_rightDriveMasterID = -1;
+  private final int m_rightDrive1ID = -1;
+  private final int m_pigeonID = -1;
 
   private final WPI_TalonFX m_leftDriveMaster;
   private final WPI_TalonFX m_leftDrive1;
   private final WPI_TalonFX m_rightDriveMaster;
   private final WPI_TalonFX m_rightDrive1;
-  private final PigeonIMU m_pigeon; 
   private final DifferentialDrive m_differentialDrive;
 
   private final int m_shifterForwardChannel = 0;
@@ -46,12 +43,23 @@ public class Drivetrain extends SubsystemBase {
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
+  private final PigeonIMU m_pigeon;
+
+  private final int m_encoderPulsesPerRevolution = 2048; // TODO: Check drivetrain encoder PPR
+  private final double m_gearRatio = 3;
+  private final double m_wheelDiameterInches = 8; // TODO: Check wheel diameter
+  private final double m_wheelCircumferenceInches = m_wheelDiameterInches * Math.PI;
+
   private double[] m_yprZero;
+
+  private boolean m_isDrivingInverted = false;
 
   /**
    * Creates a new Drivetrain.
    */
   public Drivetrain() {
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+
     m_leftDriveMaster = new WPI_TalonFX(m_leftDriveMasterID);
     m_leftDrive1 = new WPI_TalonFX(m_leftDrive1ID);
     m_rightDriveMaster = new WPI_TalonFX(m_rightDriveMasterID);
@@ -80,14 +88,15 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Left drive distance", getLeftDistance());
-    SmartDashboard.putNumber("Right drive distance", getRightDistance());
-    SmartDashboard.putNumber("Left drive velocity", getLeftVelocity());
-    SmartDashboard.putNumber("Right drive velocity", getRightVelocity());
-    SmartDashboard.putBoolean("Low gear", getLowGear());
-    SmartDashboard.putNumber("yaw", getYaw());
-    SmartDashboard.putNumber("pitch", getPitch());
-    SmartDashboard.putNumber("roll", getRoll());
+    m_networkTable.getEntry("Left distance").setNumber(getLeftDistance());
+    m_networkTable.getEntry("Right distance").setNumber(getLeftDistance());
+    m_networkTable.getEntry("Left velocity").setNumber(getLeftVelocity());
+    m_networkTable.getEntry("Right velocity").setNumber(getLeftVelocity());
+    m_networkTable.getEntry("Inverted driving").setBoolean(m_isDrivingInverted);
+    m_networkTable.getEntry("Low gear").setBoolean(getLowGear());
+    m_networkTable.getEntry("Yaw").setNumber(getYaw());
+    m_networkTable.getEntry("Pitch").setNumber(getPitch());
+    m_networkTable.getEntry("Roll").setNumber(getRoll());
   }
 
   public void arcadeDrive(final double move, final double turn) {
@@ -97,6 +106,7 @@ public class Drivetrain extends SubsystemBase {
   public void driveLeft(final double speed) {
     m_differentialDrive.tankDrive(speed, 0);
   }
+
   public void driveRight(final double speed) {
     m_differentialDrive.tankDrive(speed, 0);
   }
@@ -111,7 +121,9 @@ public class Drivetrain extends SubsystemBase {
    * @param move Forwards/backwards move speed (-1.0 to 1.0)
    * @param turn Speed bias for left/right side (-1.0 to 1.0)
    */
-  public void arcadeDriveAlt(final double move, final double turn) {
+  public void arcadeDriveAlt(double move, double turn) {
+    // Reverse direction if inverted driving is enabled
+    move = m_isDrivingInverted ? -move : move;
     m_leftDriveMaster.set(ControlMode.PercentOutput, move, DemandType.ArbitraryFeedForward, turn);
     m_rightDriveMaster.set(ControlMode.PercentOutput, move, DemandType.ArbitraryFeedForward, -turn);
   }
@@ -122,6 +134,10 @@ public class Drivetrain extends SubsystemBase {
 
   public void driveRightAlt(final double speed) {
     m_rightDriveMaster.set(ControlMode.PercentOutput, speed);
+  }
+
+  public void setDrivingInverted(boolean wantsInverted) {
+    m_isDrivingInverted = wantsInverted;
   }
 
   public void setLowGear(final boolean wantsLowGear) {
@@ -161,13 +177,17 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
-   * Returns the distance in inches traveled by the left drive master since last
-   * shift or reset
+   * Get the distance traveled by the left side of the drivetrain
+   * @return Distance in inches
    */
   public double getLeftDistance() {
     return toInches(m_leftDriveMaster.getSelectedSensorPosition());
   }
 
+  /**
+   * Get the distance traveled by the right side of the drivetrain
+   * @return Distance in inches
+   */
   public double getRightDistance() {
     return toInches(m_rightDriveMaster.getSelectedSensorPosition());
   }
@@ -197,5 +217,12 @@ public class Drivetrain extends SubsystemBase {
    */
   private double toInches(final int encoderPulses) {
     return encoderPulses / m_encoderPulsesPerRevolution * m_gearRatio * m_wheelCircumferenceInches;
+  }
+
+  /**
+   * Convert from inches to encoder pulses
+   */
+  private int toEncoderPulses(final int inches) {
+    return (int)(inches / m_wheelCircumferenceInches / m_gearRatio * m_encoderPulsesPerRevolution);
   }
 }
