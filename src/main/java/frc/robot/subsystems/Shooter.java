@@ -24,18 +24,19 @@ public class Shooter extends SubsystemBase {
   private final TalonSRX m_shooter;
   private final TalonSRX m_hood;
 
-  private final int m_encoderResolution = 4096; // TODO: Check shooter encoder resolution
-  private final double m_shooterGearRatio = 1;
-  private final double m_hoodGearRatio = 1;
+  private final int m_shooterEncoderResolution = 4096;
+  private final int m_hoodEncoderResolution = 4096; // TODO: Check shooter encoder resolution
+  private final double m_shooterGearRatio = 1; // TODO: Check shooter gearing
+  private final double m_hoodGearRatio = 1; // TODO: Check shooter hood gearing
 
-  private final int m_shooterVelocityPID = 0;
+  private final int m_shooterVelocityPIDSlot = 0;
   // TODO: Tune shooter velocity PID
   // Change to final once configured
   private double m_shooterVelocityPGain = 0;
   private double m_shooterVelocityIGain = 0;
   private double m_shooterVelocityDGain = 0;
 
-  private final int m_hoodPositionPID = 0;
+  private final int m_hoodPositionPIDSlot = 0;
   private double m_hoodPositionPGain = 0;
   private double m_hoodPositionIGain = 0;
   private double m_hoodPositionDGain = 0;
@@ -52,16 +53,16 @@ public class Shooter extends SubsystemBase {
     m_shooter.configFactoryDefault();
     m_shooter.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
-    m_shooter.config_kP(m_shooterVelocityPID, m_shooterVelocityPGain);
-    m_shooter.config_kI(m_shooterVelocityPID, m_shooterVelocityIGain);
-    m_shooter.config_kD(m_shooterVelocityPID, m_shooterVelocityDGain);
+    m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
+    m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
+    m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
 
     m_hood.configFactoryDefault();
     m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
-    m_hood.config_kP(m_hoodPositionPID, m_hoodPositionPGain);
-    m_hood.config_kI(m_hoodPositionPID, m_hoodPositionIGain);
-    m_hood.config_kD(m_hoodPositionPID, m_hoodPositionDGain);
+    m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
+    m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
+    m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
     
     m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery
     
@@ -78,12 +79,12 @@ public class Shooter extends SubsystemBase {
     m_hoodPositionIGain = m_networkTable.getEntry("Hood position I gain").getDouble(m_shooterVelocityIGain);
     m_hoodPositionDGain = m_networkTable.getEntry("Hood position D gain").getDouble(m_shooterVelocityDGain);
 
-    m_shooter.config_kP(m_shooterVelocityPID, m_shooterVelocityPGain);
-    m_shooter.config_kI(m_shooterVelocityPID, m_shooterVelocityIGain);
-    m_shooter.config_kD(m_shooterVelocityPID, m_shooterVelocityDGain);
-    m_hood.config_kP(m_hoodPositionPID, m_hoodPositionPGain);
-    m_hood.config_kI(m_hoodPositionPID, m_hoodPositionIGain);
-    m_hood.config_kD(m_hoodPositionPID, m_hoodPositionDGain);
+    m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
+    m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
+    m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
+    m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
+    m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
+    m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
 
     m_networkTable.getEntry("Velocity (RPM)").setDouble(getVelocity());
     m_networkTable.getEntry("Percent output").setDouble(m_shooter.getMotorOutputPercent());
@@ -93,8 +94,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void resetHoodAngle(double angle) {
-    int encoderPosition = (int)(angle / 360 / m_hoodGearRatio * m_encoderResolution);
-    m_hood.setSelectedSensorPosition(encoderPosition);
+    m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
   public void setPercentOutput(double speed) {
@@ -106,8 +106,8 @@ public class Shooter extends SubsystemBase {
    * @param targetVelocity Target velocity in revolutions per minute
    */
   public void setTargetVelocity(double velocity) {
-    int sensorUnitsPer100MS = toSensorUnitsPer100MS(velocity); // Convert to proper units for velocity control
-    m_shooter.set(ControlMode.Velocity, sensorUnitsPer100MS);
+    m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
+    m_shooter.set(ControlMode.Velocity, toEncoderPulsesPer100Milliseconds(velocity));
   }
 
   public void stop() {
@@ -119,8 +119,7 @@ public class Shooter extends SubsystemBase {
    * @param angle Angle in degrees
    */
   public void setTargetAngle(double angle) {
-    int encoderPosition = (int)(angle / 360 * m_hoodGearRatio * m_encoderResolution);
-    m_hood.set(ControlMode.Position, encoderPosition);
+    m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
   }
 
   /**
@@ -136,14 +135,23 @@ public class Shooter extends SubsystemBase {
    * @return Angle in degrees
    */
   public double getAngle() {
-    return (double)m_hood.getSelectedSensorPosition() / m_encoderResolution / m_hoodGearRatio * 360;
+    return toAngleHood(m_hood.getSelectedSensorPosition());
   }
 
-  private int toSensorUnitsPer100MS(double rpm) {
-    return (int)(rpm * m_shooterGearRatio * m_encoderResolution / 60 / 10);
+  private int toEncoderPulsesPer100Milliseconds(double rpm) {
+    // To encoder pulses then to 100ms
+    return (int)(rpm / m_shooterGearRatio * m_shooterEncoderResolution / 60 / 10);
   }
 
-  private double toRPM(int sensorUnitsPer100MS) {
-    return (double)(sensorUnitsPer100MS * 10 * 60) / m_encoderResolution / m_shooterGearRatio;
+  private double toRPM(int encoderPulsesPer100Milliseconds) {
+    return (double)(encoderPulsesPer100Milliseconds * 10 * 60) / m_shooterEncoderResolution / m_shooterGearRatio;
+  }
+
+  private int toEncoderPulsesHood(double angle) {
+    return (int)(angle / 360 / m_hoodGearRatio * m_hoodEncoderResolution);
+  }
+
+  private double toAngleHood(int encoderPulses) {
+    return (double)encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
   }
 }
