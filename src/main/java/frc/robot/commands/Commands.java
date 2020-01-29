@@ -67,7 +67,7 @@ public final class Commands {
   }
 
   public static Command arcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
-    return new RunCommand(() -> drivetrain.arcadeDriveAlt(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
+    return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
   }
 
   //probly temporary
