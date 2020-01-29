@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Turret;
 import frc.robot.RobotContainer;
@@ -65,7 +67,21 @@ public final class Commands {
   }
 
   public static Command arcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
-    return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()));
+    return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
+  }
+
+  //probly temporary
+  public static Command climberUp(Climber climber, Double leftSpeed, Double rightSpeed) {
+    return new RunCommand(() -> climber.climb(leftSpeed, rightSpeed), climber);
+  }
+
+  public static Command runQueue(Queue queue, Double speed) {
+    return new RunCommand(() -> queue.run(speed), queue);
+  }
+
+  public static Command toggleQueueGate(Queue queue) {
+    boolean isQueueClosed = queue.getIsClosed();
+    return new InstantCommand(() -> queue.setClosed(!isQueueClosed), queue);
   }
 
   /**

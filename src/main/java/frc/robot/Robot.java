@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * The VM is configured to an this class, and to call the functions corresponding to
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private Drivetrain m_drivetrain;
 
   private RobotContainer m_robotContainer;
 
@@ -33,6 +35,9 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     SmartDashboard.putNumberArray("magazine PID array", new double[]{0, 0, 0});
     m_robotContainer = new RobotContainer();
+    m_drivetrain = new Drivetrain();
+    //this does not work, will need further testing
+    m_drivetrain.resetGyro();
   }
 
   /**
