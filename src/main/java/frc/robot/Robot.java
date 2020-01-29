@@ -8,14 +8,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Drivetrain;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to an this class, and to call the functions corresponding to
+ * each mode, as described it documentation. If you change the name of this class or
+ * the package after creatin you must also update the build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
@@ -32,6 +33,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+    SmartDashboard.putNumberArray("magazine PID array", new double[]{0, 0, 0});
     m_robotContainer = new RobotContainer();
     m_drivetrain = new Drivetrain();
     //this does not work, will need further testing
