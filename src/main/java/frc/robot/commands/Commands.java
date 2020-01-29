@@ -76,11 +76,12 @@ public final class Commands {
   }
 
   public static Command runQueue(Queue queue, Double speed) {
-    return new RunCommand(() -> queue.runQueue(speed), queue);
+    return new RunCommand(() -> queue.run(speed), queue);
   }
 
   public static Command toggleQueueGate(Queue queue) {
-    return new RunCommand(() -> queue.toggleQueueGate(), queue);
+    boolean isQueueClosed = queue.getIsClosed();
+    return new InstantCommand(() -> queue.setClosed(!isQueueClosed), queue);
   }
 
   /**
