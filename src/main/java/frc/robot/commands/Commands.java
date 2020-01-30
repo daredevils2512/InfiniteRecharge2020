@@ -105,7 +105,7 @@ public final class Commands {
   }
 
   public static Command runIntakeExtender_Temp(Intake intake, DoubleSupplier speedSupplier) {
-    return new RunCommand(() -> intake.runExtender_Temp(speedSupplier.getAsDouble()), intake);
+    return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
   }
 
   /**
