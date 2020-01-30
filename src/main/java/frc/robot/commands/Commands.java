@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Turret;
 import frc.robot.RobotContainer;
@@ -68,13 +70,28 @@ public final class Commands {
     return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
   }
 
+  //probly temporary
+  public static Command climberUp(Climber climber, Double leftSpeed, Double rightSpeed) {
+    return new RunCommand(() -> climber.climb(leftSpeed, rightSpeed), climber);
+  }
+
+  public static Command runQueue(Queue queue, Double speed) {
+    return new RunCommand(() -> queue.run(speed), queue);
+  }
+
+  public static Command toggleQueueGate(Queue queue) {
+    boolean isQueueClosed = queue.getIsClosed();
+    return new InstantCommand(() -> queue.setClosed(!isQueueClosed), queue);
+  }
+
   /**
    * Extends and starts running the power cell intake
    * @return New {@link Command}
    */
   public static Command startIntaking(Intake intake) {
-    return new InstantCommand(() -> intake.setExtended(true), intake)
-      .andThen(new RunCommand(() -> intake.run(1), intake));
+    return
+      new InstantCommand(() -> intake.setExtended(true), intake).andThen(
+      new RunCommand(() -> intake.run(1), intake));
   }
 
   /**
@@ -82,8 +99,13 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command stopIntaking(Intake intake) {
-    return new InstantCommand(() -> intake.run(0), intake)
-      .andThen(() -> intake.setExtended(false), intake);
+    return
+      new InstantCommand(() -> intake.run(0), intake).andThen(
+      new InstantCommand(() -> intake.setExtended(false), intake));
+  }
+
+  public static Command runIntakeExtender_Temp(Intake intake, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> intake.runExtender_Temp(speedSupplier.getAsDouble()), intake);
   }
 
   /**
@@ -100,7 +122,16 @@ public final class Commands {
     return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
   }
 
-  public static Command runShooter(Shooter shooter) {
-    return new StartEndCommand(() -> shooter.percentOutput(1), () -> shooter.percentOutput(0), shooter);
+  /**
+   * Set shooter percent output
+   * @param shooter
+   * @return New {@link Command}
+   */
+  public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
+    return new StartEndCommand(() -> shooter.percentOutput(speedSupplier.getAsDouble()), () -> shooter.percentOutput(0), shooter);
+  }
+
+  public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
+    return null; // TODO: Implement shooter set velocity command
   }
 }

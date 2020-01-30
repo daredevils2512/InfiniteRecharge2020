@@ -14,6 +14,7 @@ import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.vision.Limelight.Pipeline;
 
@@ -28,14 +29,20 @@ public class RobotContainer {
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
+  private final Queue m_queue = new Queue();
 
   private final Command m_autonomousCommand;
+
+  private double m_intakeExtenderSlowify = 0.2;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
+    
+    // Temporary controls for testing intake extender
+    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
 
     configureButtonBindings();
 
@@ -51,13 +58,20 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Toggle low gear
     m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
-    
+
     // Start/stop intaking
     m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
 
-    // Run shooter at full speed
-    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter));
     m_controlBoard.xbox.aButton.whileHeld(new FollowBall(m_drivetrain, Pipeline.PowerCells));
+
+    // Run shooter at a set motor output
+    m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
+
+    //runs the queue. dont really have a button planned for it
+    m_controlBoard.extreme.baseFrontRight.whileHeld(Commands.runQueue(m_queue, 0.5));
+
+    //toggles the hard stop on the queue if there is one. also dont have a button for it
+    m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
   }
 
   /**
