@@ -19,6 +19,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.Turret;
 import frc.robot.RobotContainer;
 
@@ -134,4 +135,9 @@ public final class Commands {
   public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
     return null; // TODO: Implement shooter set velocity command
   }
+
+  public static Command setSpinnerExtended(Spinner spinner, boolean wantsExtended) {
+    return new InstantCommand(() -> spinner.setExtended(wantsExtended), spinner);
+  }
+
 }
