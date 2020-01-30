@@ -14,9 +14,14 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * Limelight manager for power cell target tracking
  */
 public class Limelight {
+  // Center is (0,0)
+  public static final double RANGE_X_DEGREES = 29.8;
+  public static final double RANGE_Y_DEGREES = 24.85;
+
   public enum Pipeline {
-    PowerCellTopTarget(0),
-    PowerCells(1);
+    PowerCellTopTarget(2),
+    PowerCellsLimelight(1),
+    PowerCells(0);
 
     private int m_id;
 
@@ -31,42 +36,63 @@ public class Limelight {
 
   private NetworkTable m_table;
 
+  private double lastPostion;
+
   public Limelight() {
     m_table = NetworkTableInstance.getDefault().getTable("limelight");
+    this.lastPostion = 1.0;
   }
 
-  @SuppressWarnings("unused")
-  private void setPipeline(Pipeline pipeline) {
+  //Limelight table getters
+
+  public void setPipeline(Pipeline pipeline) {
     m_table.getEntry("pipeline").setNumber(pipeline.getID());
   }
 
-  @SuppressWarnings("unused")
-  private boolean hasTarget() {
-    return m_table.getEntry("tv").getDouble(0) == 1;
+  public boolean hasTarget() {
+    return m_table.getEntry("tv").getNumber(0).intValue() == 1;
   }
 
-  @SuppressWarnings("unused")
-  private double tx() {
-    return m_table.getEntry("tx").getDouble(0);
+  public double tx() {
+    return m_table.getEntry("tx").getNumber(0).doubleValue();
   }
 
-  @SuppressWarnings("unused")
-  private double ty() {
-    return m_table.getEntry("ty").getDouble(0);
+  public double ty() {
+    return m_table.getEntry("ty").getNumber(0).doubleValue();
   }
 
-  @SuppressWarnings("unused")
-  private double ta() {
-    return m_table.getEntry("ta").getDouble(0);
+  public double ta() {
+    return m_table.getEntry("ta").getNumber(0).doubleValue();
   }
 
-  @SuppressWarnings("unused")
-  private double ts() {
-    return m_table.getEntry("ts").getDouble(0);
+  public double ts() {
+    return m_table.getEntry("ts").getNumber(0).doubleValue();
   }
 
-  @SuppressWarnings("unused")
-  private double tl() {
-    return m_table.getEntry("tl").getDouble(0);
+  public double tl() {
+    return m_table.getEntry("tl").getNumber(0).doubleValue();
+  }
+
+  public int tshort() {
+    return m_table.getEntry("tshort").getNumber(0).intValue();
+  }
+
+  public int tlong() {
+    return m_table.getEntry("tlong").getNumber(0).intValue();
+  }
+
+  public int thor() {
+    return m_table.getEntry("thor").getNumber(0).intValue();
+  }
+
+  public int tvert() {
+    return m_table.getEntry("tvert").getNumber(0).intValue();
+  }
+
+  public double getLastPosition() {
+    if (tx() != 0) { 
+      lastPostion = tx(); 
+    }
+    return lastPostion;
   }
 }

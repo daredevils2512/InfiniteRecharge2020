@@ -9,9 +9,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.Commands;
-import frc.robot.commands.PrecisionControl;
-import frc.robot.commands.RotationControl;
+import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
@@ -30,12 +28,14 @@ public class RobotContainer {
   private final ControlBoard m_controlBoard = new ControlBoard();
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Intake m_intake = new Intake();
+  @SuppressWarnings("unused")
   private final Shooter m_shooter = new Shooter();
   private final Spinner m_spinner = new Spinner();
   private final Queue m_queue = new Queue();
 
   private final Command m_autonomousCommand;
 
+  @SuppressWarnings("unused")
   private double m_intakeExtenderSlowify = 0.2;
 
   /**
@@ -45,7 +45,10 @@ public class RobotContainer {
     m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
 
     // Temporary controls for testing intake extender
-    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
+    // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
+
+    // Temporary controls for testing shooter
+    // m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getStickY));
 
     configureButtonBindings();
 
@@ -65,7 +68,7 @@ public class RobotContainer {
     // Start/stop intaking
     m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
 
-    // Run shooter at full speed
+    // Run shooter at a set motor output
     m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
 
     // Extend/retract spinner

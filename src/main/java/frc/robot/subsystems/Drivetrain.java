@@ -117,7 +117,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
-    return m_shifter.get() == m_lowGearValue;
+    // return m_shifter.get() == m_lowGearValue;
+    return false; //just for testing with protobot
   }
 
   public void resetDriveEncoders() {
