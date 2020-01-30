@@ -8,34 +8,34 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Robot;
 import frc.robot.subsystems.Turret;
+import frc.robot.vision.Limelight;
 import frc.robot.vision.Limelight.Pipeline;
 
 public class FindTarget extends CommandBase {
-  
   private Turret m_turret;
-  
+  private Limelight m_limelight;
+
   /**
    * Creates a new FindTarget.
    */
-  public FindTarget(Turret turret) {
+  public FindTarget(Turret turret, Limelight limelight) {
     m_turret = turret;
+    m_limelight = limelight;
     addRequirements(m_turret);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Robot.m_limelight.setPipeline(Pipeline.PowerCellTopTarget);
+    m_limelight.setPipeline(Pipeline.PowerCellTopTarget);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Robot.m_limelight.hasTarget()) {
-      m_turret.setTargetAngle(m_turret.getAngle() + Robot.m_limelight.tx());
+    if (m_limelight.hasTarget()) {
+      m_turret.setTargetAngle(m_turret.getAngle() + m_limelight.tx());
     }
   }
 
