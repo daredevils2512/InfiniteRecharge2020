@@ -13,8 +13,10 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Queue extends SubsystemBase {
@@ -32,6 +34,16 @@ public class Queue extends SubsystemBase {
   private final DoubleSolenoid.Value m_closedValue = Value.kReverse;
   private final DoubleSolenoid m_gate;
 
+  private final int m_photoeye1ID = -1;
+  private final int m_photoeye2ID = -1;
+  private final DigitalInput m_photoeye1;
+  private final DigitalInput m_photoeye2;
+
+  //these are for the ball counter
+  private int ballCount;
+  private boolean ballIn;
+  private boolean ballOut;
+
   /**
    * Creates a new Queue.
    */
@@ -44,12 +56,21 @@ public class Queue extends SubsystemBase {
     m_runMotor.configFactoryDefault();
 
     m_gate = new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel);
+
+    m_photoeye1 = new DigitalInput(m_photoeye1ID);
+    m_photoeye2 = new DigitalInput(m_photoeye2ID);
+
+    ballCount = 0;
+    ballIn = false;
+    ballOut = false;
   }
 
   @Override
   public void periodic() {
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
     m_isClosedEntry.setBoolean(getIsClosed());
+    countBall();
+    SmartDashboard.putNumber("balls in queue", countBall());
   }
 
   public void run(double speed) {
@@ -62,5 +83,28 @@ public class Queue extends SubsystemBase {
 
   public void setClosed(boolean wantsClosed) {
     m_gate.set(wantsClosed ? m_closedValue : m_openValue);
+  }
+
+  public boolean getInBall() {
+    return !m_photoeye1.get();
+  }
+
+  public boolean getOutBall() {
+    return !m_photoeye2.get();
+  }
+
+  public int countBall() {
+    if (getInBall()) {
+      ballIn = true;
+    } else if (!getInBall() && ballIn) {
+      ballIn = false;
+      ballCount += 1;
+    } else if (getOutBall()) {
+     ballOut = true;
+    } else if (!getOutBall() && ballOut) {
+      ballOut = false;
+      ballCount -= 1;
+    }
+    return ballCount;
   }
 }
