@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -26,6 +27,16 @@ public class Magazine extends SubsystemBase {
   private final WPI_TalonSRX magazineSpinner;
   private final WPI_TalonSRX queue;
   private final TalonSRXConfiguration magazineConfig;
+  
+  private final int m_photoeye1ID = -1;
+  private final int m_photoeye2ID = -1;
+  private final DigitalInput m_photoeye1;
+  private final DigitalInput m_photoeye2;
+  
+  //these are for the ball counter
+  private int ballCount;
+  private boolean ballIn;
+  private boolean ballOut;
 
   /**
    * Creates a new PowerCellManager.
@@ -35,6 +46,13 @@ public class Magazine extends SubsystemBase {
     queue = new WPI_TalonSRX(this.queueID);
     magazineSpinner.setSelectedSensorPosition(0);
     magazineConfig = new TalonSRXConfiguration();
+    
+    m_photoeye1 = new DigitalInput(m_photoeye1ID);
+    m_photoeye2 = new DigitalInput(m_photoeye2ID);
+    
+    ballCount = 0;
+    ballIn = false;
+    ballOut = false;
   }
   
   public void setSpeed(double speed) {
@@ -56,6 +74,31 @@ public class Magazine extends SubsystemBase {
 
   @Override
   public void periodic() {
+    countBall();
+    SmartDashboard.putNumber("balls in queue", countBall());
+  }
+  
+  public boolean getInBall() {
+    return !m_photoeye1.get();
+  }
 
+  public boolean getOutBall() {
+    return !m_photoeye2.get();
+  }
+  
+  //might be temporary
+  public int countBall() {
+    if (getInBall()) {
+      ballIn = true;
+    } else if (!getInBall() && ballIn) {
+      ballIn = false;
+      ballCount += 1;
+    } else if (getOutBall()) {
+     ballOut = true;
+    } else if (!getOutBall() && ballOut) {
+      ballOut = false;
+      ballCount -= 1;
+    }
+    return ballCount;
   }
 }
