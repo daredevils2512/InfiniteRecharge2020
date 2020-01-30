@@ -9,9 +9,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.Commands;
-import frc.robot.commands.PrecisionControl;
-import frc.robot.commands.RotationControl;
+import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
@@ -70,7 +68,7 @@ public class RobotContainer {
     // Start/stop intaking
     m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
 
-    // Run shooter at full speed
+    // Run shooter at a set motor output
     m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
 
     // Extend/retract spinner

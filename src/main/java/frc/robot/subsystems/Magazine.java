@@ -54,6 +54,8 @@ public class Magazine extends SubsystemBase {
     magazineSpinner.configAllSettings(magazineConfig);
   }
 
+  
+
   @Override
   public void periodic() {
 
