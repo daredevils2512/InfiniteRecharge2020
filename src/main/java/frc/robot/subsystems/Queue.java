@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,6 +33,9 @@ public class Queue extends SubsystemBase {
   private final DoubleSolenoid.Value m_closedValue = Value.kReverse;
   private final DoubleSolenoid m_gate;
 
+  private final int m_photoeyeID = -1;
+  private final DigitalInput m_photoeye;
+
   /**
    * Creates a new Queue.
    */
@@ -44,6 +48,8 @@ public class Queue extends SubsystemBase {
     m_runMotor.configFactoryDefault();
 
     m_gate = new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel);
+
+    m_photoeye = new DigitalInput(m_photoeyeID);
   }
 
   @Override
@@ -62,5 +68,9 @@ public class Queue extends SubsystemBase {
 
   public void setClosed(boolean wantsClosed) {
     m_gate.set(wantsClosed ? m_closedValue : m_openValue);
+  }
+
+  public boolean getBall() {
+    return m_photoeye.get();
   }
 }
