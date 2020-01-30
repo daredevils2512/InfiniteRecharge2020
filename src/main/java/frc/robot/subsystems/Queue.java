@@ -16,8 +16,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.sensors.Photoeye;
 
 public class Queue extends SubsystemBase {
+  private final int m_photoeyeID = -1;
+  private final Photoeye m_queuePhotoeye;
+
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
@@ -46,6 +50,7 @@ public class Queue extends SubsystemBase {
 
     m_gate = new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel);
 
+    m_queuePhotoeye = new Photoeye(m_photoeyeID);
   }
 
   @Override
@@ -64,5 +69,9 @@ public class Queue extends SubsystemBase {
 
   public void setClosed(boolean wantsClosed) {
     m_gate.set(wantsClosed ? m_closedValue : m_openValue);
+  }
+
+  public boolean getBallInQueue() {
+    return !m_queuePhotoeye.get();
   }
 }

@@ -24,13 +24,11 @@ public class Magazine extends SubsystemBase {
   private final Photoeye m_photoeye2;
 
   private final int magazineID = -1;
-  private final int queueID = -1;
 
   private final int ticksPerBall = -1;
   private final double arbitraryFeedForward = -1;
 
   private final WPI_TalonSRX magazineSpinner;
-  private final WPI_TalonSRX queue;
   private final TalonSRXConfiguration magazineConfig;
   
   //these are for the ball counter
@@ -43,7 +41,6 @@ public class Magazine extends SubsystemBase {
    */
   public Magazine() {
     magazineSpinner = new WPI_TalonSRX(this.magazineID);
-    queue = new WPI_TalonSRX(this.queueID);
     magazineSpinner.setSelectedSensorPosition(0);
     magazineConfig = new TalonSRXConfiguration();
 
@@ -57,12 +54,10 @@ public class Magazine extends SubsystemBase {
   
   public void setSpeed(double speed) {
     magazineSpinner.set(ControlMode.PercentOutput, speed);
-    queue.set(ControlMode.PercentOutput, speed);
   }
 
   public void feedBalls(int amount) {
     magazineSpinner.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward, arbitraryFeedForward);
-    queue.set(1.0); // we need to know this number
   }
 
   public void config() {
@@ -72,12 +67,10 @@ public class Magazine extends SubsystemBase {
     magazineSpinner.configAllSettings(magazineConfig);
   }
 
-  
-
   @Override
   public void periodic() {
     countBall();
-    SmartDashboard.putNumber("balls in queue", countBall());
+    SmartDashboard.putNumber("balls in magazine", countBall());
   }
   
   public boolean getInBall() {
