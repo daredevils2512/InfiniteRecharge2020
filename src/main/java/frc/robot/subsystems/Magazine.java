@@ -12,11 +12,16 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.sensors.Photoeye;
 
 public class Magazine extends SubsystemBase {
+  
+  private final int m_photoeye1ID = -1;
+  private final int m_photoeye2ID = -1;
+  private final Photoeye m_photoeye1;
+  private final Photoeye m_photoeye2;
 
   private final int magazineID = -1;
   private final int queueID = -1;
@@ -27,11 +32,6 @@ public class Magazine extends SubsystemBase {
   private final WPI_TalonSRX magazineSpinner;
   private final WPI_TalonSRX queue;
   private final TalonSRXConfiguration magazineConfig;
-  
-  private final int m_photoeye1ID = -1;
-  private final int m_photoeye2ID = -1;
-  private final DigitalInput m_photoeye1;
-  private final DigitalInput m_photoeye2;
   
   //these are for the ball counter
   private int ballCount;
@@ -46,9 +46,9 @@ public class Magazine extends SubsystemBase {
     queue = new WPI_TalonSRX(this.queueID);
     magazineSpinner.setSelectedSensorPosition(0);
     magazineConfig = new TalonSRXConfiguration();
-    
-    m_photoeye1 = new DigitalInput(m_photoeye1ID);
-    m_photoeye2 = new DigitalInput(m_photoeye2ID);
+
+    m_photoeye1 = new Photoeye(m_photoeye1ID);
+    m_photoeye2 = new Photoeye(m_photoeye2ID);
     
     ballCount = 0;
     ballIn = false;
