@@ -16,6 +16,7 @@ import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 
@@ -31,6 +32,7 @@ public class RobotContainer {
   private final Intake m_intake = new Intake();
   private final Shooter m_shooter = new Shooter();
   private final Spinner m_spinner = new Spinner();
+  private final Queue m_queue = new Queue();
 
   private final Command m_autonomousCommand;
 
@@ -72,6 +74,11 @@ public class RobotContainer {
 
     m_controlBoard.extreme.baseMiddleLeft.whenPressed( new RotationControl (m_spinner, 3));
     m_controlBoard.extreme.baseMiddleRight.whenPressed( new PrecisionControl(m_spinner, ColorDetect.Red));
+    //runs the queue. dont really have a button planned for it
+    m_controlBoard.extreme.baseFrontRight.whileHeld(Commands.runQueue(m_queue, 0.5));
+
+    //toggles the hard stop on the queue if there is one. also dont have a button for it
+    m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
   }
 
   /**
