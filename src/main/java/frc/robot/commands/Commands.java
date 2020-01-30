@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.Turret;
 import frc.robot.RobotContainer;
 
@@ -128,10 +128,23 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
-    return new StartEndCommand(() -> shooter.percentOutput(speedSupplier.getAsDouble()), () -> shooter.percentOutput(0), shooter);
+    return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 
   public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
-    return null; // TODO: Implement shooter set velocity command
+    return new RunCommand(() -> shooter.setTargetVelocity(velocitySupplier.getAsDouble()), shooter);
   }
+
+  public static Command setShooterAngle(Shooter shooter, DoubleSupplier angleSupplier) {
+    return new RunCommand(() -> shooter.setTargetAngle(angleSupplier.getAsDouble()), shooter);
+  }
+
+  public static Command stopShooter(Shooter shooter) {
+    return new InstantCommand(() -> shooter.stop(), shooter);
+  }
+
+  public static Command setSpinnerExtended(Spinner spinner, boolean wantsExtended) {
+    return new InstantCommand(() -> spinner.setExtended(wantsExtended), spinner);
+  }
+
 }
