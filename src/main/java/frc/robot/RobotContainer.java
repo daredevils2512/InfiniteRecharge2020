@@ -30,12 +30,14 @@ public class RobotContainer {
   private final ControlBoard m_controlBoard = new ControlBoard();
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Intake m_intake = new Intake();
+  @SuppressWarnings("unused")
   private final Shooter m_shooter = new Shooter();
   private final Spinner m_spinner = new Spinner();
   private final Queue m_queue = new Queue();
 
   private final Command m_autonomousCommand;
 
+  @SuppressWarnings("unused")
   private double m_intakeExtenderSlowify = 0.2;
 
   /**
@@ -45,7 +47,10 @@ public class RobotContainer {
     m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
 
     // Temporary controls for testing intake extender
-    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
+    // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
+
+    // Temporary controls for testing shooter
+    // m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getStickY));
 
     configureButtonBindings();
 
