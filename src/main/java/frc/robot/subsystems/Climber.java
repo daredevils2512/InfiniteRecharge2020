@@ -35,13 +35,13 @@ public class Climber extends SubsystemBase {
     m_rightHorizontalMaster.set(speed);
   }
 
-
+  // TODO: Implement climbing
   public void climbLeft(Drivetrain drivetrain, double speed) {
-    drivetrain.driveLeft(speed);
+    
   }
 
   public void climbRight(Drivetrain drivetrain, double speed) {
-    drivetrain.driveRight(speed);
+    
   }
 
 
