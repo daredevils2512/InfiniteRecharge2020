@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
@@ -28,6 +29,14 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * The drivetrain is a 6 wheel west coast differential drivetrain
+ * with two-gear transmission. It consists of four {@link TalonFX}
+ * motor controllers for driving (two per side), a {@link DoubleSolenoid}
+ * for shifting, two 256PPR optical encoders encoders (one per side)
+ * mounted to the output of the gearbox for distance calculation,
+ * and a {@link PigeonIMU} for heading calculation.
+ */
 public class Drivetrain extends SubsystemBase {
   /**
    * All network table enties are stored as variables so they
@@ -198,7 +207,7 @@ public class Drivetrain extends SubsystemBase {
     double rightFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
     double leftPIDOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
     double rightPIDOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
-    
+
     m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
     m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
   }
@@ -264,7 +273,7 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Get the current pose (rotation and translation) of the robot
-   * @return Pose with x and y in meters
+   * @return Pose with translation in meters
    */
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
