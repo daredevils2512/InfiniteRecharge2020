@@ -75,8 +75,7 @@ public class Drivetrain extends SubsystemBase {
 
   private final int m_encoderResolution = 256;
   private final double m_gearRatio = 3 / 1;
-  // TODO: Find out wheel diameter
-  private final double m_wheelDiameter = Units.inchesToMeters(8); // Wheel diameter in meters
+  private final double m_wheelDiameter = Units.inchesToMeters(6); // Wheel diameter in meters
   // TODO: Find out track width (can be calculated using the characterization tool)
   private final double m_trackWidth = Units.inchesToMeters(28);
   // TODO: Find out max speeds for low and high gear
