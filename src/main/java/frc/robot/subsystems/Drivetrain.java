@@ -46,11 +46,10 @@ public class Drivetrain extends SubsystemBase {
   public final NetworkTableEntry m_pitchEntry;
   public final NetworkTableEntry m_rollEntry;
 
-  // TODO: Configure drivetrain CAN
-  private final int m_leftDriveMasterID = -1;
-  private final int m_leftDriveFollowerID = -1;
-  private final int m_rightDriveMasterID = -1;
-  private final int m_rightDriveFollowerID = -1;
+  private final int m_leftDriveMasterID = 10;
+  private final int m_leftDriveFollowerID = 11;
+  private final int m_rightDriveMasterID = 12;
+  private final int m_rightDriveFollowerID = 13;
 
   private final WPI_TalonFX m_leftDriveMaster;
   private final WPI_TalonFX m_leftDriveFollower;
@@ -65,7 +64,7 @@ public class Drivetrain extends SubsystemBase {
   private final Encoder m_leftEncoder;
   private final Encoder m_rightEncoder;
 
-  private final int m_pigeonID = -1;
+  private final int m_pigeonID = 14;
   private final PigeonIMU m_pigeon;
 
   private final int m_shifterForwardChannel = -1;
