@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * The drivetrain is a 6 wheel west coast differential drivetrain
  * with two-gear transmission. It consists of four {@link TalonFX}
  * motor controllers for driving (two per side), a {@link DoubleSolenoid}
- * for shifting, two 256PPR optical encoders encoders (one per side)
+ * for shifting, two 256PPR optical encoders (one per side)
  * mounted to the output of the gearbox for distance calculation,
  * and a {@link PigeonIMU} for heading calculation.
  */
