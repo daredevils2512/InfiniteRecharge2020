@@ -185,22 +185,22 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Set the drivetrain's linear and angular target velocities
-   * @param linearVelocity Velocity in meters per second
-   * @param angularVelocity Velocity in radians per second
+   * @param velocity Velocity in meters per second
+   * @param angularVelocity Angular velocity in radians per second
    */
-  public void arcadeDrive(double linearVelocity, double angularVelocity) {
-    linearVelocity = m_isDrivingInverted ? -linearVelocity : linearVelocity;
-    DifferentialDriveWheelSpeeds wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(linearVelocity, 0, angularVelocity));
-    setSpeeds(wheelSpeeds);
+  public void arcadeDrive(double velocity, double angularVelocity) {
+    velocity = m_isDrivingInverted ? -velocity : velocity;
+    setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
   }
 
   private void setSpeeds(DifferentialDriveWheelSpeeds wheelSpeeds) {
     double leftFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
     double rightFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
-    double leftOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
-    double rightOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
-    m_leftDriveMaster.set(leftOutput + leftFeedforward);
-    m_rightDriveMaster.set(rightOutput + rightFeedforward);
+    double leftPIDOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
+    double rightPIDOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
+    
+    m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
+    m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
   }
 
   public void setDrivingInverted(boolean wantsInverted) {
