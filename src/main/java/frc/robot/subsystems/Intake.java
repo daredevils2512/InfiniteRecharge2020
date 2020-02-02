@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -20,6 +21,7 @@ public class Intake extends SubsystemBase {
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
+  private final NetworkTableEntry m_angleEntry;
 
   private final int m_extendMotorID = 20;
   private final int m_runMotorID = 21;
@@ -34,7 +36,7 @@ public class Intake extends SubsystemBase {
   private final int m_extenderEncoderResolution = 4096;
   private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
   // TODO: Find the intake range of motion
-  private final double m_rangeOfMotion = 0; // Angle in degrees
+  private final double m_extendedAngle = 0; // Angle in degrees, assuming retracted is zero degrees
 
   // TODO: Configure PID for intake extender
   private final int m_motionMagicSlot = 0;
@@ -54,6 +56,7 @@ public class Intake extends SubsystemBase {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
     m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
+    m_angleEntry = m_networkTable.getEntry("Angle");
 
     m_extendMotor = new TalonSRX(m_extendMotorID);
     m_runMotor = new TalonSRX(m_runMotorID);
@@ -71,18 +74,27 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // if(m_motionMagicEnabled) {
-    //   double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
-    //   double targetPosition = toSensorUnits(targetAngle);
-    //   double gravityScalar = Math.cos(Math.toRadians(targetAngle));
-    //   m_extendMotor.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
-    // }
+    if (m_retractedLimitSwitch.get()) {
+      m_extendMotor.setSelectedSensorPosition(0);
+    } else if (m_extendedLimitSwitch.get()) {
+      m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
+    } else if (m_motionMagicEnabled) {
+      double targetAngle = m_extended ? m_extendedAngle : 0;
+      double targetPosition = toEncoderTicks(targetAngle);
+      double gravityScalar = Math.cos(Math.toRadians(targetAngle));
+      m_extendMotor.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
+    }
 
     m_extendedEntry.setBoolean(m_extended);
     m_motionMagicEnbledEntry.setBoolean(m_motionMagicEnabled);
+    m_angleEntry.setNumber(toDegrees(m_extendMotor.getSelectedSensorPosition()));
   }
 
   public void setMotionMagicEnabled(boolean wantsEnabled) {
+    if (!wantsEnabled) {
+      m_extendMotor.set(ControlMode.PercentOutput, 0);
+    }
+
     m_motionMagicEnabled = wantsEnabled;
   }
 
@@ -102,9 +114,12 @@ public class Intake extends SubsystemBase {
    * Temporary function for testing/tuning the extender
    */
   public void runExtender(double output) {
-    if(m_retractedLimitSwitch.get()) {
+    // Stop running motion magic so it doesn't interfere
+    m_motionMagicEnabled = false;
+
+    if (m_retractedLimitSwitch.get()) {
       output = Math.max(0, output);
-    } else if(m_extendedLimitSwitch.get()) {
+    } else if (m_extendedLimitSwitch.get()) {
       output = Math.min(output, 0);
     }
 
