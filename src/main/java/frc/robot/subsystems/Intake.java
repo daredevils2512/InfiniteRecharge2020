@@ -8,12 +8,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.sensors.LimitSwitch;
 
 public class Intake extends SubsystemBase {
   private final NetworkTable m_networkTable;
@@ -23,12 +23,15 @@ public class Intake extends SubsystemBase {
   private final TalonSRX m_extendMotor;
   private final TalonSRX m_runMotor;
 
+  private final int m_retractedLimitSwitchPort = -1;
+  private final int m_extendedLimitSwitchPort = -1;
+  private final LimitSwitch m_retractedLimitSwitch;
+  private final LimitSwitch m_extendedLimitSwitch;
+
   private final int m_extenderEncoderResolution = 4096;
   private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
-  // TODO: Find the intake setpoint angles
-  // Assume zero degrees is horizontal
-  private final double m_retractedAngle = 90;
-  private final double m_extendedAngle = 0;
+  // TODO: Find the intake range of motion
+  private final double m_rangeOfMotion = 0; // Angle in degrees
 
   // TODO: Configure PID for intake extender
   private final int m_motionMagicSlot = 0;
@@ -56,6 +59,9 @@ public class Intake extends SubsystemBase {
     m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
+
+    m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
+    m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
   }
 
   @Override
@@ -87,10 +93,16 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Temporary function for testing/configuring the extender
+   * Temporary function for testing/tuning the extender
    */
-  public void runExtender(double speed) {
-    m_extendMotor.set(ControlMode.PercentOutput, speed);
+  public void runExtender(double output) {
+    if(m_retractedLimitSwitch.get()) {
+      output = Math.max(0, output);
+    } else if(m_extendedLimitSwitch.get()) {
+      output = Math.min(output, 0);
+    }
+
+    m_extendMotor.set(ControlMode.PercentOutput, output);
   }
 
   /**
