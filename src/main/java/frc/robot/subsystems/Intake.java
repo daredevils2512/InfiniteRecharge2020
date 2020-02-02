@@ -23,7 +23,7 @@ public class Intake extends SubsystemBase {
   private final TalonSRX m_extendMotor;
   private final TalonSRX m_runMotor;
 
-  private final int m_extenderEncoderResolution = 4096; // TODO: Find intake extender encoder resolution
+  private final int m_extenderEncoderResolution = 4096;
   private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
   // TODO: Find the intake setpoint angles
   // Assume zero degrees is horizontal
