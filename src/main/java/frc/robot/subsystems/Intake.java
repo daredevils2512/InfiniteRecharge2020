@@ -11,12 +11,15 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.LimitSwitch;
 
 public class Intake extends SubsystemBase {
   private final NetworkTable m_networkTable;
+  private final NetworkTableEntry m_extendedEntry;
+  private final NetworkTableEntry m_motionMagicEnbledEntry;
 
   private final int m_extendMotorID = 20;
   private final int m_runMotorID = 21;
@@ -49,6 +52,8 @@ public class Intake extends SubsystemBase {
    */
   public Intake() {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_extendedEntry = m_networkTable.getEntry("Extended");
+    m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
 
     m_extendMotor = new TalonSRX(m_extendMotorID);
     m_runMotor = new TalonSRX(m_runMotorID);
@@ -73,7 +78,8 @@ public class Intake extends SubsystemBase {
     //   m_extendMotor.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
     // }
 
-    m_networkTable.getEntry("Extended").setBoolean(m_extended);
+    m_extendedEntry.setBoolean(m_extended);
+    m_motionMagicEnbledEntry.setBoolean(m_motionMagicEnabled);
   }
 
   public void setMotionMagicEnabled(boolean wantsEnabled) {
