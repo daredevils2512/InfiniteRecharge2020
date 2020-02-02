@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
@@ -30,8 +31,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Drivetrain extends SubsystemBase {
   /**
    * All network table enties are stored as variables so they
-   * can be referenced more reliably (instead of by name via string),
-   * and entries that need to be externally accessable are public.
+   * can be referenced more reliably (instead of by name via string)
    */
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_leftPGainEntry;
@@ -131,6 +131,11 @@ public class Drivetrain extends SubsystemBase {
     // Designate drive masters
     m_leftDriveFollower.follow(m_leftDriveMaster);
     m_rightDriveFollower.follow(m_rightDriveMaster);
+
+    m_leftDriveMaster.setInverted(InvertType.InvertMotorOutput);
+    m_leftDriveFollower.setInverted(InvertType.FollowMaster);
+    m_rightDriveMaster.setInverted(InvertType.None);
+    m_rightDriveFollower.setInverted(InvertType.FollowMaster);
 
     m_leftEncoder = new Encoder(m_leftEncoderChannelA, m_leftEncoderChannelB);
     m_rightEncoder = new Encoder(m_rightEncoderChannelA, m_rightEncoderChannelB);
