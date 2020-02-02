@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
   private final NetworkTable m_networkTable;
 
-  private final int m_extendMotorID = -1;
-  private final int m_runMotorID = -1;
+  private final int m_extendMotorID = 20;
+  private final int m_runMotorID = 21;
   private final TalonSRX m_extendMotor;
   private final TalonSRX m_runMotor;
 
