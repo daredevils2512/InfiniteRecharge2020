@@ -9,11 +9,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
@@ -32,6 +35,7 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   private final Spinner m_spinner = new Spinner();
   private final Queue m_queue = new Queue();
+  private final Magazine m_magazine = new Magazine();
 
   private final Command m_autonomousCommand;
 
@@ -43,6 +47,8 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
+    m_magazine.setDefaultCommand(new RunCommand(() -> m_magazine.setSpeed(m_queue.getBallInQueue() && m_magazine.countBall() >= 1? 0 : 1), m_magazine));
+    m_queue.setDefaultCommand(new RunCommand(() -> m_queue.run(m_queue.getBallInQueue() && m_magazine.countBall() >= 1? 0 : 1, false), m_magazine));
 
     // Temporary controls for testing intake extender
     // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));

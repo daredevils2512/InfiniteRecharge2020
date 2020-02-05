@@ -12,11 +12,14 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.Photoeye;
 
 public class Magazine extends SubsystemBase {
+  private final NetworkTable m_networkTable;
   
   private final int m_photoeye1ID = -1;
   private final int m_photoeye2ID = -1;
@@ -46,6 +49,8 @@ public class Magazine extends SubsystemBase {
 
     m_photoeye1 = new Photoeye(m_photoeye1ID);
     m_photoeye2 = new Photoeye(m_photoeye2ID);
+
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     
     ballCount = 0;
     ballIn = false;
@@ -65,12 +70,6 @@ public class Magazine extends SubsystemBase {
     magazineConfig.motionCurveStrength = (int)SmartDashboard.getNumberArray("magazine PID array", new double[]{0, 0, 0})[1];
     magazineConfig.motionAcceleration = (int)SmartDashboard.getNumberArray("magazine PID array", new double[]{0, 0, 0})[2];
     magazineSpinner.configAllSettings(magazineConfig);
-  }
-
-  @Override
-  public void periodic() {
-    countBall();
-    SmartDashboard.putNumber("balls in magazine", countBall());
   }
   
   public boolean getInBall() {
@@ -95,5 +94,11 @@ public class Magazine extends SubsystemBase {
       ballCount -= 1;
     }
     return ballCount;
+  }
+
+  @Override
+  public void periodic() {
+    countBall();
+    m_networkTable.getEntry("balls in mag").forceSetNumber(countBall());
   }
 }
