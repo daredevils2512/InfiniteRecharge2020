@@ -110,7 +110,7 @@ public class Drivetrain extends SubsystemBase {
   private double m_rightDGain = 0;
 
   /**
-   * Creates a new Drivetrain.
+   * Creates a new drivetrain
    */
   public Drivetrain() {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
