@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.RefillQueue;
 import frc.robot.sensors.Photoeye;
 
 public class Magazine extends SubsystemBase {
@@ -38,6 +39,7 @@ public class Magazine extends SubsystemBase {
   private int ballCount;
   private boolean ballIn;
   private boolean ballOut;
+  private boolean invalidBallCount;
 
   /**
    * Creates a new PowerCellManager.
@@ -55,6 +57,7 @@ public class Magazine extends SubsystemBase {
     ballCount = 0;
     ballIn = false;
     ballOut = false;
+    invalidBallCount = false;
   }
   
   public void setSpeed(double speed) {
@@ -79,8 +82,19 @@ public class Magazine extends SubsystemBase {
   public boolean getOutBall() {
     return !m_photoeye2.get();
   }
+
+  public void setBallsInMag(int set) {
+    ballCount = set;
+  }
+
+  public void resetBallCount() {
+    setBallsInMag(0);
+  }
+
+  public boolean getInvalidBallCount() {
+    return invalidBallCount;
+  }
   
-  //might be temporary
   public int countBall() {
     if (getInBall()) {
       ballIn = true;
@@ -93,12 +107,25 @@ public class Magazine extends SubsystemBase {
       ballOut = false;
       ballCount -= 1;
     }
+    if (ballCount < 0 || ballCount > 3) {
+      invalidBallCount = true;
+    } else {
+      invalidBallCount = false;
+    }
     return ballCount;
+  }
+
+  public void updateBall() {
+    countBall();
+    SmartDashboard.putNumber("balls in magazine", countBall());
+    SmartDashboard.putBoolean("invalid ball count", getInvalidBallCount());
+    if (getInvalidBallCount()) {
+      System.out.println("INVALID BALL COUNT");
+    }
   }
 
   @Override
   public void periodic() {
-    countBall();
-    m_networkTable.getEntry("balls in mag").forceSetNumber(countBall());
+    updateBall();
   }
 }
