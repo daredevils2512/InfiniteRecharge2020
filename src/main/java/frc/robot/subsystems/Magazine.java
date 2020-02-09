@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.commands.RefillQueue;
 import frc.robot.sensors.Photoeye;
 
@@ -112,7 +113,7 @@ public class Magazine extends SubsystemBase {
     } else {
       invalidBallCount = false;
     }
-    return ballCount;
+    return MathUtil.clamp(ballCount, 0, 3);
   }
 
   public void updateBall() {
