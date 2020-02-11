@@ -47,8 +47,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_drivetrain.setDefaultCommand(Commands.arcadeDrive(m_drivetrain, m_controlBoard.xbox::getLeftStickY, m_controlBoard.xbox::getRightStickX));
-    m_magazine.setDefaultCommand(new RunCommand(() -> m_magazine.setSpeed(m_queue.getBallInQueue() && m_magazine.countBall() >= 1? 0 : 1), m_magazine));
-    m_queue.setDefaultCommand(new RunCommand(() -> m_queue.run(m_queue.getBallInQueue() && m_magazine.countBall() >= 1? 0 : 1, false), m_magazine));
+    m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
 
     // Temporary controls for testing intake extender
     // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));

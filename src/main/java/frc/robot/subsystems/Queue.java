@@ -16,11 +16,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.sensors.Photoeye;
+import frc.robot.sensors.PhotoEye;
 
 public class Queue extends SubsystemBase {
-  private final int m_photoeyeID = -1;
-  private final Photoeye m_queuePhotoeye;
+  private final int m_photoEyeChannel = -1;
+  private final PhotoEye m_photoEye;
 
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
@@ -50,21 +50,25 @@ public class Queue extends SubsystemBase {
 
     m_gate = new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel);
 
-    m_queuePhotoeye = new Photoeye(m_photoeyeID);
+    m_photoEye = new PhotoEye(m_photoEyeChannel);
   }
 
   @Override
   public void periodic() {
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
-    m_isClosedEntry.setBoolean(getIsClosed());
+    m_isClosedEntry.setBoolean(getClosed());
+  }
+
+  public void run(double speed) {
+    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public void run(double speed, boolean wantsClosed) {
     setClosed(wantsClosed);
-    m_runMotor.set(ControlMode.PercentOutput, speed);
+    run(speed);
   }
 
-  public boolean getIsClosed() {
+  public boolean getClosed() {
     return m_gate.get() == m_closedValue;
   }
 
@@ -73,6 +77,6 @@ public class Queue extends SubsystemBase {
   }
 
   public boolean getBallInQueue() {
-    return !m_queuePhotoeye.get();
+    return !m_photoEye.get();
   }
 }
