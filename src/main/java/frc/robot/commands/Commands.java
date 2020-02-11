@@ -66,8 +66,36 @@ public final class Commands {
 
   }
 
-  public static Command arcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
-    return new RunCommand(() -> drivetrain.arcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
+  /**
+   * Simple percent output arcade drive
+   * @param drivetrain Drivetrain to use
+   * @param moveSupplier Forward speed supplier (-1 to +1)
+   * @param turnSupplier Turn speed supplier (-1 to +1)
+   * @return New {@link Command}
+   */
+  public static Command simpleArcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
+    return new RunCommand(() -> drivetrain.simpleArcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
+  }
+
+  /**
+   * Arcade drive with PID velocity control
+   * @param drivetrain Drivetrain to use
+   * @param moveSupplier Forward speed supplier (-1 to +1)
+   * @param turnSupplier Turn speed supplier (-1 to +1)
+   * @return New {@link Command}
+   */
+  public static Command velocityArcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
+    DoubleSupplier velocitySupplier = () -> moveSupplier.getAsDouble() * drivetrain.getMaxSpeed();
+    DoubleSupplier angularVelocitySupplier = () -> turnSupplier.getAsDouble() * drivetrain.getMaxAngularSpeed();
+    return new RunCommand(() -> drivetrain.velocityArcadeDrive(velocitySupplier.getAsDouble(), angularVelocitySupplier.getAsDouble()), drivetrain);
+  }
+
+  public static Command accelerationLimitedSimpleArcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier, double maxMoveAcceleration, double maxTurnAcceleration) {
+    return new AccelerationLimitedSimpleArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration, maxTurnAcceleration);
+  }
+
+  public static Command accelerationLimitedVelocityArcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier, double maxMoveAcceleration, double maxTurnAcceleration) {
+    return new AccelerationLimitedVelocityArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration, maxTurnAcceleration);
   }
 
   //probly temporary

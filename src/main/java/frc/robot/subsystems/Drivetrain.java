@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -83,13 +84,15 @@ public class Drivetrain extends SubsystemBase {
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
   private final int m_encoderResolution = 256;
-  private final double m_gearRatio = 3 / 1;
+  private final double m_gearRatio = 1; // Ask Sunna what this is
   private final double m_wheelDiameter = Units.inchesToMeters(6); // Wheel diameter in meters
   // TODO: Find out track width (can be calculated using the characterization tool)
   private final double m_trackWidth = Units.inchesToMeters(28);
   // TODO: Find out max speeds for low and high gear
   private final double m_maxSpeedHighGear = 3; // Max speed in high gear in meters per second
   private final double m_maxSpeedLowGear = 1; // Max speed in low gear in meters per second
+  private final double m_maxAngularSpeedHighGear = 2;
+  private final double m_maxAngularSpeedLowGear = 1;
 
   private boolean m_isDrivingInverted = false;
 
@@ -193,11 +196,91 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /**
+   * Get the current max speed depending on the current gear
+   * @return Speed in meters per second
+   */
+  public double getMaxSpeed() {
+    return getLowGear() ? m_maxSpeedLowGear : m_maxSpeedHighGear;
+  }
+
+  public double getMaxAngularSpeed() {
+    return getLowGear() ? m_maxAngularSpeedLowGear : m_maxAngularSpeedHighGear;
+  }
+
+  public void setDrivingInverted(boolean wantsInverted) {
+    m_isDrivingInverted = wantsInverted;
+  }
+
+  public void resetDriveEncoders() {
+    m_leftEncoder.reset();
+    m_rightEncoder.reset();
+  }
+
+  private double getYaw() {
+    return m_gyroData[0];
+  }
+
+  private double getPitch() {
+    return m_gyroData[1];
+  }
+
+  private double getRoll() {
+    return m_gyroData[2];
+  }
+
+  public double getHeading() {
+    return m_pigeon.getFusedHeading();
+  }
+
+  /**
+   * Set a new heading for the drivetrain
+   * @param angle
+   */
+  public void setHeading(double angle) {
+    m_pigeon.setFusedHeading(angle);
+  }
+
+  /**
+   * Must be called periodically to retrieve gyro data from the {@link PigeonIMU}
+   */
+  private void updateGyroData() {
+    m_pigeon.getYawPitchRoll(m_gyroData);
+  }
+
+  public void setLowGear(boolean wantsLowGear) {
+    m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
+  }
+
+  public boolean getLowGear() {
+    return m_shifter.get() == m_lowGearValue;
+  }
+
+  /**
+   * Get the current pose (rotation and translation) of the robot
+   * @return Pose with translation in meters
+   */
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
+  }
+
+  /**
+   * Must be called periodically to maintain an accurate position and heading
+   */
+  private void updateOdometry() {
+    m_odometry.update(Rotation2d.fromDegrees(getYaw()), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+  }
+
+  public void simpleArcadeDrive(double move, double turn) {
+    m_leftDriveMaster.set(ControlMode.PercentOutput, move - turn);
+    m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
+  }
+
+  /**
    * Set the drivetrain's linear and angular target velocities
    * @param velocity Velocity in meters per second
    * @param angularVelocity Angular velocity in radians per second
    */
-  public void arcadeDrive(double velocity, double angularVelocity) {
+  public void velocityArcadeDrive(double velocity, double angularVelocity) {
     velocity = m_isDrivingInverted ? -velocity : velocity;
     setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
   }
@@ -210,72 +293,5 @@ public class Drivetrain extends SubsystemBase {
 
     m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
     m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
-  }
-
-  public void setDrivingInverted(boolean wantsInverted) {
-    m_isDrivingInverted = wantsInverted;
-  }
-
-  /**
-   * Get the current max speed depending on the current gear
-   * @return Speed in meters per second
-   */
-  public double getMaxSpeed() {
-    return getLowGear() ? m_maxSpeedLowGear : m_maxSpeedHighGear;
-  }
-
-  public void setLowGear(final boolean wantsLowGear) {
-    m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
-  }
-
-  public boolean getLowGear() {
-    return m_shifter.get() == m_lowGearValue;
-  }
-
-  public void resetDriveEncoders() {
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
-  }
-
-  /**
-   * Must be called periodically to retrieve gyro data from the {@link PigeonIMU}
-   */
-  private void updateGyroData() {
-    m_pigeon.getYawPitchRoll(m_gyroData);
-  }
-
-  public double getYaw() {
-    return m_gyroData[0];
-  }
-
-  public double getPitch() {
-    return m_gyroData[1];
-  }
-
-  public double getRoll() {
-    return m_gyroData[2];
-  }
-
-  /**
-   * Set a new heading for the drivetrain
-   * @param angle
-   */
-  public void setHeading(double angle) {
-    m_pigeon.setFusedHeading(angle);
-  }
-
-  /**
-   * Must be called periodically to maintain an accurate position and heading
-   */
-  private void updateOdometry() {
-    m_odometry.update(Rotation2d.fromDegrees(getYaw()), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
-  }
-
-  /**
-   * Get the current pose (rotation and translation) of the robot
-   * @return Pose with translation in meters
-   */
-  public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
   }
 }
