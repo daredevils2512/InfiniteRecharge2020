@@ -52,10 +52,14 @@ public class Drivetrain extends SubsystemBase {
   private final NetworkTableEntry m_rightIGainEntry;
   private final NetworkTableEntry m_rightDGainEntry;
   private final NetworkTableEntry m_invertedDrivingEntry;
-  private final NetworkTableEntry m_fusedHeadingEntry;
+  private final NetworkTableEntry m_leftDistanceEntry;
+  private final NetworkTableEntry m_rightDistanceEntry;
+  private final NetworkTableEntry m_leftVelocityEntry;
+  private final NetworkTableEntry m_rightVelocityEntry;
   private final NetworkTableEntry m_yawEntry;
   private final NetworkTableEntry m_pitchEntry;
   private final NetworkTableEntry m_rollEntry;
+  private final NetworkTableEntry m_fusedHeadingEntry;
   private final NetworkTableEntry m_lowGearEntry;
 
   private final int m_leftDriveMasterID = 10;
@@ -127,10 +131,14 @@ public class Drivetrain extends SubsystemBase {
     m_rightIGainEntry = m_networkTable.getEntry("Right I gain");
     m_rightDGainEntry = m_networkTable.getEntry("Right D gain");
     m_invertedDrivingEntry = m_networkTable.getEntry("Inverted driving");
-    m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
+    m_leftDistanceEntry = m_networkTable.getEntry("Left encoder distance");
+    m_rightDistanceEntry = m_networkTable.getEntry("Right encoder distance");
+    m_leftVelocityEntry = m_networkTable.getEntry("Left encoder velocity entry");
+    m_rightVelocityEntry = m_networkTable.getEntry("Right encoder velocity entry");
     m_yawEntry = m_networkTable.getEntry("Yaw");
     m_pitchEntry = m_networkTable.getEntry("Pitch");
     m_rollEntry = m_networkTable.getEntry("Roll");
+    m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
     m_lowGearEntry = m_networkTable.getEntry("Low gear");
 
     m_leftDriveMaster = new WPI_TalonFX(m_leftDriveMasterID);
@@ -192,6 +200,10 @@ public class Drivetrain extends SubsystemBase {
     m_rightDGainEntry.setNumber(m_leftDGain);
 
     m_invertedDrivingEntry.setBoolean(m_isDrivingInverted);
+    m_leftDistanceEntry.setNumber(getLeftDistance());
+    m_rightDistanceEntry.setNumber(getRightDistance());
+    m_leftVelocityEntry.setNumber(getLeftVelocity());
+    m_rightVelocityEntry.setNumber(getRightVelocity());
     m_fusedHeadingEntry.setNumber(getFusedHeading());
     m_yawEntry.setNumber(getYaw());
     m_pitchEntry.setNumber(getPitch());
@@ -222,6 +234,22 @@ public class Drivetrain extends SubsystemBase {
 
   public void setDrivingInverted(boolean wantsInverted) {
     m_isDrivingInverted = wantsInverted;
+  }
+
+  private double getLeftDistance() {
+    return m_leftEncoder.getDistance();
+  }
+
+  private double getRightDistance() {
+    return m_rightEncoder.getDistance();
+  }
+
+  private double getLeftVelocity() {
+    return m_leftEncoder.getRate();
+  }
+
+  private double getRightVelocity() {
+    return m_rightEncoder.getRate();
   }
 
   private double getYaw() {
