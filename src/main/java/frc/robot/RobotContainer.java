@@ -33,6 +33,8 @@ public class RobotContainer {
   private final Spinner m_spinner = new Spinner();
   private final Queue m_queue = new Queue();
 
+  private final Command m_defaultDriveCommand;
+
   private final Command m_autonomousCommand;
 
   @SuppressWarnings("unused")
@@ -42,7 +44,9 @@ public class RobotContainer {
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn()));
+    m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+
+    m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
 
     // Temporary controls for testing intake extender
     // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
@@ -84,15 +88,6 @@ public class RobotContainer {
     m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return m_autonomousCommand;
-  }
-
   private double getMove() {
     double move = -m_controlBoard.xbox.getLeftStickY();
     move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
@@ -106,7 +101,7 @@ public class RobotContainer {
   }
 
   public void setDriveType(DriveType driveType) {
-    Command driveCommand = null;
+    Command driveCommand;
     switch (driveType) {
       case SIMPLE_ARCADE_DRIVE:
         driveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
@@ -119,9 +114,20 @@ public class RobotContainer {
         break;
       case ACCELERATION_LIMITED_VELOCITY_ARCADE_DRIVE:
         driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
+        break;
       default:
+        driveCommand = m_defaultDriveCommand;
         break;
     }
     m_drivetrain.setDefaultCommand(driveCommand);
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return m_autonomousCommand;
   }
 }
