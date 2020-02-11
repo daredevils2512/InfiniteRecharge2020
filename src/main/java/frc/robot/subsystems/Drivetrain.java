@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -50,11 +51,12 @@ public class Drivetrain extends SubsystemBase {
   private final NetworkTableEntry m_rightPGainEntry;
   private final NetworkTableEntry m_rightIGainEntry;
   private final NetworkTableEntry m_rightDGainEntry;
-  public final NetworkTableEntry m_invertedDrivingEntry;
-  public final NetworkTableEntry m_lowGearEntry;
-  public final NetworkTableEntry m_yawEntry;
-  public final NetworkTableEntry m_pitchEntry;
-  public final NetworkTableEntry m_rollEntry;
+  private final NetworkTableEntry m_invertedDrivingEntry;
+  private final NetworkTableEntry m_fusedHeadingEntry;
+  private final NetworkTableEntry m_yawEntry;
+  private final NetworkTableEntry m_pitchEntry;
+  private final NetworkTableEntry m_rollEntry;
+  private final NetworkTableEntry m_lowGearEntry;
 
   private final int m_leftDriveMasterID = 10;
   private final int m_leftDriveFollowerID = 11;
@@ -66,10 +68,10 @@ public class Drivetrain extends SubsystemBase {
   private final WPI_TalonFX m_rightDriveMaster;
   private final WPI_TalonFX m_rightDriveFollower;
 
-  private final int m_leftEncoderChannelA = -1;
-  private final int m_leftEncoderChannelB = -1;
-  private final int m_rightEncoderChannelA = -1;
-  private final int m_rightEncoderChannelB = -1;
+  private final int m_leftEncoderChannelA = 0;
+  private final int m_leftEncoderChannelB = 1;
+  private final int m_rightEncoderChannelA = 2;
+  private final int m_rightEncoderChannelB = 3;
 
   private final Encoder m_leftEncoder;
   private final Encoder m_rightEncoder;
@@ -77,15 +79,16 @@ public class Drivetrain extends SubsystemBase {
   private final int m_pigeonID = 14;
   private final PigeonIMU m_pigeon;
 
-  private final int m_shifterForwardChannel = -1;
-  private final int m_shifterReverseChannel = -1;
+  private final int m_shifterForwardChannel = 0;
+  private final int m_shifterReverseChannel = 1;
   private final DoubleSolenoid m_shifter;
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
   private final int m_encoderResolution = 256;
-  private final double m_gearRatio = 1; // Ask Sunna what this is
+  private final double m_gearRatio = (double)15 / 2; // Encoder rotations to wheel rotations
   private final double m_wheelDiameter = Units.inchesToMeters(6); // Wheel diameter in meters
+  private final double m_wheelCircumference = m_wheelDiameter * Math.PI;
   // TODO: Find out track width (can be calculated using the characterization tool)
   private final double m_trackWidth = Units.inchesToMeters(28);
   // TODO: Find out max speeds for low and high gear
@@ -124,10 +127,11 @@ public class Drivetrain extends SubsystemBase {
     m_rightIGainEntry = m_networkTable.getEntry("Right I gain");
     m_rightDGainEntry = m_networkTable.getEntry("Right D gain");
     m_invertedDrivingEntry = m_networkTable.getEntry("Inverted driving");
-    m_lowGearEntry = m_networkTable.getEntry("Low gear");
+    m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
     m_yawEntry = m_networkTable.getEntry("Yaw");
     m_pitchEntry = m_networkTable.getEntry("Pitch");
     m_rollEntry = m_networkTable.getEntry("Roll");
+    m_lowGearEntry = m_networkTable.getEntry("Low gear");
 
     m_leftDriveMaster = new WPI_TalonFX(m_leftDriveMasterID);
     m_leftDriveFollower = new WPI_TalonFX(m_leftDriveFollowerID);
@@ -151,12 +155,11 @@ public class Drivetrain extends SubsystemBase {
 
     m_leftEncoder = new Encoder(m_leftEncoderChannelA, m_leftEncoderChannelB);
     m_rightEncoder = new Encoder(m_rightEncoderChannelA, m_rightEncoderChannelB);
-    m_leftEncoder.setDistancePerPulse(m_wheelDiameter * Math.PI * m_gearRatio / m_encoderResolution);
-    m_rightEncoder.setDistancePerPulse(m_wheelDiameter * Math.PI * m_gearRatio / m_encoderResolution);
+    m_leftEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
+    m_rightEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
 
     m_pigeon = new PigeonIMU(m_pigeonID);
     m_pigeon.configFactoryDefault();
-    m_pigeon.setFusedHeading(0);
 
     m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
 
@@ -189,10 +192,11 @@ public class Drivetrain extends SubsystemBase {
     m_rightDGainEntry.setNumber(m_leftDGain);
 
     m_invertedDrivingEntry.setBoolean(m_isDrivingInverted);
-    m_lowGearEntry.setBoolean(getLowGear());
+    m_fusedHeadingEntry.setNumber(getFusedHeading());
     m_yawEntry.setNumber(getYaw());
     m_pitchEntry.setNumber(getPitch());
     m_rollEntry.setNumber(getRoll());
+    m_lowGearEntry.setBoolean(getLowGear());
   }
 
   /**
@@ -207,13 +211,17 @@ public class Drivetrain extends SubsystemBase {
     return getLowGear() ? m_maxAngularSpeedLowGear : m_maxAngularSpeedHighGear;
   }
 
-  public void setDrivingInverted(boolean wantsInverted) {
-    m_isDrivingInverted = wantsInverted;
-  }
-
-  public void resetDriveEncoders() {
+  private void resetEncoders() {
     m_leftEncoder.reset();
     m_rightEncoder.reset();
+  }
+
+  public boolean getDrivingInverted() {
+    return m_isDrivingInverted;
+  }
+
+  public void setDrivingInverted(boolean wantsInverted) {
+    m_isDrivingInverted = wantsInverted;
   }
 
   private double getYaw() {
@@ -228,16 +236,8 @@ public class Drivetrain extends SubsystemBase {
     return m_gyroData[2];
   }
 
-  public double getHeading() {
+  private double getFusedHeading() {
     return m_pigeon.getFusedHeading();
-  }
-
-  /**
-   * Set a new heading for the drivetrain
-   * @param angle
-   */
-  public void setHeading(double angle) {
-    m_pigeon.setFusedHeading(angle);
   }
 
   /**
@@ -263,11 +263,34 @@ public class Drivetrain extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
+  public void resetPose() {
+    resetEncoders();
+    Pose2d newPose = new Pose2d();
+    m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+  }
+
+  public void resetPose(Translation2d translation) {
+    resetEncoders();
+    Pose2d newPose = new Pose2d(translation, getPose().getRotation());
+    m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+  }
+
+  public void resetPose(Rotation2d rotation) {
+    resetEncoders();
+    Pose2d newPose = new Pose2d(getPose().getTranslation(), rotation);
+    m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+  }
+
+  public void resetPose(Pose2d pose) {
+    resetEncoders();
+    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getFusedHeading()));
+  }
+
   /**
    * Must be called periodically to maintain an accurate position and heading
    */
   private void updateOdometry() {
-    m_odometry.update(Rotation2d.fromDegrees(getYaw()), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+    m_odometry.update(Rotation2d.fromDegrees(getFusedHeading()), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
   public void simpleArcadeDrive(double move, double turn) {
