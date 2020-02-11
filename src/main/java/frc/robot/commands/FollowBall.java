@@ -53,13 +53,13 @@ public class FollowBall extends CommandBase {
     }
     SmartDashboard.putNumber("move", move);
     SmartDashboard.putNumber("turn", turn);
-    m_drivetrain.arcadeDrive(move, turn);
+    m_drivetrain.simpleArcadeDrive(move, turn);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.arcadeDrive(0.0, 0.0);
+    m_drivetrain.simpleArcadeDrive(0.0, 0.0);
   }
 
   // Returns true when the command should end.
