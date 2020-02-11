@@ -17,7 +17,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.MathUtil;
-import frc.robot.commands.RefillQueue;
 import frc.robot.sensors.Photoeye;
 
 public class Magazine extends SubsystemBase {
@@ -41,6 +40,7 @@ public class Magazine extends SubsystemBase {
   private boolean ballIn;
   private boolean ballOut;
   private boolean invalidBallCount;
+  private boolean countInvert;
 
   /**
    * Creates a new PowerCellManager.
@@ -59,14 +59,17 @@ public class Magazine extends SubsystemBase {
     ballIn = false;
     ballOut = false;
     invalidBallCount = false;
+    countInvert = false;
   }
   
   public void setSpeed(double speed) {
     magazineSpinner.set(ControlMode.PercentOutput, speed);
+    countInvert = speed >= 0 ? false : true;
   }
 
   public void feedBalls(int amount) {
     magazineSpinner.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward, arbitraryFeedForward);
+    countInvert = amount * ticksPerBall >= 0 ? false : true;
   }
 
   public void config() {
@@ -96,23 +99,37 @@ public class Magazine extends SubsystemBase {
     return invalidBallCount;
   }
   
-  public int countBall() {
-    if (getInBall()) {
-      ballIn = true;
-    } else if (!getInBall() && ballIn) {
-      ballIn = false;
-      ballCount += 1;
-    } else if (getOutBall()) {
-     ballOut = true;
-    } else if (!getOutBall() && ballOut) {
-      ballOut = false;
-      ballCount -= 1;
+  //might be temporary
+  public int countBall() {  
+    if (!countInvert) {
+      if (getInBall()) {
+        ballIn = true;
+      } else if (!getInBall() && ballIn) {
+        ballIn = false;
+        ballCount += 1;
+      }
+
+      if (getOutBall()) {
+        ballOut = true;
+      } else if (!getOutBall() && ballOut) {
+        ballOut = false;
+        ballCount -= 1;
+      }
+    } else {
+      if (getInBall()) {
+        ballIn = true;
+      } else if (!getInBall() && ballIn) {
+        ballIn = false;
+        ballCount -= 1;
+      }
     }
+
     if (ballCount < 0 || ballCount > 3) {
       invalidBallCount = true;
     } else {
       invalidBallCount = false;
     }
+
     return MathUtil.clamp(ballCount, 0, 3);
   }
 

@@ -59,17 +59,9 @@ public class Queue extends SubsystemBase {
     m_isClosedEntry.setBoolean(getIsClosed());
   }
 
-  /** 
-   * @deprecated
-   * @see run(double speed, boolean wantsClosed)
-  */
-  public void run(double speed) {
-    m_runMotor.set(ControlMode.PercentOutput, speed);
-  }
-
   public void run(double speed, boolean wantsClosed) {
     setClosed(wantsClosed);
-    run(speed);
+    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public boolean getIsClosed() {
