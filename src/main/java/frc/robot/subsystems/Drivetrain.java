@@ -7,6 +7,13 @@
 
 package frc.robot.subsystems;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Properties;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -18,6 +25,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -61,45 +69,48 @@ public class Drivetrain extends SubsystemBase {
   private final NetworkTableEntry m_rollEntry;
   private final NetworkTableEntry m_fusedHeadingEntry;
   private final NetworkTableEntry m_lowGearEntry;
+  
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/drivetrain.properties";
 
-  private final int m_leftDriveMasterID = 10;
-  private final int m_leftDriveFollowerID = 11;
-  private final int m_rightDriveMasterID = 12;
-  private final int m_rightDriveFollowerID = 13;
+  private final int m_leftDriveMasterID; //should be in properties file
+  private final int m_leftDriveFollowerID;
+  private final int m_rightDriveMasterID;
+  private final int m_rightDriveFollowerID;
 
   private final WPI_TalonFX m_leftDriveMaster;
   private final WPI_TalonFX m_leftDriveFollower;
   private final WPI_TalonFX m_rightDriveMaster;
   private final WPI_TalonFX m_rightDriveFollower;
 
-  private final int m_leftEncoderChannelA = 0;
-  private final int m_leftEncoderChannelB = 1;
-  private final int m_rightEncoderChannelA = 2;
-  private final int m_rightEncoderChannelB = 3;
+  private final int m_leftEncoderChannelA; //should be in properties file
+  private final int m_leftEncoderChannelB;
+  private final int m_rightEncoderChannelA;
+  private final int m_rightEncoderChannelB;
 
   private final Encoder m_leftEncoder;
   private final Encoder m_rightEncoder;
 
-  private final int m_pigeonID = 14;
+  private final int m_pigeonID; //should be in properties file
   private final PigeonIMU m_pigeon;
 
-  private final int m_shifterForwardChannel = 0;
-  private final int m_shifterReverseChannel = 1;
+  private final int m_shifterForwardChannel; //should be in properties file
+  private final int m_shifterReverseChannel;
   private final DoubleSolenoid m_shifter;
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
 
-  private final int m_encoderResolution = 256;
-  private final double m_gearRatio = (double)15 / 2; // Encoder rotations to wheel rotations
-  private final double m_wheelDiameter = Units.inchesToMeters(6); // Wheel diameter in meters
-  private final double m_wheelCircumference = m_wheelDiameter * Math.PI;
+  private final int m_encoderResolution;
+  private final double m_gearRatio; // Encoder rotations to wheel rotations 
+  private final double m_wheelDiameter; // Wheel diameter is changed from inches to meters in the getter
+  private final double m_wheelCircumference;
   // TODO: Find out track width (can be calculated using the characterization tool)
-  private final double m_trackWidth = Units.inchesToMeters(28);
+  private final double m_trackWidth;
   // TODO: Find out max speeds for low and high gear
-  private final double m_maxSpeedHighGear = 3; // Max speed in high gear in meters per second
-  private final double m_maxSpeedLowGear = 1; // Max speed in low gear in meters per second
-  private final double m_maxAngularSpeedHighGear = 2;
-  private final double m_maxAngularSpeedLowGear = 1;
+  private final double m_maxSpeedHighGear; // Max speed in high gear in meters per second
+  private final double m_maxSpeedLowGear; // Max speed in low gear in meters per second
+  private final double m_maxAngularSpeedHighGear;
+  private final double m_maxAngularSpeedLowGear;
 
   private boolean m_isDrivingInverted = false;
 
@@ -107,8 +118,11 @@ public class Drivetrain extends SubsystemBase {
 
   private final DifferentialDriveKinematics m_kinematics;
   private final DifferentialDriveOdometry m_odometry;
+  private final double m_staticGain;
+  private final double m_velocityGain;
+  private final double m_accelerationGain;
   // TODO: Tune feedforward values using the characterization tool
-  private final SimpleMotorFeedforward m_driveMotorFeedforward = new SimpleMotorFeedforward(1, 3);
+  private final SimpleMotorFeedforward m_driveMotorFeedforward;
   private final PIDController m_leftPIDController;
   private final PIDController m_rightPIDController;
   // TODO: Tune velocity PID
@@ -123,6 +137,57 @@ public class Drivetrain extends SubsystemBase {
    * Creates a new drivetrain
    */
   public Drivetrain() {
+
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));
+    m_leftDriveFollowerID = Integer.parseInt(properties.getProperty("leftDriveFollowerID"));
+    m_rightDriveMasterID = Integer.parseInt(properties.getProperty("rightDriveMasterID"));
+    m_rightDriveFollowerID = Integer.parseInt(properties.getProperty("rightDriveFollowerID"));
+
+    m_leftEncoderChannelA = Integer.parseInt(properties.getProperty("leftEncoderChannelA"));
+    m_leftEncoderChannelB = Integer.parseInt(properties.getProperty("leftEncoderChannelB"));
+    m_rightEncoderChannelA = Integer.parseInt(properties.getProperty("rightEncoderChannelA"));
+    m_rightEncoderChannelB = Integer.parseInt(properties.getProperty("rightEncoderChannelB"));
+    
+    m_pigeonID = Integer.parseInt(properties.getProperty("pigeonID"));
+
+    m_shifterForwardChannel = Integer.parseInt(properties.getProperty("shifterForwardChannel"));
+    m_shifterReverseChannel = Integer.parseInt(properties.getProperty("shifterReverseChannel"));
+
+    m_encoderResolution = Integer.parseInt(properties.getProperty("encoderResolution"));
+    m_gearRatio = Double.parseDouble(properties.getProperty("gearRatio"));
+    m_wheelDiameter = Units.inchesToMeters(Double.parseDouble(properties.getProperty("wheelDiameter")));
+    m_wheelCircumference = m_wheelDiameter * Math.PI;
+    m_trackWidth = Units.inchesToMeters(Double.parseDouble(properties.getProperty("trackWidth")));
+
+    m_maxSpeedHighGear = Double.parseDouble(properties.getProperty("maxSpeedHighGear"));
+    m_maxSpeedLowGear = Double.parseDouble(properties.getProperty("maxSpeedLowGear"));
+    m_maxAngularSpeedHighGear = Double.parseDouble(properties.getProperty("maxAngularSpeedHighGear"));
+    m_maxAngularSpeedLowGear = Double.parseDouble(properties.getProperty("maxAngularSpeedLowGear"));
+
+    m_staticGain = Double.parseDouble(properties.getProperty("staicGain"));
+    m_velocityGain = Double.parseDouble(properties.getProperty("velocityGain"));
+    m_accelerationGain = Double.parseDouble(properties.getProperty("accelerationGain"));
+
+    m_leftPGain = Double.parseDouble(properties.getProperty("leftPGain"));
+    m_leftIGain = Double.parseDouble(properties.getProperty("leftIGain"));
+    m_leftDGain = Double.parseDouble(properties.getProperty("leftDGain"));
+
+    m_rightPGain = Double.parseDouble(properties.getProperty("rightPGain"));
+    m_rightIGain = Double.parseDouble(properties.getProperty("rightIGain"));
+    m_rightDGain = Double.parseDouble(properties.getProperty("rightDGain"));
+
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftPGainEntry = m_networkTable.getEntry("Left P gain");
     m_leftIGainEntry = m_networkTable.getEntry("Left I gain");
@@ -172,6 +237,7 @@ public class Drivetrain extends SubsystemBase {
     m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
 
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
+    m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getYaw()));
     m_leftPIDController = new PIDController(m_leftPGain, m_leftIGain, m_leftDGain);
     m_rightPIDController = new PIDController(m_rightPGain, m_rightIGain, m_rightDGain);
@@ -319,6 +385,22 @@ public class Drivetrain extends SubsystemBase {
    */
   private void updateOdometry() {
     m_odometry.update(Rotation2d.fromDegrees(getFusedHeading()), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+  }
+
+  public void saveProperties() {
+    try {
+      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      properties.setProperty("leftPGain", "" + m_leftPGain);
+      properties.setProperty("leftIGain", "" + m_leftIGain);
+      properties.setProperty("leftDGain", "" + m_leftDGain);
+
+      properties.setProperty("rightPGain", "" + m_rightPGain);
+      properties.setProperty("rightIGain", "" + m_rightIGain);
+      properties.setProperty("rightDGain", "" + m_rightDGain);
+      properties.store(outputStream, "saved PID");
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public void simpleArcadeDrive(double move, double turn) {
