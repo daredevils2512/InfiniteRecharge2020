@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -34,6 +36,7 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  private static Logger logger = Logger.getLogger(Intake.class.getName());
   private final NetworkTable m_networkTable;
 
   private final IntakeConfig m_intakeConfig;
@@ -85,6 +88,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     if(m_motionMagicEnabled) {
+      logger.fine("motion magic enabled");
       double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
       double targetPosition = toSensorUnits(targetAngle);
       double gravityScalar = Math.cos(Math.toRadians(targetAngle));
@@ -105,6 +109,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean getExtended() {
+    if (m_extended) logger.fine("intake extended");
     return m_extended;
   }
 
