@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -44,6 +47,7 @@ public class Drivetrain extends SubsystemBase {
    * All network table enties are stored as variables so they
    * can be referenced more reliably (instead of by name via string)
    */
+  private static Logger logger = Logger.getLogger(Drivetrain.class.getName());
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_leftPGainEntry;
   private final NetworkTableEntry m_leftIGainEntry;
@@ -265,6 +269,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private double getFusedHeading() {
+    logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
     return m_pigeon.getFusedHeading();
   }
 
@@ -280,6 +285,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
+    if (m_shifter.get() == m_lowGearValue) logger.fine("low gear");
     return m_shifter.get() == m_lowGearValue;
   }
 

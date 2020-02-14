@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -18,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.LimitSwitch;
 
 public class Intake extends SubsystemBase {
+  private static final Logger logger = Logger.getLogger(Intake.class.getName());
+
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
@@ -99,6 +103,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean getExtended() {
+    if (m_extended) logger.fine("intake extended");
     return m_extended;
   }
 

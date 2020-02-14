@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Magazine extends SubsystemBase {
-
   private final int magazineID = -1;
   private final int queueID = -1;
 
@@ -53,8 +52,6 @@ public class Magazine extends SubsystemBase {
     magazineConfig.motionAcceleration = (int)SmartDashboard.getNumberArray("magazine PID array", new double[]{0, 0, 0})[2];
     magazineSpinner.configAllSettings(magazineConfig);
   }
-
-  
 
   @Override
   public void periodic() {

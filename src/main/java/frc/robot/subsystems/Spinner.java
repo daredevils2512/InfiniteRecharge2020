@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,6 +18,7 @@ import frc.robot.sensors.ColorSensor.ColorDetect;
 
 public class Spinner extends SubsystemBase {
   private ColorSensor m_colorSensor = new ColorSensor();
+  private static Logger logger = Logger.getLogger(Spinner.class.getName());
 
   /**
    * 
@@ -37,6 +41,7 @@ public class Spinner extends SubsystemBase {
   }
 
   public ColorDetect getCurrentColor() {
+    logger.log(Level.FINE, "current color =", m_colorSensor.getColorMatch());
     return m_colorSensor.getColorMatchDetect();
   }
 
