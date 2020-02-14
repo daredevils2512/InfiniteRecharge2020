@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.*;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
 
 public class Magazine extends SubsystemBase {
+  private static Logger logger = Logger.getLogger("frc.robot.subsysytems.Magazine");
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
@@ -67,11 +70,13 @@ public class Magazine extends SubsystemBase {
   }
 
   public boolean getPowerCellDetectedFront() {
-    return !m_frontPhotoEye.get();
+    if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
+    return m_frontPhotoEye.get();
   }
 
   public boolean getPowerCellDetectedBack() {
-    return !m_backPhotoEye.get();
+    if (m_backPhotoEye.get()) logger.fine("power cell detected back");
+    return m_backPhotoEye.get();
   }
 
   public int getPowerCellCount() {
@@ -98,10 +103,10 @@ public class Magazine extends SubsystemBase {
     
     int newCount = m_powerCellCount + deltaCount;
     if (newCount < 0)
-      System.out.println("Power cell count exceeded lower bounds");
+      logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
     else if (newCount > 3)
-      System.out.println("Power cell count exceeded upper bounds");
-
+      logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
+    logger.log(Level.FINE, "power cell count %d", m_powerCellCount);
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
   }
 

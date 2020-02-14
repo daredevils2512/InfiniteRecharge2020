@@ -10,6 +10,6 @@ public class PhotoEye {
   }
 
   public boolean get() {
-    return m_photoEye.get();
+    return !m_photoEye.get();
   }
 }
