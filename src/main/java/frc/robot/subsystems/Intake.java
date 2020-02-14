@@ -57,6 +57,7 @@ public class Intake extends SubsystemBase {
    * Creates a new power cell intake
    */
   public Intake() {
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
     m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
