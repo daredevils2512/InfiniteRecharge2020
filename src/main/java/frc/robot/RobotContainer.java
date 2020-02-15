@@ -214,9 +214,9 @@ public class RobotContainer {
       m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
     }
 
-    if (intakeEnabled) {
+    if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
+      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
     }
     if (shooterEnabled) {
       // Run shooter at a set motor output

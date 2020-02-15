@@ -39,9 +39,7 @@ public class Intake extends SubsystemBase {
   private final NetworkTableEntry m_angleEntry;
 
   private final int m_extendMotorID;
-  private final int m_runMotorID;
   private final TalonSRX m_extendMotor;
-  private final TalonSRX m_runMotor;
 
   private final int m_retractedLimitSwitchPort;
   private final int m_extendedLimitSwitchPort;
@@ -81,7 +79,6 @@ public class Intake extends SubsystemBase {
     }
 
     m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
 
     m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
     m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
@@ -102,9 +99,7 @@ public class Intake extends SubsystemBase {
     m_angleEntry = m_networkTable.getEntry("Angle");
 
     m_extendMotor = new TalonSRX(m_extendMotorID);
-    m_runMotor = new TalonSRX(m_runMotorID);
     m_extendMotor.configFactoryDefault();
-    m_runMotor.configFactoryDefault();
 
     // Config PID for extender
     m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
@@ -147,10 +142,6 @@ public class Intake extends SubsystemBase {
 
   public void setExtended(boolean wantsExtended) {
     m_extended = wantsExtended;
-  }
-
-  public void run(double speed) {
-    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   /**
