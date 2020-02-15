@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -11,6 +13,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
+  private static Logger logger = Logger.getLogger(Climber.class.getName());
   //dont have numbers for these
   private final int m_leftClimberMasterID;
   private final int m_rightClimberMasterID;
@@ -34,8 +37,9 @@ public class Climber extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
+      logger.info("succesfuly loaded");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     m_leftClimberMasterID = Integer.parseInt(properties.getProperty("leftClimberMasterID"));

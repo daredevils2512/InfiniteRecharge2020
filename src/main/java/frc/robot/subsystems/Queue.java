@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -53,8 +54,9 @@ public class Queue extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
+      logger.info("succesfuly loaded");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));

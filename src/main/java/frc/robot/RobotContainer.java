@@ -42,6 +42,9 @@ public class RobotContainer {
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
 
+  private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
+
+  private static Logger climberLog = Logger.getLogger(Climber.class.getName());
   private static Logger drivetrainLog = Logger.getLogger(Drivetrain.class.getName());
   private static Logger intakeLog = Logger.getLogger(Intake.class.getName());
   private static Logger magazineLog = Logger.getLogger(Magazine.class.getName());
@@ -50,6 +53,7 @@ public class RobotContainer {
   private static Logger spinnerLog = Logger.getLogger(Spinner.class.getName());
   private static Logger turretLog = Logger.getLogger(Turret.class.getName());
 
+  private boolean climberLogFine;
   private boolean drivetrainLogFine;
   private boolean intakeLogFine;
   private boolean magazineLogFine;
@@ -82,8 +86,9 @@ public class RobotContainer {
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
       properties.load(deployStream);
+      logger.info("succesfuly loaded");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
@@ -95,6 +100,7 @@ public class RobotContainer {
     magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
     climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
 
+    climberLogFine = Boolean.parseBoolean(properties.getProperty("climber.LogFine"));
     drivetrainLogFine = Boolean.parseBoolean(properties.getProperty("drivetrain.LogFine"));
     intakeLogFine = Boolean.parseBoolean(properties.getProperty("intake.LogFine"));
     magazineLogFine = Boolean.parseBoolean(properties.getProperty("magazine.LogFine"));
@@ -108,27 +114,31 @@ public class RobotContainer {
     if (shooterEnabled) {m_shooter = new Shooter();}
     if (spinnerEnabled) {m_spinner = new Spinner();}
     if (queueEnabled) {m_queue = new Queue();}
+    if (climberEnabled) {}
+
+    if (climberLogFine && climberEnabled) {climberLog.setLevel(Level.ALL);
+    } else if (climberEnabled) {climberLog.setLevel(Level.INFO);}
 
     if (drivetrainLogFine && drivetrainEnabled) {drivetrainLog.setLevel(Level.ALL);
-    } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.WARNING);}
+    } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.INFO);}
 
     if (intakeLogFine && intakeEnabled) {intakeLog.setLevel(Level.ALL);
-    } else if (intakeEnabled) {intakeLog.setLevel(Level.WARNING);}
+    } else if (intakeEnabled) {intakeLog.setLevel(Level.INFO);}
 
-    if (magazineLogFine) {magazineLog.setLevel(Level.ALL);
-    } else {magazineLog.setLevel(Level.WARNING);}
+    if (magazineLogFine && magazineEnabled) {magazineLog.setLevel(Level.ALL);
+    } else if (magazineEnabled) {magazineLog.setLevel(Level.INFO);}
 
     if (queueLogFine && queueEnabled) {queueLog.setLevel(Level.ALL);
-    } else if (queueEnabled) {queueLog.setLevel(Level.WARNING);}
+    } else if (queueEnabled) {queueLog.setLevel(Level.INFO);}
 
     if (shooterLogFine && shooterEnabled) {shooterLog.setLevel(Level.ALL);
-    } else if (shooterEnabled) {shooterLog.setLevel(Level.WARNING);}
+    } else if (shooterEnabled) {shooterLog.setLevel(Level.INFO);}
 
     if (spinnerLogFine && spinnerEnabled) {spinnerLog.setLevel(Level.ALL);
-    } else if (spinnerEnabled) {spinnerLog.setLevel(Level.WARNING);}
+    } else if (spinnerEnabled) {spinnerLog.setLevel(Level.INFO);}
 
-    if (turretLogFine) {turretLog.setLevel(Level.ALL);
-    } else {turretLog.setLevel(Level.WARNING);}
+    if (turretLogFine && turretEnabled) {turretLog.setLevel(Level.ALL);
+    } else if (turretEnabled) {turretLog.setLevel(Level.INFO);}
 
     if (drivetrainEnabled) {
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());

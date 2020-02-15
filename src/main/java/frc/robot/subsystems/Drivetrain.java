@@ -417,7 +417,7 @@ public class Drivetrain extends SubsystemBase {
       properties.store(outputStream, "saved PID and everything else too");
       logger.info("succesfuly saved");
     } catch(IOException e) {
-      logger.log(Level.WARNING, "failed to save", e);
+      logger.log(Level.SEVERE, "failed to save", e);
     }
   }
 
