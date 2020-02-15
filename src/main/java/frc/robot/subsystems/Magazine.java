@@ -22,20 +22,21 @@ import frc.robot.sensors.PhotoEye;
 
 public class Magazine extends SubsystemBase {
   private static Logger logger = Logger.getLogger("frc.robot.subsysytems.Magazine");
+
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
-  private final int m_frontPhotoEyeChannel = -1;
-  private final int m_backPhotoEyeChannel = -1;
+  private final int m_frontPhotoEyeChannel = 4;
+  private final int m_backPhotoEyeChannel = 5;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
-  private final int m_magazineRunMotorID = -1;
+  private final int m_magazineRunMotorID = 30;
   private final WPI_TalonSRX m_magazineRunMotor;
   
-  private final int ticksPerBall = -1;
-  private final double arbitraryFeedForward = -1;
+  private final int ticksPerBall = 0;
+  private final double arbitraryFeedForward = 0;
   
   private int m_powerCellCount;
   private boolean m_powerCellPreviouslyDetectedFront;
@@ -106,8 +107,9 @@ public class Magazine extends SubsystemBase {
       logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
     else if (newCount > 3)
       logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
-    logger.log(Level.FINE, "power cell count %d", m_powerCellCount);
+    
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
+    logger.log(Level.FINE, "power cell count %d", m_powerCellCount);
   }
 
   public boolean getDirectionReversed() {
