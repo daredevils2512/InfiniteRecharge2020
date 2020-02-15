@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
       properties.load(robotStream);
       logger.info("succesfuly loaded");
     } catch(IOException e) {
-      logger.log(Level.WARNING, "failed to load", e);
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
@@ -198,7 +198,7 @@ public class Intake extends SubsystemBase {
       properties.store(outputStream, "set pid and stuff i think");
       logger.info("succesfuly saved");
     } catch(IOException e) {
-      logger.log(Level.WARNING, "failed to load", e);
+      logger.log(Level.SEVERE, "failed to load", e);
     }
   }
 }

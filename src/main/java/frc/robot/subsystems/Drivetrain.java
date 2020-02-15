@@ -152,7 +152,7 @@ public class Drivetrain extends SubsystemBase {
       properties.load(robotStream);
       logger.info("succesfuly loaded");
     } catch (IOException e) {
-      logger.log(Level.WARNING, "failed to load", e);
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));

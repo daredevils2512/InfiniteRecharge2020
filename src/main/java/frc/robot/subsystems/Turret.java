@@ -58,7 +58,7 @@ public class Turret extends SubsystemBase {
       properties.load(robotStream);
       logger.info("succesfuly loaded");
     } catch(IOException e) {
-      logger.log(Level.WARNING, "failed to load", e);
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     m_turretMasterID = Integer.parseInt(properties.getProperty("turretMasterID"));
@@ -146,7 +146,9 @@ public class Turret extends SubsystemBase {
       properties.setProperty("I", "" + m_I);
       properties.setProperty("D", "" + m_D);
       properties.store(outputStream, "saved pId or somethinges");
+      logger.info("succesfuly saved");
     } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to save", e);
       e.printStackTrace();
     }
   }

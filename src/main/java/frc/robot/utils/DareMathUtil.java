@@ -4,7 +4,6 @@ import edu.wpi.first.wpiutil.math.MathUtil;
 
 public final class DareMathUtil {
   private DareMathUtil() {
-
   }
 
   public static double clamp(double value, double low, double high) {
