@@ -107,7 +107,7 @@ public class Shooter extends SubsystemBase {
     m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
     m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
     
-    m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery
+    m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery >true
     
     m_hood.setNeutralMode(NeutralMode.Brake);
   }
