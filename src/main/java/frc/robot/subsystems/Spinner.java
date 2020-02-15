@@ -10,6 +10,9 @@ package frc.robot.subsystems;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,27 +20,31 @@ import frc.robot.sensors.ColorSensor;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 
 public class Spinner extends SubsystemBase {
-  private ColorSensor m_colorSensor = new ColorSensor();
   private static Logger logger = Logger.getLogger(Spinner.class.getName());
+
+  private final NetworkTable m_networkTable;
+  private final NetworkTableEntry m_detectedColorEntry;
+  private final NetworkTableEntry m_confidenceEntry;
+
+  private ColorSensor m_colorSensor;
 
   /**
    * 
    * Creates a new Spinner.
    */
   public Spinner() {
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_detectedColorEntry = m_networkTable.getEntry("Detected color");
+    m_confidenceEntry = m_networkTable.getEntry("Confidence");
 
+    m_colorSensor = new ColorSensor();
   }
 
   @Override
   public void periodic() {
-
-    Color detectedColor = m_colorSensor.getColor();
-    SmartDashboard.putNumber("confidence", m_colorSensor.getColorMatch().confidence);
-    SmartDashboard.putNumber("Red", detectedColor.red);
-    SmartDashboard.putNumber("Green", detectedColor.green);
-    SmartDashboard.putNumber("Blue", detectedColor.blue);
-    SmartDashboard.putString("Color", m_colorSensor.getColorMatchDetect().name());
-    // This method will be called once per scheduler run
+    ColorDetect color = m_colorSensor.getColorMatchDetect();
+    m_detectedColorEntry.setString(color.name());
+    m_confidenceEntry.setNumber(m_colorSensor.getColorMatch().confidence);
   }
 
   public ColorDetect getCurrentColor() {
