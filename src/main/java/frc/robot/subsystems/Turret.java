@@ -139,7 +139,7 @@ public class Turret extends SubsystemBase {
     return (int) (angle / 360) * m_encoderResolution;
   }
 
-  private void savePID() {
+  public void savePID() {
     try {
       OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       properties.setProperty("P", "" + m_P);
