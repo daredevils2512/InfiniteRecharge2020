@@ -251,5 +251,6 @@ public class RobotContainer {
     if (drivetrainEnabled) m_drivetrain.saveProperties();
     if (intakeEnabled) m_intake.savePID();
     if (shooterEnabled) m_shooter.savePID();
+    if (turretEnabled) m_shooter.savePID();
   }
 }
