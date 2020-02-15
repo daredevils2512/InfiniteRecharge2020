@@ -22,7 +22,8 @@ public class Limelight {
   public enum Pipeline {
     PowerCellTopTarget(2),
     PowerCellsLimelight(1),
-    PowerCells(0);
+    PowerCells(0),
+    Hexagon(3);
 
     private int m_id;
 
