@@ -329,14 +329,17 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private double getYaw() {
+    logger.log(Level.FINER, "yaw = ", m_gyroData[0]);
     return m_gyroData[0];
   }
 
   private double getPitch() {
+    logger.log(Level.FINER, "pitch = ", m_gyroData[1]);
     return m_gyroData[1];
   }
 
   private double getRoll() {
+    logger.log(Level.FINER, "roll = ", m_gyroData[2]);
     return m_gyroData[2];
   }
 
@@ -360,7 +363,7 @@ public class Drivetrain extends SubsystemBase {
     if (m_shiftersEnabled) {
       m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
     } else {
-      logger.warning("shifters disabled");
+      logger.info("shifters disabled");
     }
   }
 
