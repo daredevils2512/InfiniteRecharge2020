@@ -36,6 +36,9 @@ public class RobotContainer {
   private Shooter m_shooter;
   private Spinner m_spinner;
   private Queue m_queue;
+  private Turret m_turret;
+  private Magazine m_magazine;
+  private Climber m_climber;
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
 
@@ -60,6 +63,9 @@ public class RobotContainer {
   private final boolean shooterEnabled;
   private final boolean spinnerEnabled;
   private final boolean queueEnabled;
+  private final boolean turretEnabled;
+  private final boolean magazineEnabled;
+  private final boolean climberEnabled;
 
   private Command m_defaultDriveCommand;
 
@@ -85,6 +91,9 @@ public class RobotContainer {
     shooterEnabled = Boolean.parseBoolean(properties.getProperty("shooter.isEnabled"));
     spinnerEnabled = Boolean.parseBoolean(properties.getProperty("spinner.isEnabled"));
     queueEnabled = Boolean.parseBoolean(properties.getProperty("queue.isEnabled"));
+    turretEnabled = Boolean.parseBoolean(properties.getProperty("turret.isEnabled"));
+    magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
+    climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
 
     drivetrainLogFine = Boolean.parseBoolean(properties.getProperty("drivetrain.LogFine"));
     intakeLogFine = Boolean.parseBoolean(properties.getProperty("intake.LogFine"));
