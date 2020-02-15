@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -41,6 +42,22 @@ public class RobotContainer {
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
 
+  private static Logger drivetrainLog = Logger.getLogger("frc.robot.subsystems.Drivetrain");
+  private static Logger intakeLog = Logger.getLogger("frc.robot.subsystems.Intake");
+  private static Logger magazineLog = Logger.getLogger("frc.robot.subsystems.Magazine");
+  private static Logger queueLog = Logger.getLogger("frc.robot.subsystems.Queue");
+  private static Logger shooterLog = Logger.getLogger("frc.robot.subsystems.Shooter");
+  private static Logger spinnerLog = Logger.getLogger("frc.robot.subsystems.Spinner");
+  private static Logger turretLog = Logger.getLogger("frc.robot.subsystems.Turret");
+
+  private boolean drivetrainLogFine;
+  private boolean intakeLogFine;
+  private boolean magazineLogFine;
+  private boolean queueLogFine;
+  private boolean shooterLogFine;
+  private boolean spinnerLogFine;
+  private boolean turretLogFine;
+
   private final boolean drivetrainEnabled;
   private final boolean intakeEnabled;
   private final boolean shooterEnabled;
@@ -71,11 +88,40 @@ public class RobotContainer {
     spinnerEnabled = Boolean.parseBoolean(properties.getProperty("spinner.isEnabled"));
     queueEnabled = Boolean.parseBoolean(properties.getProperty("queue.isEnabled"));
 
+    drivetrainLogFine = Boolean.parseBoolean(properties.getProperty("drivetrain.LogFine"));
+    intakeLogFine = Boolean.parseBoolean(properties.getProperty("intake.LogFine"));
+    magazineLogFine = Boolean.parseBoolean(properties.getProperty("magazine.LogFine"));
+    queueLogFine = Boolean.parseBoolean(properties.getProperty("queue.LogFine"));
+    shooterLogFine = Boolean.parseBoolean(properties.getProperty("shooter.LogFine"));
+    spinnerLogFine = Boolean.parseBoolean(properties.getProperty("spinner.LogFine"));
+    turretLogFine = Boolean.parseBoolean(properties.getProperty("turret.LogFine"));
+
     if (drivetrainEnabled) {m_drivetrain = new Drivetrain();}
     if (intakeEnabled) {m_intake = new Intake();}
     if (shooterEnabled) {m_shooter = new Shooter();}
     if (spinnerEnabled) {m_spinner = new Spinner();}
     if (queueEnabled) {m_queue = new Queue();}
+
+    if (drivetrainLogFine) {drivetrainLog.setLevel(Level.ALL);
+    } else {drivetrainLog.setLevel(Level.WARNING);}
+
+    if (intakeLogFine) {intakeLog.setLevel(Level.ALL);
+    } else {intakeLog.setLevel(Level.WARNING);}
+
+    if (magazineLogFine) {magazineLog.setLevel(Level.ALL);
+    } else {magazineLog.setLevel(Level.WARNING);}
+
+    if (queueLogFine) {queueLog.setLevel(Level.ALL);
+    } else {queueLog.setLevel(Level.WARNING);}
+
+    if (shooterLogFine) {spinnerLog.setLevel(Level.ALL);
+    } else {spinnerLog.setLevel(Level.WARNING);}
+
+    if (spinnerLogFine) {spinnerLog.setLevel(Level.ALL);
+    } else {spinnerLog.setLevel(Level.WARNING);}
+    
+    if (turretLogFine) {turretLog.setLevel(Level.ALL);
+    } else {turretLog.setLevel(Level.WARNING);}
 
     if (drivetrainEnabled) {
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
