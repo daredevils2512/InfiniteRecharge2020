@@ -117,28 +117,36 @@ public class RobotContainer {
     if (climberEnabled) {}
 
     if (climberLogFine && climberEnabled) {climberLog.setLevel(Level.ALL);
-    } else if (climberEnabled) {climberLog.setLevel(Level.INFO);}
+    } else if (climberEnabled) {climberLog.setLevel(Level.INFO);
+    } else {climberLog.setLevel(Level.OFF);}
 
     if (drivetrainLogFine && drivetrainEnabled) {drivetrainLog.setLevel(Level.ALL);
-    } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.INFO);}
+    } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.INFO);
+    } else {drivetrainLog.setLevel(Level.OFF);}
 
     if (intakeLogFine && intakeEnabled) {intakeLog.setLevel(Level.ALL);
-    } else if (intakeEnabled) {intakeLog.setLevel(Level.INFO);}
+    } else if (intakeEnabled) {intakeLog.setLevel(Level.INFO);
+    } else {intakeLog.setLevel(Level.OFF);}
 
     if (magazineLogFine && magazineEnabled) {magazineLog.setLevel(Level.ALL);
-    } else if (magazineEnabled) {magazineLog.setLevel(Level.INFO);}
+    } else if (magazineEnabled) {magazineLog.setLevel(Level.INFO);
+    } else {magazineLog.setLevel(Level.OFF);}
 
     if (queueLogFine && queueEnabled) {queueLog.setLevel(Level.ALL);
-    } else if (queueEnabled) {queueLog.setLevel(Level.INFO);}
+    } else if (queueEnabled) {queueLog.setLevel(Level.INFO);
+    } else {queueLog.setLevel(Level.OFF);}
 
     if (shooterLogFine && shooterEnabled) {shooterLog.setLevel(Level.ALL);
-    } else if (shooterEnabled) {shooterLog.setLevel(Level.INFO);}
+    } else if (shooterEnabled) {shooterLog.setLevel(Level.INFO);
+    } else {shooterLog.setLevel(Level.OFF);}
 
     if (spinnerLogFine && spinnerEnabled) {spinnerLog.setLevel(Level.ALL);
-    } else if (spinnerEnabled) {spinnerLog.setLevel(Level.INFO);}
+    } else if (spinnerEnabled) {spinnerLog.setLevel(Level.INFO);
+    } else {spinnerLog.setLevel(Level.OFF);}
 
     if (turretLogFine && turretEnabled) {turretLog.setLevel(Level.ALL);
-    } else if (turretEnabled) {turretLog.setLevel(Level.INFO);}
+    } else if (turretEnabled) {turretLog.setLevel(Level.INFO);
+    } else {turretLog.setLevel(Level.OFF);}
 
     if (drivetrainEnabled) {
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
