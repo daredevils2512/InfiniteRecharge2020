@@ -50,7 +50,7 @@ public class RobotContainer {
   private Turret m_turret;
   private Magazine m_magazine;
   private Climber m_climber;
-  private Compressor m_compressor;
+  private CompressorManager m_compressor;
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
 
@@ -193,7 +193,7 @@ public class RobotContainer {
     if (compressorEnabled) {
       compressorLogLevel = Level.parse(properties.getProperty("compressor.logLevel"));
       compressorLog.setLevel(compressorLogLevel);
-      m_compressor = new Compressor();
+      m_compressor = new CompressorManager();
     }
 
     configureButtonBindings();
