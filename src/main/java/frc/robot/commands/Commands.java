@@ -11,7 +11,6 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Climber;
@@ -39,31 +38,6 @@ import frc.robot.RobotContainer;
  * command definitions.
  */
 public final class Commands {
-  private static final class IntakeCommand extends CommandBase {
-    private final Intake m_intake;
-
-    public IntakeCommand(Intake intake) {
-      m_intake = intake;
-      addRequirements(m_intake);
-    }
-
-    @Override
-    public void initialize() {
-      m_intake.setExtended(true);
-    }
-
-    @Override
-    public void execute() {
-      m_intake.run(1);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-      m_intake.run(0);
-      m_intake.setExtended(false);
-    }
-  }
-
   private Commands() {
 
   }
@@ -118,34 +92,28 @@ public final class Commands {
    * Extends and starts running the power cell intake
    * @return New {@link Command}
    */
-  public static Command startIntaking(Intake intake) {
+  public static Command startIntaking(Intake intake, Magazine magazine) {
     return
       new InstantCommand(() -> intake.setExtended(true), intake).andThen(
-      new RunCommand(() -> intake.run(1), intake));
+      new RunCommand(() -> magazine.setSpeed(1), magazine));
   }
 
   /**
    * Stops running and retracts the power cell intake
    * @return New {@link Command}
    */
-  public static Command stopIntaking(Intake intake) {
+  public static Command stopIntaking(Intake intake, Magazine magazine) {
     return
-      new InstantCommand(() -> intake.run(0), intake).andThen(
+      new InstantCommand(() -> magazine.setSpeed(0), magazine).andThen(
       new InstantCommand(() -> intake.setExtended(false), intake));
+  }
+
+  public static Command runIntake(Intake intake, Magazine magazine, double speed) {
+    return new RunIntake(intake, magazine, speed);
   }
 
   public static Command runIntakeExtender_Temp(Intake intake, DoubleSupplier speedSupplier) {
     return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
-  }
-
-  /**
-   * Extends and starts running the power cell intake
-   * 
-   * <p>Stops running and retracts the intake when interrupted
-   * @return New {@link Command}
-   */
-  public static Command intake(Intake intake) {
-    return new IntakeCommand(intake);
   }
 
   public static Command refillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
