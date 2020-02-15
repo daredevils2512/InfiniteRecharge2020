@@ -120,81 +120,81 @@ public class RobotContainer {
     climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
 
-    drivetrainLogLevel = Level.OFF;
-    intakeLogLevel = Level.OFF;
-    shooterLogLevel = Level.OFF;
-    spinnerLogLevel = Level.OFF;
-    queueLogLevel = Level.OFF;
-    turretLogLevel = Level.OFF;
-    magazineLogLevel = Level.OFF;
-    climberLogLevel = Level.OFF;
-    compressorLogLevel = Level.OFF;
-    limelightLogLevel = Level.OFF;
+
+    limelightLog.setLevel(Level.OFF);
+    drivetrainLog.setLevel(Level.OFF);
+    intakeLog.setLevel(Level.OFF);
+    shooterLog.setLevel(Level.OFF);
+    spinnerLog.setLevel(Level.OFF);
+    queueLog.setLevel(Level.OFF);
+    turretLog.setLevel(Level.OFF);
+    magazineLog.setLevel(Level.OFF);
+    climberLog.setLevel(Level.OFF);
+    compressorLog.setLevel(Level.OFF);
 
     if (limelightEnabled) {
-      m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
       limelightLogLevel = Level.parse(properties.getProperty("limelight.logLevel"));
+      limelightLog.setLevel(limelightLogLevel);
+      m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
     if (turretEnabled && drivetrainEnabled && limelightEnabled) {m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);}
 
     if (drivetrainEnabled) {
-      m_drivetrain = new Drivetrain();
       drivetrainLogLevel = Level.parse(properties.getProperty("drivetrain.logLevel"));
+      drivetrainLog.setLevel(drivetrainLogLevel);
+      m_drivetrain = new Drivetrain();
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
-      m_intake = new Intake();
       intakeLogLevel = Level.parse(properties.getProperty("intake.logLevel"));
+      intakeLog.setLevel(intakeLogLevel);
+      m_intake = new Intake();
     }
 
     if (shooterEnabled) {
-      m_shooter = new Shooter();
       shooterLogLevel = Level.parse(properties.getProperty("shooter.logLevel"));
+      shooterLog.setLevel(shooterLogLevel);
+      m_shooter = new Shooter();
     }
 
     if (spinnerEnabled) {
-      m_spinner = new Spinner();
       spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
+      spinnerLog.setLevel(spinnerLogLevel);
+      m_spinner = new Spinner();
     }
 
     if (queueEnabled) {
-      m_queue = new Queue();
       queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
+      queueLog.setLevel(queueLogLevel);
+      m_queue = new Queue();
     }
 
     if (turretEnabled) {
-      m_turret = new Turret();
       turretLogLevel = Level.parse(properties.getProperty("turret.logLevel"));
+      turretLog.setLevel(turretLogLevel);
+      m_turret = new Turret();
     }
 
     if (magazineEnabled) {
-      m_magazine = new Magazine();
       magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
+      magazineLog.setLevel(magazineLogLevel);
+      m_magazine = new Magazine();
       m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
     }
 
     if (climberEnabled) {
-      m_climber = new Climber();
       climberLogLevel = Level.parse(properties.getProperty("climber.logLevel"));
+      climberLog.setLevel(climberLogLevel);
+      m_climber = new Climber();
     }
 
     if (compressorEnabled) {
-      m_compressor = new CompressorManager();
       compressorLogLevel = Level.parse(properties.getProperty("compressor.logLevel"));
+      compressorLog.setLevel(compressorLogLevel);
+      m_compressor = new CompressorManager();
     }
-    
-    compressorLog.setLevel(compressorLogLevel);
-    climberLog.setLevel(climberLogLevel);
-    magazineLog.setLevel(magazineLogLevel);
-    turretLog.setLevel(turretLogLevel);
-    queueLog.setLevel(queueLogLevel);
-    spinnerLog.setLevel(spinnerLogLevel);
-    shooterLog.setLevel(shooterLogLevel);
-    intakeLog.setLevel(intakeLogLevel);
-    drivetrainLog.setLevel(drivetrainLogLevel);
-    limelightLog.setLevel(limelightLogLevel);
 
     configureButtonBindings();
 
