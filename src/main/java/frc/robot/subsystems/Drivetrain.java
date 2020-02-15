@@ -345,6 +345,10 @@ public class Drivetrain extends SubsystemBase {
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
+  public double getHeading() {
+    return m_pigeonEnabled ? getFusedHeading()%360 : 0.0;
+  }
+
   /**
    * Must be called periodically to retrieve gyro data from the {@link PigeonIMU}
    */

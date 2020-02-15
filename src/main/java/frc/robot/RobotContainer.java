@@ -28,6 +28,9 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DriveType;
+import frc.robot.vision.HexagonPosition;
+import frc.robot.vision.Limelight;
+import frc.robot.vision.Limelight.Pipeline;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -37,6 +40,8 @@ import frc.robot.utils.DriveType;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
+  private HexagonPosition m_hexagonPosition;
+  private Limelight m_limelight;
   private Drivetrain m_drivetrain;
   private Intake m_intake;
   private Shooter m_shooter;
@@ -70,6 +75,7 @@ public class RobotContainer {
   private boolean spinnerLogFine;
   private boolean turretLogFine;
 
+  private final boolean limelightEnabled;
   private final boolean drivetrainEnabled;
   private final boolean intakeEnabled;
   private final boolean shooterEnabled;
@@ -100,6 +106,7 @@ public class RobotContainer {
       logger.log(Level.SEVERE, "failed to load", e);
     }
 
+    limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
     intakeEnabled = Boolean.parseBoolean(properties.getProperty("intake.isEnabled"));
     shooterEnabled = Boolean.parseBoolean(properties.getProperty("shooter.isEnabled"));
@@ -120,6 +127,7 @@ public class RobotContainer {
     spinnerLogFine = Boolean.parseBoolean(properties.getProperty("spinner.LogFine"));
     turretLogFine = Boolean.parseBoolean(properties.getProperty("turret.LogFine"));
 
+    if (limelightEnabled) {m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));}
     if (drivetrainEnabled) {m_drivetrain = new Drivetrain();}
     if (intakeEnabled) {m_intake = new Intake();}
     if (shooterEnabled) {m_shooter = new Shooter();}
@@ -128,6 +136,8 @@ public class RobotContainer {
     if (turretEnabled) {m_turret = new Turret();}
     if (magazineEnabled) {m_magazine = new Magazine();}
     if (climberEnabled) {m_climber = new Climber();}
+
+    if (turretEnabled && drivetrainEnabled && limelightEnabled) {m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);}
 
     if (climberLogFine && climberEnabled) {climberLog.setLevel(Level.ALL);
     } else if (climberEnabled) {climberLog.setLevel(Level.INFO);

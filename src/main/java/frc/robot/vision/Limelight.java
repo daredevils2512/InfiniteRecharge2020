@@ -17,6 +17,7 @@ public class Limelight {
   // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
   public static final double RANGE_Y_DEGREES = 24.85;
+  private final Pipeline m_pipeline;
 
   public enum Pipeline {
     PowerCellTopTarget(2),
@@ -38,9 +39,14 @@ public class Limelight {
 
   private double lastPostion;
 
-  public Limelight() {
+  public Limelight(Pipeline defaultPipeline) {
+    m_pipeline = defaultPipeline;
     m_table = NetworkTableInstance.getDefault().getTable("limelight");
     lastPostion = 1.0;
+  }
+
+  public Pipeline getDefaultPipeline() {
+    return m_pipeline;
   }
 
   //Limelight table getters
