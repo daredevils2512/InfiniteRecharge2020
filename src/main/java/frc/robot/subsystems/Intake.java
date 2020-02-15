@@ -7,6 +7,11 @@
 
 package frc.robot.subsystems;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -14,6 +19,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -35,6 +41,8 @@ public class Intake extends SubsystemBase {
   }
 
   private final NetworkTable m_networkTable;
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/intake.properties";
 
   private final IntakeConfig m_intakeConfig;
   private final int m_extenderID = -1;
@@ -66,6 +74,22 @@ public class Intake extends SubsystemBase {
    * Creates a new power cell intake
    */
   public Intake() {
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+
+    
+
+
+
+
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
 

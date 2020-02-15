@@ -92,13 +92,15 @@ public class Drivetrain extends SubsystemBase {
   private final Encoder m_rightEncoder;
 
   private final int m_pigeonID; //should be in properties file
-  private final PigeonIMU m_pigeon;
+  private PigeonIMU m_pigeon;
+  private final boolean m_pigeonEnabled;
 
   private final int m_shifterForwardChannel; //should be in properties file
   private final int m_shifterReverseChannel;
-  private final DoubleSolenoid m_shifter;
+  private DoubleSolenoid m_shifter;
   private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
+  private final boolean m_shiftersEnabled;
 
   private final int m_encoderResolution;
   private final double m_gearRatio; // Encoder rotations to wheel rotations 
@@ -160,9 +162,11 @@ public class Drivetrain extends SubsystemBase {
     m_rightEncoderChannelB = Integer.parseInt(properties.getProperty("rightEncoderChannelB"));
     
     m_pigeonID = Integer.parseInt(properties.getProperty("pigeonID"));
+    m_pigeonEnabled = Boolean.parseBoolean(properties.getProperty("pigeonEnabled"));
 
     m_shifterForwardChannel = Integer.parseInt(properties.getProperty("shifterForwardChannel"));
     m_shifterReverseChannel = Integer.parseInt(properties.getProperty("shifterReverseChannel"));
+    m_shiftersEnabled = Boolean.parseBoolean(properties.getProperty("shiftersEnabled"));
 
     m_encoderResolution = Integer.parseInt(properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(properties.getProperty("gearRatio"));
@@ -175,7 +179,7 @@ public class Drivetrain extends SubsystemBase {
     m_maxAngularSpeedHighGear = Double.parseDouble(properties.getProperty("maxAngularSpeedHighGear"));
     m_maxAngularSpeedLowGear = Double.parseDouble(properties.getProperty("maxAngularSpeedLowGear"));
 
-    m_staticGain = Double.parseDouble(properties.getProperty("staicGain"));
+    m_staticGain = Double.parseDouble(properties.getProperty("staticGain"));
     m_velocityGain = Double.parseDouble(properties.getProperty("velocityGain"));
     m_accelerationGain = Double.parseDouble(properties.getProperty("accelerationGain"));
 
@@ -231,10 +235,12 @@ public class Drivetrain extends SubsystemBase {
     m_leftEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
     m_rightEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
 
-    m_pigeon = new PigeonIMU(m_pigeonID);
-    m_pigeon.configFactoryDefault();
+    if (m_pigeonEnabled) {
+      m_pigeon = new PigeonIMU(m_pigeonID);
+      m_pigeon.configFactoryDefault();
+    }
 
-    m_shifter = new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel);
+    m_shifter = m_shiftersEnabled ? new DoubleSolenoid(m_shifterForwardChannel, m_shifterReverseChannel) : null;
 
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
     m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);
@@ -331,22 +337,26 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private double getFusedHeading() {
-    return m_pigeon.getFusedHeading();
+    return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
   /**
    * Must be called periodically to retrieve gyro data from the {@link PigeonIMU}
    */
   private void updateGyroData() {
-    m_pigeon.getYawPitchRoll(m_gyroData);
+    if (m_pigeonEnabled) {m_pigeon.getYawPitchRoll(m_gyroData);}
   }
 
   public void setLowGear(boolean wantsLowGear) {
-    m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
+    if (m_shiftersEnabled) {
+      m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
+    } else {
+      System.out.println("shifters disabled");
+    }
   }
 
   public boolean getLowGear() {
-    return m_shifter.get() == m_lowGearValue;
+    return m_shiftersEnabled ? m_shifter.get() == m_lowGearValue : false;
   }
 
   /**
@@ -397,7 +407,7 @@ public class Drivetrain extends SubsystemBase {
       properties.setProperty("rightPGain", "" + m_rightPGain);
       properties.setProperty("rightIGain", "" + m_rightIGain);
       properties.setProperty("rightDGain", "" + m_rightDGain);
-      properties.store(outputStream, "saved PID");
+      properties.store(outputStream, "saved PID and everything else too");
     } catch(IOException e) {
       e.printStackTrace();
     }

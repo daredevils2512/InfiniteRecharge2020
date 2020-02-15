@@ -32,7 +32,7 @@ import frc.robot.utils.DriveType;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private ControlBoard m_controlBoard;
+  private final ControlBoard m_controlBoard;
   private Drivetrain m_drivetrain;
   private Intake m_intake;
   private Shooter m_shooter;
@@ -57,6 +57,7 @@ public class RobotContainer {
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_controlBoard = new ControlBoard();
     properties = new Properties();
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
@@ -125,11 +126,14 @@ public class RobotContainer {
       m_controlBoard.extreme.baseMiddleLeft.whenPressed( new RotationControl (m_spinner, 3));
       m_controlBoard.extreme.baseMiddleRight.whenPressed( new PrecisionControl(m_spinner, ColorDetect.Red));
     }
-    //runs the queue. dont really have a button planned for it
-    m_controlBoard.extreme.baseFrontRight.whileHeld(Commands.runQueue(m_queue, 0.5));
 
-    //toggles the hard stop on the queue if there is one. also dont have a button for it
-    m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
+    if (queueEnabled) {
+      //runs the queue. dont really have a button planned for it
+      m_controlBoard.extreme.baseFrontRight.whileHeld(Commands.runQueue(m_queue, 0.5));
+
+      //toggles the hard stop on the queue if there is one. also dont have a button for it
+      m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
+    }
   }
 
   private double getMove() {
@@ -145,25 +149,27 @@ public class RobotContainer {
   }
 
   public void setDriveType(DriveType driveType) {
-    Command driveCommand;
-    switch (driveType) {
-      case SIMPLE_ARCADE_DRIVE:
-        driveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
-        break;
-      case VELOCITY_ARCADE_DRIVE:
-        driveCommand = Commands.velocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
-        break;
-      case ACCELERATION_LIMITED_SIMPLE_ARCADE_DRIVE:
-        driveCommand = Commands.accelerationLimitedSimpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
-        break;
-      case ACCELERATION_LIMITED_VELOCITY_ARCADE_DRIVE:
-        driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
-        break;
-      default:
-        driveCommand = m_defaultDriveCommand;
-        break;
+    if (drivetrainEnabled) {
+      Command driveCommand;
+      switch (driveType) {
+        case SIMPLE_ARCADE_DRIVE:
+          driveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+          break;
+        case VELOCITY_ARCADE_DRIVE:
+          driveCommand = Commands.velocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+          break;
+        case ACCELERATION_LIMITED_SIMPLE_ARCADE_DRIVE:
+          driveCommand = Commands.accelerationLimitedSimpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
+          break;
+        case ACCELERATION_LIMITED_VELOCITY_ARCADE_DRIVE:
+          driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
+          break;
+        default:
+          driveCommand = m_defaultDriveCommand;
+          break;
+      }
+      m_drivetrain.setDefaultCommand(driveCommand);
     }
-    m_drivetrain.setDefaultCommand(driveCommand);
   }
 
   /**
