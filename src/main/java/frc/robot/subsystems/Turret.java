@@ -79,7 +79,7 @@ public class Turret extends SubsystemBase {
    */
   public double getAngle() {
     // Convert from encoder pulses to degrees
-    logger.log(Level.FINE, "turret position = %d", toDegrees(getPosition()));
+    logger.log(Level.FINE, "turret position = ", toDegrees(getPosition()));
     return toDegrees(getPosition());
   }
 

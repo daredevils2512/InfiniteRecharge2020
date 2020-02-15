@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -74,8 +75,9 @@ public class Intake extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
+      logger.info("succesfuly loaded");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.WARNING, "failed to load", e);
     }
 
     m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
@@ -135,7 +137,6 @@ public class Intake extends SubsystemBase {
     if (!wantsEnabled) {
       m_extendMotor.set(ControlMode.PercentOutput, 0);
     }
-
     m_motionMagicEnabled = wantsEnabled;
   }
 
@@ -195,8 +196,9 @@ public class Intake extends SubsystemBase {
       properties.setProperty("iGain", "" + m_iGain);
       properties.setProperty("dGain", "" + m_dGain);
       properties.store(outputStream, "set pid and stuff i think");
+      logger.info("succesfuly saved");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.WARNING, "failed to load", e);
     }
   }
 }

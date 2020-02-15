@@ -150,8 +150,9 @@ public class Drivetrain extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
+      logger.info("succesfuly loaded");
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.log(Level.WARNING, "failed to load", e);
     }
 
     m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));
@@ -355,7 +356,7 @@ public class Drivetrain extends SubsystemBase {
     if (m_shiftersEnabled) {
       m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
     } else {
-      System.out.println("shifters disabled");
+      logger.warning("shifters disabled");
     }
   }
 
@@ -414,8 +415,9 @@ public class Drivetrain extends SubsystemBase {
       properties.setProperty("rightIGain", "" + m_rightIGain);
       properties.setProperty("rightDGain", "" + m_rightDGain);
       properties.store(outputStream, "saved PID and everything else too");
+      logger.info("succesfuly saved");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to save", e);
     }
   }
 

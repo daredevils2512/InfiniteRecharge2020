@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Magazine extends SubsystemBase {
+  private static Logger logger = Logger.getLogger(Magazine.class.getName());
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/magazine.properties";
 
@@ -46,8 +49,9 @@ public class Magazine extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
+      logger.info("succesfuly loaded");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to load", e);
     }
 
     //will add properties but idk if this is the real magazine so im not doing anything about it rn
