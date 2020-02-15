@@ -7,6 +7,7 @@
 
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
@@ -104,11 +106,11 @@ public final class Commands {
   }
 
   public static Command runQueue(Queue queue, Double speed) {
-    return new RunCommand(() -> queue.run(speed), queue);
+    return new RunCommand(() -> queue.run(speed, false), queue);
   }
 
   public static Command toggleQueueGate(Queue queue) {
-    boolean isQueueClosed = queue.getIsClosed();
+    boolean isQueueClosed = queue.getClosed();
     return new InstantCommand(() -> queue.setClosed(!isQueueClosed), queue);
   }
 
@@ -144,6 +146,14 @@ public final class Commands {
    */
   public static Command intake(Intake intake) {
     return new IntakeCommand(intake);
+  }
+
+  public static Command refillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
+    return new RefillQueue(magazine, magazineSpeed, powerCellQueued);
+  }
+
+  public static Command autoRefillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
+    return new AutoRefillQueue(magazine, magazineSpeed, powerCellQueued);
   }
 
   public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {
