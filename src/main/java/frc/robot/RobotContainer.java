@@ -20,10 +20,7 @@ import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Queue;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Spinner;
+import frc.robot.subsystems.*;
 import frc.robot.utils.DriveType;
 
 /**
@@ -42,13 +39,13 @@ public class RobotContainer {
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
 
-  private static Logger drivetrainLog = Logger.getLogger("frc.robot.subsystems.Drivetrain");
-  private static Logger intakeLog = Logger.getLogger("frc.robot.subsystems.Intake");
-  private static Logger magazineLog = Logger.getLogger("frc.robot.subsystems.Magazine");
-  private static Logger queueLog = Logger.getLogger("frc.robot.subsystems.Queue");
-  private static Logger shooterLog = Logger.getLogger("frc.robot.subsystems.Shooter");
-  private static Logger spinnerLog = Logger.getLogger("frc.robot.subsystems.Spinner");
-  private static Logger turretLog = Logger.getLogger("frc.robot.subsystems.Turret");
+  private static Logger drivetrainLog = Logger.getLogger(Drivetrain.class.getName());
+  private static Logger intakeLog = Logger.getLogger(Intake.class.getName());
+  private static Logger magazineLog = Logger.getLogger(Magazine.class.getName());
+  private static Logger queueLog = Logger.getLogger(Queue.class.getName());
+  private static Logger shooterLog = Logger.getLogger(Shooter.class.getName());
+  private static Logger spinnerLog = Logger.getLogger(Spinner.class.getName());
+  private static Logger turretLog = Logger.getLogger(Turret.class.getName());
 
   private boolean drivetrainLogFine;
   private boolean intakeLogFine;
@@ -114,12 +111,12 @@ public class RobotContainer {
     if (queueLogFine) {queueLog.setLevel(Level.ALL);
     } else {queueLog.setLevel(Level.WARNING);}
 
-    if (shooterLogFine) {spinnerLog.setLevel(Level.ALL);
-    } else {spinnerLog.setLevel(Level.WARNING);}
+    if (shooterLogFine) {shooterLog.setLevel(Level.ALL);
+    } else {shooterLog.setLevel(Level.WARNING);}
 
     if (spinnerLogFine) {spinnerLog.setLevel(Level.ALL);
     } else {spinnerLog.setLevel(Level.WARNING);}
-    
+
     if (turretLogFine) {turretLog.setLevel(Level.ALL);
     } else {turretLog.setLevel(Level.WARNING);}
 
