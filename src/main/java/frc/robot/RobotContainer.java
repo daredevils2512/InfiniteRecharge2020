@@ -20,6 +20,11 @@ import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Magazine;
+import frc.robot.subsystems.Queue;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DriveType;
 
@@ -155,6 +160,10 @@ public class RobotContainer {
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
     
+    if (magazineEnabled) {
+      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
+    }
+
     if (intakeEnabled) {
       // Temporary controls for testing intake extender
       // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
