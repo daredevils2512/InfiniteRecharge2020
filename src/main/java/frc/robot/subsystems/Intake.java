@@ -8,8 +8,10 @@
 package frc.robot.subsystems;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -30,31 +32,32 @@ public class Intake extends SubsystemBase {
   private final NetworkTable m_networkTable;
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/intake.properties";
+
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
   private final NetworkTableEntry m_angleEntry;
 
-  private final int m_extendMotorID = 20;
-  private final int m_runMotorID = 21;
+  private final int m_extendMotorID;
+  private final int m_runMotorID;
   private final TalonSRX m_extendMotor;
   private final TalonSRX m_runMotor;
 
-  private final int m_retractedLimitSwitchPort = -1;
-  private final int m_extendedLimitSwitchPort = -1;
+  private final int m_retractedLimitSwitchPort;
+  private final int m_extendedLimitSwitchPort;
   private final LimitSwitch m_retractedLimitSwitch;
   private final LimitSwitch m_extendedLimitSwitch;
 
-  private final int m_extenderEncoderResolution = 4096;
-  private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
+  private final int m_extenderEncoderResolution;
+  private final double m_extenderGearRatio; // TODO: Find intake extender gear ratio
   // TODO: Find the intake range of motion
-  private final double m_extendedAngle = 0; // Angle in degrees, assuming retracted is zero degrees
+  private final double m_extendedAngle; // Angle in degrees, assuming retracted is zero degrees
 
   // TODO: Configure PID for intake extender
-  private final int m_motionMagicSlot = 0;
-  private final double m_pGain = 0;
-  private final double m_iGain = 0;
-  private final double m_dGain = 0;
-  private final double m_arbitraryFeedForward = 0;
+  private final int m_motionMagicSlot;
+  private final double m_pGain;
+  private final double m_iGain;
+  private final double m_dGain;
+  private final double m_arbitraryFeedForward;
 
   private boolean m_extended = false;
 
@@ -75,11 +78,21 @@ public class Intake extends SubsystemBase {
       e.printStackTrace();
     }
 
-    
+    m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
+    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
 
+    m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
+    m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
 
+    m_extenderEncoderResolution = Integer.parseInt(properties.getProperty("extenderEncoderResolution"));
+    m_extenderGearRatio = Double.parseDouble(properties.getProperty("extenderGearRatio"));
+    m_extendedAngle = Double.parseDouble(properties.getProperty("extendedAngle"));
 
-
+    m_motionMagicSlot = Integer.parseInt(properties.getProperty("motionMagicSlot"));
+    m_pGain = Double.parseDouble(properties.getProperty("pGain"));
+    m_iGain = Double.parseDouble(properties.getProperty("iGain"));
+    m_dGain = Double.parseDouble(properties.getProperty("dGain"));
+    m_arbitraryFeedForward = Double.parseDouble(properties.getProperty("arbitraryFeedForward"));
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
@@ -173,5 +186,17 @@ public class Intake extends SubsystemBase {
    */
   private int toEncoderTicks(double degrees) {
     return (int)(degrees / 360 / m_extenderGearRatio * m_extenderEncoderResolution);
+  }
+
+  public void savePID() {
+    try {
+      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      properties.setProperty("pGain", "" + m_pGain);
+      properties.setProperty("iGain", "" + m_iGain);
+      properties.setProperty("dGain", "" + m_dGain);
+      properties.store(outputStream, "set pid and stuff i think");
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
   }
 }

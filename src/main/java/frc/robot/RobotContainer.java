@@ -229,6 +229,7 @@ public class RobotContainer {
    * <p> <B> <I> subsystesm must run their property saving methods here for them to save unless theyre called elswhere
    */
   public void saveAllProperties() {
-    m_drivetrain.saveProperties();
+    if (drivetrainEnabled) m_drivetrain.saveProperties();
+    if (intakeEnabled) m_intake.savePID();
   }
 }
