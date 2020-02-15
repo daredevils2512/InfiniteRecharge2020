@@ -7,15 +7,27 @@
 
 package frc.robot.subsystems;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Magazine extends SubsystemBase {
+  private static Logger logger = Logger.getLogger(Magazine.class.getName());
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/magazine.properties";
+
   private final int magazineID = -1;
   private final int queueID = -1;
 
@@ -30,6 +42,20 @@ public class Magazine extends SubsystemBase {
    * Creates a new PowerCellManager.
    */
   public Magazine() {
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+      logger.info("succesfuly loaded");
+    } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to load", e);
+    }
+
+    //will add properties but idk if this is the real magazine so im not doing anything about it rn
+    
     magazineSpinner = new WPI_TalonSRX(this.magazineID);
     queue = new WPI_TalonSRX(this.queueID);
     magazineSpinner.setSelectedSensorPosition(0);

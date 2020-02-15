@@ -7,6 +7,13 @@
 
 package frc.robot.subsystems;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -16,6 +23,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.LimitSwitch;
 
@@ -23,31 +31,34 @@ public class Intake extends SubsystemBase {
   private static final Logger logger = Logger.getLogger(Intake.class.getName());
 
   private final NetworkTable m_networkTable;
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/intake.properties";
+
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
   private final NetworkTableEntry m_angleEntry;
 
-  private final int m_extendMotorID = 20;
-  private final int m_runMotorID = 21;
+  private final int m_extendMotorID;
+  private final int m_runMotorID;
   private final TalonSRX m_extendMotor;
   private final TalonSRX m_runMotor;
 
-  private final int m_retractedLimitSwitchPort = -1;
-  private final int m_extendedLimitSwitchPort = -1;
+  private final int m_retractedLimitSwitchPort;
+  private final int m_extendedLimitSwitchPort;
   private final LimitSwitch m_retractedLimitSwitch;
   private final LimitSwitch m_extendedLimitSwitch;
 
-  private final int m_extenderEncoderResolution = 4096;
-  private final double m_extenderGearRatio = 1; // TODO: Find intake extender gear ratio
+  private final int m_extenderEncoderResolution;
+  private final double m_extenderGearRatio; // TODO: Find intake extender gear ratio
   // TODO: Find the intake range of motion
-  private final double m_extendedAngle = 0; // Angle in degrees, assuming retracted is zero degrees
+  private final double m_extendedAngle; // Angle in degrees, assuming retracted is zero degrees
 
   // TODO: Configure PID for intake extender
-  private final int m_motionMagicSlot = 0;
-  private final double m_pGain = 0;
-  private final double m_iGain = 0;
-  private final double m_dGain = 0;
-  private final double m_arbitraryFeedForward = 0;
+  private final int m_motionMagicSlot;
+  private final double m_pGain;
+  private final double m_iGain;
+  private final double m_dGain;
+  private final double m_arbitraryFeedForward;
 
   private boolean m_extended = false;
 
@@ -57,6 +68,34 @@ public class Intake extends SubsystemBase {
    * Creates a new power cell intake
    */
   public Intake() {
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+      logger.info("succesfuly loaded");
+    } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to load", e);
+    }
+
+    m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
+    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
+
+    m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
+    m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
+
+    m_extenderEncoderResolution = Integer.parseInt(properties.getProperty("extenderEncoderResolution"));
+    m_extenderGearRatio = Double.parseDouble(properties.getProperty("extenderGearRatio"));
+    m_extendedAngle = Double.parseDouble(properties.getProperty("extendedAngle"));
+
+    m_motionMagicSlot = Integer.parseInt(properties.getProperty("motionMagicSlot"));
+    m_pGain = Double.parseDouble(properties.getProperty("pGain"));
+    m_iGain = Double.parseDouble(properties.getProperty("iGain"));
+    m_dGain = Double.parseDouble(properties.getProperty("dGain"));
+    m_arbitraryFeedForward = Double.parseDouble(properties.getProperty("arbitraryFeedForward"));
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
     m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
@@ -98,7 +137,6 @@ public class Intake extends SubsystemBase {
     if (!wantsEnabled) {
       m_extendMotor.set(ControlMode.PercentOutput, 0);
     }
-
     m_motionMagicEnabled = wantsEnabled;
   }
 
@@ -149,5 +187,18 @@ public class Intake extends SubsystemBase {
    */
   private int toEncoderTicks(double degrees) {
     return (int)(degrees / 360 / m_extenderGearRatio * m_extenderEncoderResolution);
+  }
+
+  public void savePID() {
+    try {
+      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      properties.setProperty("pGain", "" + m_pGain);
+      properties.setProperty("iGain", "" + m_iGain);
+      properties.setProperty("dGain", "" + m_dGain);
+      properties.store(outputStream, "set pid and stuff i think");
+      logger.info("succesfuly saved");
+    } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to load", e);
+    }
   }
 }
