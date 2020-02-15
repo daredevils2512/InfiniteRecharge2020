@@ -100,23 +100,23 @@ public class RobotContainer {
     if (spinnerEnabled) {m_spinner = new Spinner();}
     if (queueEnabled) {m_queue = new Queue();}
 
-    if (drivetrainLogFine) {drivetrainLog.setLevel(Level.ALL);
-    } else {drivetrainLog.setLevel(Level.WARNING);}
+    if (drivetrainLogFine && drivetrainEnabled) {drivetrainLog.setLevel(Level.ALL);
+    } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.WARNING);}
 
-    if (intakeLogFine) {intakeLog.setLevel(Level.ALL);
-    } else {intakeLog.setLevel(Level.WARNING);}
+    if (intakeLogFine && intakeEnabled) {intakeLog.setLevel(Level.ALL);
+    } else if (intakeEnabled) {intakeLog.setLevel(Level.WARNING);}
 
     if (magazineLogFine) {magazineLog.setLevel(Level.ALL);
     } else {magazineLog.setLevel(Level.WARNING);}
 
-    if (queueLogFine) {queueLog.setLevel(Level.ALL);
-    } else {queueLog.setLevel(Level.WARNING);}
+    if (queueLogFine && queueEnabled) {queueLog.setLevel(Level.ALL);
+    } else if (queueEnabled) {queueLog.setLevel(Level.WARNING);}
 
-    if (shooterLogFine) {shooterLog.setLevel(Level.ALL);
-    } else {shooterLog.setLevel(Level.WARNING);}
+    if (shooterLogFine && shooterEnabled) {shooterLog.setLevel(Level.ALL);
+    } else if (shooterEnabled) {shooterLog.setLevel(Level.WARNING);}
 
-    if (spinnerLogFine) {spinnerLog.setLevel(Level.ALL);
-    } else {spinnerLog.setLevel(Level.WARNING);}
+    if (spinnerLogFine && spinnerEnabled) {spinnerLog.setLevel(Level.ALL);
+    } else if (spinnerEnabled) {spinnerLog.setLevel(Level.WARNING);}
 
     if (turretLogFine) {turretLog.setLevel(Level.ALL);
     } else {turretLog.setLevel(Level.WARNING);}
