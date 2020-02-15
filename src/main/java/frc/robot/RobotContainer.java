@@ -45,6 +45,7 @@ public class RobotContainer {
   private Turret m_turret;
   private Magazine m_magazine;
   private Climber m_climber;
+  private Compressor m_compressor;
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
 
@@ -60,15 +61,15 @@ public class RobotContainer {
   private static Logger spinnerLog = Logger.getLogger(Spinner.class.getName());
   private static Logger turretLog = Logger.getLogger(Turret.class.getName());
 
-  private boolean climberLogFine;
-  private boolean compressorLogFine;
-  private boolean drivetrainLogFine;
-  private boolean intakeLogFine;
-  private boolean magazineLogFine;
-  private boolean queueLogFine;
-  private boolean shooterLogFine;
-  private boolean spinnerLogFine;
-  private boolean turretLogFine;
+  private Level climberLogLevel;
+  private Level compressorLogLevel;
+  private Level drivetrainLogLevel;
+  private Level intakeLogLevel;
+  private Level magazineLogLevel;
+  private Level queueLogLevel;
+  private Level shooterLogLevel;
+  private Level spinnerLogLevel;
+  private Level turretLogLevel;
 
   private final boolean drivetrainEnabled;
   private final boolean intakeEnabled;
@@ -110,79 +111,64 @@ public class RobotContainer {
     climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
 
-    climberLogFine = Boolean.parseBoolean(properties.getProperty("climber.LogFine"));
-    compressorLogFine = Boolean.parseBoolean(properties.getProperty("compressor.LogFine"));
-    drivetrainLogFine = Boolean.parseBoolean(properties.getProperty("drivetrain.LogFine"));
-    intakeLogFine = Boolean.parseBoolean(properties.getProperty("intake.LogFine"));
-    magazineLogFine = Boolean.parseBoolean(properties.getProperty("magazine.LogFine"));
-    queueLogFine = Boolean.parseBoolean(properties.getProperty("queue.LogFine"));
-    shooterLogFine = Boolean.parseBoolean(properties.getProperty("shooter.LogFine"));
-    spinnerLogFine = Boolean.parseBoolean(properties.getProperty("spinner.LogFine"));
-    turretLogFine = Boolean.parseBoolean(properties.getProperty("turret.LogFine"));
-
-    if (drivetrainEnabled) {m_drivetrain = new Drivetrain();}
-    if (intakeEnabled) {m_intake = new Intake();}
-    if (shooterEnabled) {m_shooter = new Shooter();}
-    if (spinnerEnabled) {m_spinner = new Spinner();}
-    if (queueEnabled) {m_queue = new Queue();}
-    if (turretEnabled) {m_turret = new Turret();}
-    if (magazineEnabled) {m_magazine = new Magazine();}
-    if (climberEnabled) {m_climber = new Climber();}
-
-    if (climberLogFine && climberEnabled) {climberLog.setLevel(Level.ALL);
-    } else if (climberEnabled) {climberLog.setLevel(Level.INFO);
-    } else {climberLog.setLevel(Level.OFF);}
-
-    if (compressorLogFine && compressorEnabled) {compressorLog.setLevel(Level.ALL);
-    } else if (compressorEnabled) {compressorLog.setLevel(Level.INFO);
-    } else {compressorLog.setLevel(Level.OFF);}
-
-    if (drivetrainLogFine && drivetrainEnabled) {drivetrainLog.setLevel(Level.ALL);
-    } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.INFO);
-    } else {drivetrainLog.setLevel(Level.OFF);}
-
-    if (intakeLogFine && intakeEnabled) {intakeLog.setLevel(Level.ALL);
-    } else if (intakeEnabled) {intakeLog.setLevel(Level.INFO);
-    } else {intakeLog.setLevel(Level.OFF);}
-
-    if (magazineLogFine && magazineEnabled) {magazineLog.setLevel(Level.ALL);
-    } else if (magazineEnabled) {magazineLog.setLevel(Level.INFO);
-    } else {magazineLog.setLevel(Level.OFF);}
-
-    if (queueLogFine && queueEnabled) {queueLog.setLevel(Level.ALL);
-    } else if (queueEnabled) {queueLog.setLevel(Level.INFO);
-    } else {queueLog.setLevel(Level.OFF);}
-
-    if (shooterLogFine && shooterEnabled) {shooterLog.setLevel(Level.ALL);
-    } else if (shooterEnabled) {shooterLog.setLevel(Level.INFO);
-    } else {shooterLog.setLevel(Level.OFF);}
-
-    if (spinnerLogFine && spinnerEnabled) {spinnerLog.setLevel(Level.ALL);
-    } else if (spinnerEnabled) {spinnerLog.setLevel(Level.INFO);
-    } else {spinnerLog.setLevel(Level.OFF);}
-
-    if (turretLogFine && turretEnabled) {turretLog.setLevel(Level.ALL);
-    } else if (turretEnabled) {turretLog.setLevel(Level.INFO);
-    } else {turretLog.setLevel(Level.OFF);}
+    drivetrainLogLevel = Level.OFF;
+    intakeLogLevel = Level.OFF;
+    shooterLogLevel = Level.OFF;
+    spinnerLogLevel = Level.OFF;
+    queueLogLevel = Level.OFF;
+    turretLogLevel = Level.OFF;
+    magazineLogLevel = Level.OFF;
+    climberLogLevel = Level.OFF;
+    compressorLogLevel = Level.OFF;
 
     if (drivetrainEnabled) {
+      m_drivetrain = new Drivetrain();
+      drivetrainLogLevel = Level.parse(properties.getProperty("drivetrain.logLevel"));
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
-    
-    if (magazineEnabled) {
-      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
-    }
 
     if (intakeEnabled) {
-      // Temporary controls for testing intake extender
-      // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> m_controlBoard.extreme.getStickY() * m_intakeExtenderSlowify));
+      m_intake = new Intake();
+      intakeLogLevel = Level.parse(properties.getProperty("intake.logLevel"));
     }
 
     if (shooterEnabled) {
-      // Temporary controls for testing shooter
-      // m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getStickY));
+      m_shooter = new Shooter();
+      shooterLogLevel = Level.parse(properties.getProperty("shooter.logLevel"));
     }
+
+    if (spinnerEnabled) {
+      m_spinner = new Spinner();
+      spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
+    }
+
+    if (queueEnabled) {
+      m_queue = new Queue();
+      queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
+    }
+
+    if (turretEnabled) {
+      m_turret = new Turret();
+      turretLogLevel = Level.parse(properties.getProperty("turret.logLevel"));
+    }
+
+    if (magazineEnabled) {
+      m_magazine = new Magazine();
+      magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
+      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
+    }
+
+    if (climberEnabled) {
+      m_climber = new Climber();
+      climberLogLevel = Level.parse(properties.getProperty("climber.logLevel"));
+    }
+
+    if (compressorEnabled) {
+      m_compressor = new Compressor();
+      compressorLogLevel = Level.parse(properties.getProperty("compressor.logLevel"));
+    }
+
     configureButtonBindings();
 
     m_autonomousCommand = null; 
