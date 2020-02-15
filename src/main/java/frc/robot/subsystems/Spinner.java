@@ -13,14 +13,12 @@ import java.util.logging.Logger;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.ColorSensor;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 
 public class Spinner extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Spinner.class.getName());
+  private final Logger m_logger;
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_detectedColorEntry;
@@ -33,6 +31,8 @@ public class Spinner extends SubsystemBase {
    * Creates a new Spinner.
    */
   public Spinner() {
+    m_logger = Logger.getLogger(getName());
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_detectedColorEntry = m_networkTable.getEntry("Detected color");
     m_confidenceEntry = m_networkTable.getEntry("Confidence");
@@ -48,7 +48,7 @@ public class Spinner extends SubsystemBase {
   }
 
   public ColorDetect getCurrentColor() {
-    logger.log(Level.FINE, "current color =", m_colorSensor.getColorMatch());
+    m_logger.log(Level.FINE, "current color: ", m_colorSensor.getColorMatch());
     return m_colorSensor.getColorMatchDetect();
   }
 
@@ -59,5 +59,4 @@ public class Spinner extends SubsystemBase {
   public void run(double speed) {
     // Spins somehow
   }
-
 }
