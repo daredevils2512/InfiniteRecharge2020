@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -19,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.PhotoEye;
 
 public class Queue extends SubsystemBase {
+  private static Logger logger = Logger.getLogger(Queue.class.getName());
+  
   private final int m_photoEyeChannel = -1;
   private final PhotoEye m_photoEye;
 
@@ -69,6 +73,7 @@ public class Queue extends SubsystemBase {
   }
 
   public boolean getClosed() {
+    if (m_gate.get() == m_closedValue) logger.fine("queue closed");
     return m_gate.get() == m_closedValue;
   }
 
