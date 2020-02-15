@@ -40,7 +40,7 @@ public class Limelight {
 
   public Limelight() {
     m_table = NetworkTableInstance.getDefault().getTable("limelight");
-    this.lastPostion = 1.0;
+    lastPostion = 1.0;
   }
 
   //Limelight table getters

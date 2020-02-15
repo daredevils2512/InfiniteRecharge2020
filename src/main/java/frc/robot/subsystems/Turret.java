@@ -38,12 +38,16 @@ public class Turret extends SubsystemBase {
   // TODO: Find encoder and gearing details for turret
   private final double m_encoderResolution;
   private final double m_gearRatio;
+  private final double m_maxTurnDegrees;
+  private final double m_tolerance; //in degrees
 
   // TODO: Tune position PID
   private final int m_positionSlot;
   private double m_P = 0;
   private double m_I = 0;
   private double m_D = 0;
+  private int m_motionAcceleration;
+  private int m_motionCruiseVelocity;
 
   /**
    * Creates a new turret
@@ -65,6 +69,8 @@ public class Turret extends SubsystemBase {
 
     m_encoderResolution = Integer.parseInt(properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(properties.getProperty("gearRatio"));
+    m_maxTurnDegrees = Double.parseDouble(properties.getProperty("maxTurnDegrees"));
+    m_tolerance = Double.parseDouble(properties.getProperty("tolerance"));
 
     m_positionSlot = Integer.parseInt(properties.getProperty("positionSlot"));
     m_P = Double.parseDouble(properties.getProperty("P"));
@@ -80,13 +86,19 @@ public class Turret extends SubsystemBase {
     m_turretMaster.config_kD(m_positionSlot, m_D);
     m_turretMaster.config_kI(m_positionSlot, m_I);
     m_turretMaster.config_kP(m_positionSlot, m_P);
+    m_turretMaster.configMotionAcceleration(m_motionAcceleration);
+    m_turretMaster.configMotionCruiseVelocity(m_motionCruiseVelocity);
+
     m_turretMaster.configClosedLoopPeakOutput(m_positionSlot, 1.0);
     m_turretMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
     m_turretMaster.setNeutralMode(NeutralMode.Brake);
     m_turretMaster.set(ControlMode.PercentOutput, 0);
     m_turretMaster.setSelectedSensorPosition(0);
-
+    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxTurnDegrees));
+    m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(-m_maxTurnDegrees));
+    m_turretMaster.configForwardSoftLimitEnable(true);
+    m_turretMaster.configReverseSoftLimitEnable(true);
     m_networkTable.getEntry("P gain").setNumber(m_P);
     m_networkTable.getEntry("I gain").setNumber(m_I);
     m_networkTable.getEntry("D gain").setNumber(m_D);
@@ -122,6 +134,17 @@ public class Turret extends SubsystemBase {
     m_turretMaster.set(ControlMode.PercentOutput, speed);
   }
 
+  public void runPosition(double degrees) {
+    if (Math.abs(getAngle() - degrees) >= m_tolerance) {
+      m_turretMaster.set(ControlMode.MotionMagic, 
+        toEncoderPulses(wrapDegrees(degrees)));
+    }
+  }
+
+  public double wrapDegrees(double degrees) {
+    return ((degrees + Math.signum(degrees) * m_maxTurnDegrees) % 360) - Math.signum(degrees) * m_maxTurnDegrees;
+  }
+
   /**
    * Set a target angle for position PID
    * @param angle Angle in degrees
@@ -135,8 +158,8 @@ public class Turret extends SubsystemBase {
   }
 
   //returns a fused heading problaby
-  private double toEncoderPulses(double angle) {
-    return (int) (angle / 360) * m_encoderResolution;
+  private int toEncoderPulses(double angle) {
+    return (int)((angle / 360) * m_encoderResolution);
   }
 
   public void savePID() {
