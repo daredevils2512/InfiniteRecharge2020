@@ -114,7 +114,9 @@ public class RobotContainer {
     if (shooterEnabled) {m_shooter = new Shooter();}
     if (spinnerEnabled) {m_spinner = new Spinner();}
     if (queueEnabled) {m_queue = new Queue();}
-    if (climberEnabled) {}
+    if (turretEnabled) {m_turret = new Turret();}
+    if (magazineEnabled) {m_magazine = new Magazine();}
+    if (climberEnabled) {m_climber = new Climber();}
 
     if (climberLogFine && climberEnabled) {climberLog.setLevel(Level.ALL);
     } else if (climberEnabled) {climberLog.setLevel(Level.INFO);
