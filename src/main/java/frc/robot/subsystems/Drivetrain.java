@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,6 +54,7 @@ public class Drivetrain extends SubsystemBase {
    * All network table enties are stored as variables so they
    * can be referenced more reliably (instead of by name via string)
    */
+  private static Logger logger = Logger.getLogger(Drivetrain.class.getName());
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_leftPGainEntry;
   private final NetworkTableEntry m_leftIGainEntry;
@@ -337,6 +340,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private double getFusedHeading() {
+    logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
@@ -356,7 +360,9 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
+    if (m_shifter.get() == m_lowGearValue) logger.fine("low gear");
     return m_shiftersEnabled ? m_shifter.get() == m_lowGearValue : false;
+
   }
 
   /**

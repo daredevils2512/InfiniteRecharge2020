@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -17,6 +20,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Turret extends SubsystemBase {
+  private static Logger logger = Logger.getLogger(Turret.class.getName());
   private final NetworkTable m_networkTable;
 
   private final int m_turretMasterID = -1; // TODO: Configure CAN on turret
@@ -75,6 +79,7 @@ public class Turret extends SubsystemBase {
    */
   public double getAngle() {
     // Convert from encoder pulses to degrees
+    logger.log(Level.FINE, "turret position = %d", toDegrees(getPosition()));
     return toDegrees(getPosition());
   }
 

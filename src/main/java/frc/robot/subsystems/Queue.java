@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -18,6 +20,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Queue extends SubsystemBase {
+  private static Logger logger = Logger.getLogger(Queue.class.getName());
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
@@ -57,6 +60,7 @@ public class Queue extends SubsystemBase {
   }
 
   public boolean getIsClosed() {
+    if (m_gate.get() == m_closedValue) logger.fine("queue closed");
     return m_gate.get() == m_closedValue;
   }
 
