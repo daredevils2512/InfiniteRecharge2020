@@ -7,6 +7,13 @@
 
 package frc.robot.subsystems;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Properties;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -14,29 +21,32 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
   private final NetworkTable m_networkTable;
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/shooter.properties";
 
-  private final int m_shooterID = -1;
-  private final int m_hoodID = -1;
+  private final int m_shooterID;
+  private final int m_hoodID;
   private final TalonSRX m_shooter;
   private final TalonSRX m_hood;
 
-  private final int m_shooterEncoderResolution = 4096;
-  private final int m_hoodEncoderResolution = 4096; // TODO: Check shooter encoder resolution
-  private final double m_shooterGearRatio = 1; // TODO: Check shooter gearing
-  private final double m_hoodGearRatio = 1; // TODO: Check shooter hood gearing
+  private final int m_shooterEncoderResolution;
+  private final int m_hoodEncoderResolution; // TODO: Check shooter encoder resolution
+  private final double m_shooterGearRatio; // TODO: Check shooter gearing
+  private final double m_hoodGearRatio; // TODO: Check shooter hood gearing
 
-  private final int m_shooterVelocityPIDSlot = 0;
+  private final int m_shooterVelocityPIDSlot;
   // TODO: Tune shooter velocity PID
   // Change to final once configured
   private double m_shooterVelocityPGain = 0;
   private double m_shooterVelocityIGain = 0;
   private double m_shooterVelocityDGain = 0;
 
-  private final int m_hoodPositionPIDSlot = 0;
+  private final int m_hoodPositionPIDSlot;
   private double m_hoodPositionPGain = 0;
   private double m_hoodPositionIGain = 0;
   private double m_hoodPositionDGain = 0;
@@ -45,6 +55,35 @@ public class Shooter extends SubsystemBase {
    * Creates a new power cell shooter
    */
   public Shooter() {
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+
+    m_shooterID = Integer.parseInt(properties.getProperty("shooterID"));
+    m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
+
+    m_shooterEncoderResolution = Integer.parseInt(properties.getProperty("shooterEncoderResolution"));
+    m_hoodEncoderResolution = Integer.parseInt(properties.getProperty("hoodEncoderResolution"));
+    m_shooterGearRatio = Double.parseDouble(properties.getProperty("shooterGearRatio"));
+    m_hoodGearRatio = Double.parseDouble(properties.getProperty("hoodGearRatio"));
+
+    m_shooterVelocityPIDSlot = Integer.parseInt(properties.getProperty("shooterVelocityPIDSlot"));
+    m_shooterVelocityPGain = Double.parseDouble(properties.getProperty("shooterVelocityPGain"));
+    m_shooterVelocityIGain = Double.parseDouble(properties.getProperty("shooterVelocityIGain"));
+    m_shooterVelocityDGain = Double.parseDouble(properties.getProperty("shooterVelocityDGain"));
+
+    m_hoodPositionPIDSlot = Integer.parseInt(properties.getProperty("hoodPositionPIDSlot"));
+    m_hoodPositionPGain = Double.parseDouble(properties.getProperty("hoodPositionPGain"));
+    m_hoodPositionIGain = Double.parseDouble(properties.getProperty("hoodPositionIGain"));
+    m_hoodPositionDGain = Double.parseDouble(properties.getProperty("hoodPositionDGain"));
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
 
     m_shooter = new TalonSRX(m_shooterID);
@@ -153,5 +192,21 @@ public class Shooter extends SubsystemBase {
 
   private double toAngleHood(int encoderPulses) {
     return (double)encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
+  }
+
+  public void savePID() {
+    try {
+      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      properties.setProperty("shooterVelocityPGain", "" + m_shooterVelocityPGain);
+      properties.setProperty("shooterVelocityIGain", "" + m_shooterVelocityIGain);
+      properties.setProperty("shooterVelocityDGain", "" + m_shooterVelocityDGain);
+
+      properties.setProperty("hoodPositionPGain", "" + m_hoodPositionPGain);
+      properties.setProperty("hoodPositionIGain", "" + m_hoodPositionIGain);
+      properties.setProperty("hoodPositionDGain", "" + m_hoodPositionDGain);
+      properties.store(outputStream, "saved PId or somethbings");
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
   }
 }
