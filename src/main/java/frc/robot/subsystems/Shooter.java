@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -64,8 +65,9 @@ public class Shooter extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
+      logger.info("succesfuly loaded");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to save", e);
     }
 
     m_shooterID = Integer.parseInt(properties.getProperty("shooterID"));
@@ -207,8 +209,9 @@ public class Shooter extends SubsystemBase {
       properties.setProperty("hoodPositionIGain", "" + m_hoodPositionIGain);
       properties.setProperty("hoodPositionDGain", "" + m_hoodPositionDGain);
       properties.store(outputStream, "saved PId or somethbings");
+      logger.info("succesfuly saved");
     } catch(IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to save", e);
     }
   }
 }
