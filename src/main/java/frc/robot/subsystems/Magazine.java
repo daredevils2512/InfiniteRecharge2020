@@ -8,6 +8,12 @@
 package frc.robot.subsystems;
 
 import java.util.logging.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -16,12 +22,15 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
 
 public class Magazine extends SubsystemBase {
-  private static Logger logger = Logger.getLogger("frc.robot.subsysytems.Magazine");
+  private static Logger logger = Logger.getLogger(Magazine.class.getName());
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/magazine.properties";
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
@@ -46,6 +55,18 @@ public class Magazine extends SubsystemBase {
    * Creates a new magazine 
    */
   public Magazine() {
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+      logger.info("succesfuly loaded");
+    } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to load", e);
+    }
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
@@ -54,10 +75,6 @@ public class Magazine extends SubsystemBase {
     m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
 
     m_magazineRunMotor = new WPI_TalonSRX(m_magazineRunMotorID);
-
-    m_powerCellCount = 0;
-    m_powerCellPreviouslyDetectedFront = false;
-    m_powerCellPreviouslyDetectedBack = false;
   }
 
   @Override

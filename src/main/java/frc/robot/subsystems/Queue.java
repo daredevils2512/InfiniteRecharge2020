@@ -7,6 +7,11 @@
 
 package frc.robot.subsystems;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -16,6 +21,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.PhotoEye;
@@ -29,13 +35,15 @@ public class Queue extends SubsystemBase {
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
+  private final Properties properties;
+  private static final String PROPERTIES_NAME = "/queue.properties";
 
-  private final int m_runMotorID = -1;
+  private final int m_runMotorID;
   private final TalonSRX m_runMotor;
 
   // TODO: Check all the gate wiring and stuff
-  private final int m_gateForwardChannel = -1;
-  private final int m_gateReverseChannel = -1;
+  private final int m_gateForwardChannel;
+  private final int m_gateReverseChannel;
   private final DoubleSolenoid.Value m_openValue = Value.kForward;
   private final DoubleSolenoid.Value m_closedValue = Value.kReverse;
   private final DoubleSolenoid m_gate;
@@ -45,6 +53,23 @@ public class Queue extends SubsystemBase {
    * Creates a new Queue.
    */
   public Queue() {
+    Properties defaultProperties = new Properties();
+    properties = new Properties(defaultProperties);
+    try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
+      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      defaultProperties.load(deployStream);
+      properties.load(robotStream);
+      logger.info("succesfuly loaded");
+    } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to load", e);
+    }
+
+    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
+
+    m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
+    m_gateReverseChannel = Integer.parseInt(properties.getProperty("gateReverseChannel"));
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
     m_isClosedEntry = m_networkTable.getEntry("Is closed");
