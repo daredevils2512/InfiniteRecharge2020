@@ -126,7 +126,7 @@ public class Magazine extends SubsystemBase {
       logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
     
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
-    logger.log(Level.FINE, "power cell count %d", m_powerCellCount);
+    if (deltaCount != 0) logger.log(Level.FINER, "power cell count", m_powerCellCount);
   }
 
   public boolean getDirectionReversed() {
