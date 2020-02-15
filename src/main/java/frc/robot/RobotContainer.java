@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.*;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -50,6 +51,7 @@ public class RobotContainer {
   private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
 
   private static Logger climberLog = Logger.getLogger(Climber.class.getName());
+  private static Logger compressorLog = Logger.getLogger(Compressor.class.getName());
   private static Logger drivetrainLog = Logger.getLogger(Drivetrain.class.getName());
   private static Logger intakeLog = Logger.getLogger(Intake.class.getName());
   private static Logger magazineLog = Logger.getLogger(Magazine.class.getName());
@@ -59,6 +61,7 @@ public class RobotContainer {
   private static Logger turretLog = Logger.getLogger(Turret.class.getName());
 
   private boolean climberLogFine;
+  private boolean compressorLogFine;
   private boolean drivetrainLogFine;
   private boolean intakeLogFine;
   private boolean magazineLogFine;
@@ -75,6 +78,7 @@ public class RobotContainer {
   private final boolean turretEnabled;
   private final boolean magazineEnabled;
   private final boolean climberEnabled;
+  private final boolean compressorEnabled;
 
   private Command m_defaultDriveCommand;
 
@@ -104,8 +108,10 @@ public class RobotContainer {
     turretEnabled = Boolean.parseBoolean(properties.getProperty("turret.isEnabled"));
     magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
     climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
+    compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
 
     climberLogFine = Boolean.parseBoolean(properties.getProperty("climber.LogFine"));
+    compressorLogFine = Boolean.parseBoolean(properties.getProperty("compressor.LogFine"));
     drivetrainLogFine = Boolean.parseBoolean(properties.getProperty("drivetrain.LogFine"));
     intakeLogFine = Boolean.parseBoolean(properties.getProperty("intake.LogFine"));
     magazineLogFine = Boolean.parseBoolean(properties.getProperty("magazine.LogFine"));
@@ -126,6 +132,10 @@ public class RobotContainer {
     if (climberLogFine && climberEnabled) {climberLog.setLevel(Level.ALL);
     } else if (climberEnabled) {climberLog.setLevel(Level.INFO);
     } else {climberLog.setLevel(Level.OFF);}
+
+    if (compressorLogFine && compressorEnabled) {compressorLog.setLevel(Level.ALL);
+    } else if (compressorEnabled) {compressorLog.setLevel(Level.INFO);
+    } else {compressorLog.setLevel(Level.OFF);}
 
     if (drivetrainLogFine && drivetrainEnabled) {drivetrainLog.setLevel(Level.ALL);
     } else if (drivetrainEnabled) {drivetrainLog.setLevel(Level.INFO);
