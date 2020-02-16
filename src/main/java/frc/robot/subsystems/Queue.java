@@ -28,7 +28,7 @@ import frc.robot.sensors.PhotoEye;
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
   
-  private final int m_photoEyeChannel;
+  private int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
 
   public final NetworkTable m_networkTable;
