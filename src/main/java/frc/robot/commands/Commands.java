@@ -178,7 +178,7 @@ public final class Commands {
    */
   public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
     System.out.println(speedSupplier.getAsDouble());
-    return new RunCommand(() -> shooter.setPercentOutput(0.0), shooter);
+    return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
     // return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 

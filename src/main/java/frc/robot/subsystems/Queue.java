@@ -114,6 +114,7 @@ public class Queue extends SubsystemBase {
   }
 
   public boolean hasPowerCell() {
-    return m_photoEye.get();
+    // return m_photoEye.get();
+    return false;
   }
 }

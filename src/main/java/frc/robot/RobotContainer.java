@@ -34,6 +34,7 @@ import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
+import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
@@ -95,8 +96,8 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.2;
-  private double m_magazineSpeed = 0.5;
-  private double m_queueSpeed = 0.5;
+  private double m_magazineSpeed = 0.1;
+  private double m_queueSpeed = 0.1;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -162,6 +163,7 @@ public class RobotContainer {
     if (shooterEnabled) {
       shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
+      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
     }
 
     if (spinnerEnabled) {
@@ -303,6 +305,12 @@ public class RobotContainer {
    */
   private double getQueueSpeed() {
     double speed = m_controlBoard.extreme.joystickBottomRight.get() ? m_queueSpeed : 0;
+    return speed;
+  }
+
+  private double getShooterSpeed() {
+    double speed = m_controlBoard.extreme.getSlider();
+    speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
     return speed;
   }
 

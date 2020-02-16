@@ -15,6 +15,7 @@ import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -69,12 +70,13 @@ public class Magazine extends SubsystemBase {
       logger.log(Level.SEVERE, "failed to load", e);
     }
 
-    m_runMotorID = Integer.parseInt("runMotorID");
+    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
 
     m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
     m_backPhotoEyeChannel = Integer.parseInt(properties.getProperty("backPhotoEyeChannel"));
 
     m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
     // m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
     // m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
