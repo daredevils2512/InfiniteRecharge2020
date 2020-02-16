@@ -12,8 +12,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -41,7 +39,7 @@ public class Magazine extends SubsystemBase {
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
-  private final int m_magazineRunMotorID = 30;
+  private final int m_magazineRunMotorID;
   private final WPI_TalonSRX m_magazineRunMotor;
   
   private final int ticksPerBall = 0;
@@ -70,6 +68,8 @@ public class Magazine extends SubsystemBase {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
+
+    m_magazineRunMotorID = Integer.parseInt(properties.getProperty("magazineRunMotorID"));
 
     m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
     m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);

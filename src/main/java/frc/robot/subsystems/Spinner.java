@@ -7,8 +7,7 @@
 
 package frc.robot.subsystems;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -21,7 +20,6 @@ public class Spinner extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Spinner.class.getName());
 
   /**
-   * 
    * Creates a new Spinner.
    */
   public Spinner() {
