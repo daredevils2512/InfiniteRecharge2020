@@ -41,6 +41,9 @@ public class Turret extends SubsystemBase {
   private final double m_maxTurnDegrees;
   private final double m_tolerance; //in degrees
 
+  private final double m_maxForwardDegrees = 70.0;
+  private final double m_maxReverseDegrees = 160.0;
+
   // TODO: Tune position PID
   private final int m_positionSlot;
   private double m_P = 0;
@@ -95,8 +98,10 @@ public class Turret extends SubsystemBase {
     m_turretMaster.setNeutralMode(NeutralMode.Brake);
     m_turretMaster.set(ControlMode.PercentOutput, 0);
     m_turretMaster.setSelectedSensorPosition(0);
-    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxTurnDegrees));
-    m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(-m_maxTurnDegrees));
+    // m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxTurnDegrees));
+    // m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(-m_maxTurnDegrees));
+    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxForwardDegrees));
+    m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(m_maxReverseDegrees));
     m_turretMaster.configForwardSoftLimitEnable(true);
     m_turretMaster.configReverseSoftLimitEnable(true);
     m_networkTable.getEntry("P gain").setNumber(m_P);

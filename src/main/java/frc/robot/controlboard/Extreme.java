@@ -49,4 +49,8 @@ public class Extreme {
   public double getStickY() {
     return m_joystick.getRawAxis(m_stickYAxis);
   }
+
+  public double getSlider() {
+    return m_joystick.getRawAxis(3);
+  }
 }
