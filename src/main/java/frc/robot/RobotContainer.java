@@ -129,6 +129,7 @@ public class RobotContainer {
     magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
     climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
+    // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
 
