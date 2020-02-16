@@ -116,6 +116,7 @@ public class Drivetrain extends SubsystemBase {
   private final double m_maxSpeedLowGear; // Max speed in low gear in meters per second
   private final double m_maxAngularSpeedHighGear;
   private final double m_maxAngularSpeedLowGear;
+  private final double m_maxAcceleration;
 
   private boolean m_isDrivingInverted = false;
 
@@ -182,6 +183,7 @@ public class Drivetrain extends SubsystemBase {
     m_maxSpeedLowGear = Double.parseDouble(properties.getProperty("maxSpeedLowGear"));
     m_maxAngularSpeedHighGear = Double.parseDouble(properties.getProperty("maxAngularSpeedHighGear"));
     m_maxAngularSpeedLowGear = Double.parseDouble(properties.getProperty("maxAngularSpeedLowGear"));
+    m_maxAcceleration = Double.parseDouble(properties.getProperty("maxAcceleration"));
 
     m_staticGain = Double.parseDouble(properties.getProperty("staticGain"));
     m_velocityGain = Double.parseDouble(properties.getProperty("velocityGain"));
@@ -299,6 +301,14 @@ public class Drivetrain extends SubsystemBase {
     return getLowGear() ? m_maxAngularSpeedLowGear : m_maxAngularSpeedHighGear;
   }
 
+  /**
+   * in meters per second per second
+   * @return m/s^2
+   */
+  public double getMaxAcceleration() {
+    return m_maxAcceleration;
+  }
+
   private void resetEncoders() {
     m_leftEncoder.reset();
     m_rightEncoder.reset();
@@ -326,6 +336,10 @@ public class Drivetrain extends SubsystemBase {
 
   private double getRightVelocity() {
     return m_rightEncoder.getRate();
+  }
+
+  public DifferentialDriveKinematics getKinematics() {
+    return m_kinematics;
   }
 
   private double getYaw() {
@@ -430,6 +444,11 @@ public class Drivetrain extends SubsystemBase {
     m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
   }
 
+  public void voltageTank(double left, double right) {
+    m_leftDriveMaster.setVoltage(left);
+    m_rightDriveMaster.setVoltage(right);
+  }
+
   /**
    * Set the drivetrain's linear and angular target velocities
    * @param velocity Velocity in meters per second
@@ -438,6 +457,10 @@ public class Drivetrain extends SubsystemBase {
   public void velocityArcadeDrive(double velocity, double angularVelocity) {
     velocity = m_isDrivingInverted ? -velocity : velocity;
     setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
+  }
+
+  public void setWheelSpeeds(double left, double right) {
+    setSpeeds(new DifferentialDriveWheelSpeeds(left, right));
   }
 
   private void setSpeeds(DifferentialDriveWheelSpeeds wheelSpeeds) {

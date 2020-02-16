@@ -7,12 +7,19 @@
 
 package frc.robot.commands;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
@@ -166,7 +173,9 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
-    return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
+    System.out.println(speedSupplier.getAsDouble());
+    return new RunCommand(() -> shooter.setPercentOutput(0.0), shooter);
+    // return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 
   public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
@@ -184,5 +193,18 @@ public final class Commands {
   public static Command setSpinnerExtended(Spinner spinner, boolean wantsExtended) {
     return new InstantCommand(() -> spinner.setExtended(wantsExtended), spinner);
   }
+
+  public static Command followPath(Drivetrain drivetrain, String file) {
+    Trajectory trajectory;
+    try {
+      Path path = Filesystem.getDeployDirectory().toPath().resolve("paths/" + file);
+      trajectory = TrajectoryUtil.fromPathweaverJson(path);
+    } catch(IOException e) {
+      trajectory = null;
+      e.printStackTrace();
+    }
+  return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
+  drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain);
+}
 
 }

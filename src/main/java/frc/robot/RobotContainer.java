@@ -9,6 +9,7 @@ package frc.robot;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -16,7 +17,11 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.sensors.ColorSensor.ColorDetect;
@@ -52,7 +57,9 @@ public class RobotContainer {
   private Climber m_climber;
   private Compressor m_compressor;
   private final Properties properties;
+
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
+  private String m_pathPath = "paths/auto1.wpilib.json";
 
   private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
 
@@ -89,7 +96,7 @@ public class RobotContainer {
 
   private Command m_defaultDriveCommand;
 
-  private final Command m_autonomousCommand;
+  private Command m_autonomousCommand;
 
   private double m_intakeExtenderSlowify = 0.2;
 
@@ -117,6 +124,7 @@ public class RobotContainer {
     magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
     climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
+    m_pathPath = properties.getProperty("PATH_PATH");
 
     drivetrainLogLevel = Level.OFF;
     intakeLogLevel = Level.OFF;
@@ -149,6 +157,7 @@ public class RobotContainer {
       m_shooter = new Shooter();
       shooterLogLevel = Level.parse(properties.getProperty("shooter.logLevel"));
       shooterLog.setLevel(shooterLogLevel);
+      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getSlider));
     }
 
     if (spinnerEnabled) {
@@ -190,7 +199,15 @@ public class RobotContainer {
 
     configureButtonBindings();
 
-    m_autonomousCommand = null; 
+    Trajectory trajectory;     
+    try {
+      Path path = Filesystem.getDeployDirectory().toPath().resolve(m_pathPath);
+      trajectory = TrajectoryUtil.fromPathweaverJson(path);
+      m_autonomousCommand = drivetrainEnabled ? new RamseteCommand(trajectory, m_drivetrain::getPose , new RamseteController(),
+         m_drivetrain.getKinematics(), m_drivetrain::setWheelSpeeds , m_drivetrain) : null; 
+    } catch(IOException e) {
+      logger.log(Level.SEVERE, "failed to read path", e);
+    }
   }
 
   /**
@@ -212,7 +229,8 @@ public class RobotContainer {
     }
     if (shooterEnabled) {
       // Run shooter at a set motor output
-      m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
+      // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
+      
     }
     if (spinnerEnabled) {
       // Extend/retract spinner
@@ -229,6 +247,10 @@ public class RobotContainer {
 
       //toggles the hard stop on the queue if there is one. also dont have a button for it
       m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
+    }
+
+    if (turretEnabled && limelightEnabled) {
+      m_controlBoard.extreme.trigger.toggleWhenPressed(new FindTarget(m_turret, m_limelight, 5.0));
     }
   }
 
@@ -274,7 +296,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autonomousCommand;
+    return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilig.json") : null;
   }
 
   /**

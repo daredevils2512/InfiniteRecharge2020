@@ -41,8 +41,9 @@ public class FindTarget extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putNumber("target position", m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
-    m_turret.runPosition(m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
+    // SmartDashboard.putNumber("target position", m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
+    // m_turret.runPosition(m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
+    m_turret.runPosition(m_turret.getAngle() + m_limelight.tx());
   }
 
   // Called once the command ends or is interrupted.
