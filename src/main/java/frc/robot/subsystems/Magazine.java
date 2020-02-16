@@ -34,8 +34,8 @@ public class Magazine extends SubsystemBase {
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
-  private final int m_frontPhotoEyeChannel = 4;
-  private final int m_backPhotoEyeChannel = 5;
+  private final int m_frontPhotoEyeChannel = 6;
+  private final int m_backPhotoEyeChannel = 7;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
@@ -53,13 +53,13 @@ public class Magazine extends SubsystemBase {
    * Creates a new magazine 
    */
   public Magazine() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
+    // Properties defaultProperties = new Properties();
+    properties = new Properties();
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
+      // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      // defaultProperties.load(deployStream);
+      properties.load(deployStream);
       logger.info("succesfuly loaded");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to load", e);

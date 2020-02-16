@@ -40,6 +40,7 @@ public class Queue extends SubsystemBase {
   private final int m_runMotorID;
   private final TalonSRX m_runMotor;
 
+  private final boolean m_gateEnabled;
   // TODO: Check all the gate wiring and stuff
   private final int m_gateForwardChannel;
   private final int m_gateReverseChannel;
@@ -51,13 +52,17 @@ public class Queue extends SubsystemBase {
    * Creates a new Queue.
    */
   public Queue() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_runSpeedEntry = m_networkTable.getEntry("Run speed");
+    m_isClosedEntry = m_networkTable.getEntry("Is closed");
+
+    // Properties defaultProperties = new Properties();
+    properties = new Properties();
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
+      // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      // defaultProperties.load(deployStream);
+      properties.load(deployStream);
       logger.info("succesfuly loaded");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to load", e);
@@ -67,19 +72,15 @@ public class Queue extends SubsystemBase {
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
 
-    m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
-    m_gateReverseChannel = Integer.parseInt(properties.getProperty("gateReverseChannel"));
-
-    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
-    m_runSpeedEntry = m_networkTable.getEntry("Run speed");
-    m_isClosedEntry = m_networkTable.getEntry("Is closed");
-
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
 
-    m_gate = new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel);
-
     m_photoEye = new PhotoEye(m_photoEyeChannel);
+
+    m_gateEnabled = Boolean.parseBoolean(properties.getProperty("gateEnabled"));
+    m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
+    m_gateReverseChannel = Integer.parseInt(properties.getProperty("gateReverseChannel"));
+    m_gate = m_gateEnabled ? new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel) : null;
   }
 
   @Override
@@ -98,12 +99,17 @@ public class Queue extends SubsystemBase {
   }
 
   public boolean getClosed() {
-    if (m_gate.get() == m_closedValue) logger.fine("queue closed");
-    return m_gate.get() == m_closedValue;
+    if (m_gateEnabled) {
+      return m_gate.get() == m_closedValue;
+    } else {
+      return false;
+    }
   }
 
   public void setClosed(boolean wantsClosed) {
-    m_gate.set(wantsClosed ? m_closedValue : m_openValue);
+    if (m_gateEnabled) {
+      m_gate.set(wantsClosed ? m_closedValue : m_openValue);
+    }
   }
 
   public boolean hasPowerCell() {
