@@ -185,7 +185,8 @@ public final class Commands {
       e.printStackTrace();
     }
   return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
-  drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain);
+  drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain)
+    .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
 }
 
 }

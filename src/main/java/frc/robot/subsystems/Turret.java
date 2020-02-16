@@ -22,13 +22,19 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.DareMathUtil;
 
 public class Turret extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Turret.class.getName());
+
   private final NetworkTable m_networkTable;
+  private final NetworkTableEntry m_angleEntry;
+  private final NetworkTableEntry m_wrappedAngleEntry;
+
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/turret.properties";
 
@@ -41,8 +47,8 @@ public class Turret extends SubsystemBase {
   private final double m_maxTurnDegrees;
   private final double m_tolerance; //in degrees
 
-  private final double m_maxForwardDegrees = 70.0;
-  private final double m_maxReverseDegrees = 160.0;
+  private final double m_minAngle = -160.0; // Angle in degrees
+  private final double m_maxAngle = 70.0; // Angle in degrees
 
   // TODO: Tune position PID
   private final int m_positionSlot;
@@ -81,6 +87,8 @@ public class Turret extends SubsystemBase {
     m_D = Double.parseDouble(properties.getProperty("D"));
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_angleEntry = m_networkTable.getEntry("Angle");
+    m_wrappedAngleEntry = m_networkTable.getEntry("Wrapped angle");
 
     m_turretMaster = new TalonSRX(m_turretMasterID);
     m_turretMaster.configFactoryDefault();
@@ -100,8 +108,8 @@ public class Turret extends SubsystemBase {
     m_turretMaster.setSelectedSensorPosition(0);
     // m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxTurnDegrees));
     // m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(-m_maxTurnDegrees));
-    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxForwardDegrees));
-    m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(m_maxReverseDegrees));
+    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxAngle));
+    m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(m_minAngle));
     m_turretMaster.configForwardSoftLimitEnable(true);
     m_turretMaster.configReverseSoftLimitEnable(true);
     m_networkTable.getEntry("P gain").setNumber(m_P);
@@ -115,6 +123,9 @@ public class Turret extends SubsystemBase {
     m_P = m_networkTable.getEntry("P gain").getDouble(0.0);
     m_I = m_networkTable.getEntry("I gain").getDouble(0.0);
     m_D = m_networkTable.getEntry("D gain").getDouble(0.0);
+
+    m_angleEntry.setNumber(getAngle());
+    m_wrappedAngleEntry.setNumber(DareMathUtil.wrap(getAngle(), m_minAngle, m_maxAngle));
   }
 
   private int getPosition() {
@@ -122,7 +133,7 @@ public class Turret extends SubsystemBase {
   }
 
   /**
-   * Get the current angle of the turret
+   * Get the current angle of the turret (CCW positive)
    * @return Angle in degrees
    */
   public double getAngle() {
@@ -142,7 +153,7 @@ public class Turret extends SubsystemBase {
   public void runPosition(double degrees) {
     if (Math.abs(getAngle() - degrees) >= m_tolerance) {
       m_turretMaster.set(ControlMode.MotionMagic, 
-        toEncoderPulses(wrapDegrees(degrees)));
+        toEncoderPulses(DareMathUtil.wrap(degrees, -180, 180)));
     }
   }
 
