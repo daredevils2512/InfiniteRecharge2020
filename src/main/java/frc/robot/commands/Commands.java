@@ -151,12 +151,24 @@ public final class Commands {
     return new AutoRefillQueue(magazine, magazineSpeed, powerCellQueued);
   }
 
+  public static Command setMagazineDefaultCommand(Magazine magazine, Command command) {
+    return new InstantCommand(() -> magazine.setDefaultCommand(command));
+  }
+
+  public static Command toggleAutoRefillQueue() {
+    
+  }
+
   public static Command feedShooter(Queue queue, DoubleSupplier queueSpeedSupplier) {
     return new FeedShooter(queue, queueSpeedSupplier);
   }
 
   public static Command autoFeedShooter(Queue queue, DoubleSupplier queueSpeedSupplier, IntSupplier magazinePowerCellCountSupplier) {
     return new AutoFeedShooter(queue, queueSpeedSupplier, magazinePowerCellCountSupplier);
+  }
+
+  public static Command setQueueDefaultCommand(Queue queue, Command command) {
+    return new InstantCommand(() -> queue.setDefaultCommand(command));
   }
 
   public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {

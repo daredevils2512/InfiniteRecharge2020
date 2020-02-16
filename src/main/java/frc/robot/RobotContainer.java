@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
@@ -100,6 +101,8 @@ public class RobotContainer {
 
   private Command m_autonomousCommand;
 
+  private boolean m_autoRefillQueueEnabled = false;
+  private boolean m_autoFeedShooterEnabled = false;
   private double m_intakeExtenderSlowify = 0.2;
 
   /**
@@ -240,6 +243,18 @@ public class RobotContainer {
       m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
     }
 
+    if (magazineEnabled && queueEnabled) {
+      // Toggle auto queue refilling
+      m_controlBoard.extreme.joystickTopLeft.whenPressed(new InstantCommand(() -> {
+        m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
+        if (m_autoRefillQueueEnabled) m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.hasPowerCell()));
+      }));
+    }
+
+    if (turretEnabled && limelightEnabled) {
+      m_controlBoard.extreme.trigger.toggleWhenPressed(new FindTarget(m_turret, m_limelight, 5.0));
+    }
+
     if (shooterEnabled) {
       // Run shooter at a set motor output
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
@@ -253,18 +268,6 @@ public class RobotContainer {
 
       m_controlBoard.extreme.baseMiddleLeft.whenPressed( new RotationControl (m_spinner, 3));
       m_controlBoard.extreme.baseMiddleRight.whenPressed( new PrecisionControl(m_spinner, ColorDetect.Red));
-    }
-
-    if (queueEnabled) {
-      //runs the queue. dont really have a button planned for it
-      m_controlBoard.extreme.baseFrontRight.whileHeld(Commands.runQueue(m_queue, 0.5));
-
-      //toggles the hard stop on the queue if there is one. also dont have a button for it
-      m_controlBoard.extreme.baseFrontLeft.whenHeld(Commands.toggleQueueGate(m_queue));
-    }
-
-    if (turretEnabled && limelightEnabled) {
-      m_controlBoard.extreme.trigger.toggleWhenPressed(new FindTarget(m_turret, m_limelight, 5.0));
     }
   }
 
