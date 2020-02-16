@@ -11,8 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -29,7 +28,7 @@ import frc.robot.sensors.PhotoEye;
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
   
-  private final int m_photoEyeChannel = -1;
+  private final int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
 
   public final NetworkTable m_networkTable;
@@ -63,6 +62,8 @@ public class Queue extends SubsystemBase {
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
+
+    m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
 
@@ -106,6 +107,6 @@ public class Queue extends SubsystemBase {
   }
 
   public boolean hasPowerCell() {
-    return !m_photoEye.get();
+    return m_photoEye.get();
   }
 }

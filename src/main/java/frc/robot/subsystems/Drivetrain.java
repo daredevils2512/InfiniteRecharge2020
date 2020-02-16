@@ -7,8 +7,7 @@
 
 package frc.robot.subsystems;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -101,7 +100,7 @@ public class Drivetrain extends SubsystemBase {
   private final int m_shifterForwardChannel; //should be in properties file
   private final int m_shifterReverseChannel;
   private DoubleSolenoid m_shifter;
-  private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
+  private final Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
   private final boolean m_shiftersEnabled;
 
