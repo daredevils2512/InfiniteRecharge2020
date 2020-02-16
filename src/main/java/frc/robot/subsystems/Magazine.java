@@ -36,8 +36,8 @@ public class Magazine extends SubsystemBase {
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
-  private final int m_frontPhotoEyeChannel = 4;
-  private final int m_backPhotoEyeChannel = 5;
+  private final int m_frontPhotoEyeChannel = 6;
+  private final int m_backPhotoEyeChannel = 7;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
