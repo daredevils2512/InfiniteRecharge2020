@@ -75,6 +75,10 @@ public final class Commands {
     return new AccelerationLimitedVelocityArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration, maxTurnAcceleration);
   }
 
+  public static Command driveStraight(Drivetrain drivetrain, double distance) {
+    return new DriveStraight(drivetrain, distance);
+  }
+
   //probly temporary
   public static Command climberUp(Climber climber, Double leftSpeed, Double rightSpeed) {
     return new RunCommand(() -> climber.climb(leftSpeed, rightSpeed), climber);

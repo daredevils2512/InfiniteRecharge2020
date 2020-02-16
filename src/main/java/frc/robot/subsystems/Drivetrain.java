@@ -312,19 +312,19 @@ public class Drivetrain extends SubsystemBase {
     m_isDrivingInverted = wantsInverted;
   }
 
-  private double getLeftDistance() {
+  public double getLeftDistance() {
     return m_leftEncoder.getDistance();
   }
 
-  private double getRightDistance() {
+  public double getRightDistance() {
     return m_rightEncoder.getDistance();
   }
 
-  private double getLeftVelocity() {
+  public double getLeftVelocity() {
     return m_leftEncoder.getRate();
   }
 
-  private double getRightVelocity() {
+  public double getRightVelocity() {
     return m_rightEncoder.getRate();
   }
 
