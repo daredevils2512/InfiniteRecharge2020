@@ -29,7 +29,7 @@ import frc.robot.sensors.PhotoEye;
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
   
-  private final int m_photoEyeChannel = 6;
+  private final int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
 
   public final NetworkTable m_networkTable;
@@ -70,6 +70,7 @@ public class Queue extends SubsystemBase {
     }
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
+    m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
 
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
