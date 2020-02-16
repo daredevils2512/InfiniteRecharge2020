@@ -211,15 +211,7 @@ public class RobotContainer {
 
     configureButtonBindings();
 
-    Trajectory trajectory;     
-    try {
-      Path path = Filesystem.getDeployDirectory().toPath().resolve(m_pathPath);
-      trajectory = TrajectoryUtil.fromPathweaverJson(path);
-      m_autonomousCommand = drivetrainEnabled ? new RamseteCommand(trajectory, m_drivetrain::getPose , new RamseteController(),
-         m_drivetrain.getKinematics(), m_drivetrain::setWheelSpeeds , m_drivetrain) : null; 
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to read path", e);
-    }
+    m_autonomousCommand = drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
   }
 
   /**
@@ -314,7 +306,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilig.json") : null;
+    return m_autonomousCommand;
+    // return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilib.json") : null;
   }
 
   /**
