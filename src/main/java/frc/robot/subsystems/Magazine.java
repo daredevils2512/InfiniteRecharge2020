@@ -41,7 +41,7 @@ public class Magazine extends SubsystemBase {
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
-  private final int m_magazineRunMotorID = 30;
+  private final int m_magazineRunMotorID = 21;
   private final WPI_TalonSRX m_magazineRunMotor;
   
   private final int ticksPerBall = 0;
