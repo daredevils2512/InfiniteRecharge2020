@@ -34,6 +34,7 @@ public class Magazine extends SubsystemBase {
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
+  private boolean m_photoEyeEnabled;
   private final int m_frontPhotoEyeChannel = 6;
   private final int m_backPhotoEyeChannel = 7;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
@@ -68,12 +69,16 @@ public class Magazine extends SubsystemBase {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
-
     m_magazineRunMotorID = Integer.parseInt(properties.getProperty("magazineRunMotorID"));
+    m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
 
-    m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-    m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
-
+    if (m_photoEyeEnabled) {
+      m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
+      m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
+    } else {
+      m_frontPhotoEye = null;
+      m_backPhotoEye = null;
+    }
     m_magazineRunMotor = new WPI_TalonSRX(m_magazineRunMotorID);
   }
 
