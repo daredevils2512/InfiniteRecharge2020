@@ -155,8 +155,8 @@ public final class Commands {
     return new FeedShooter(queue, queueSpeedSupplier);
   }
 
-  public static Command autoFeedShooter(Queue queue, DoubleSupplier queueSpeedSupplier, IntSupplier magazinePowerCellCountSupplier) {
-    return new AutoFeedShooter(queue, queueSpeedSupplier, magazinePowerCellCountSupplier);
+  public static Command autoFeedShooter(Queue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+    return new AutoFeedShooter(queue, queueSpeed, magazinePowerCellCountSupplier);
   }
 
   public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {
