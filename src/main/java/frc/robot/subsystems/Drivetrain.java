@@ -150,7 +150,7 @@ public class Drivetrain extends SubsystemBase {
       // defaultProperties.load(deployStream);
       properties.load(deployStream);
       logger.info("succesfuly loaded");
-    } catch (IOException e) {
+    } catch (Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
 

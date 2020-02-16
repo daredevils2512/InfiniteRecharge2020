@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,7 +87,7 @@ public class Intake extends SubsystemBase {
       defaultProperties.load(deployStream);
       properties.load(robotStream);
       logger.info("succesfuly loaded");
-    } catch(IOException e) {
+    } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
 
