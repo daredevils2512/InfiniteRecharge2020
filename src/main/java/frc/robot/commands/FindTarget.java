@@ -42,8 +42,9 @@ public class FindTarget extends CommandBase {
   @Override
   public void execute() {
     // SmartDashboard.putNumber("target position", m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
-    // m_turret.runPosition(m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
-    m_turret.runPosition(m_turret.getAngle() + m_limelight.tx());
+    m_turret.runPosition(m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
+    // m_turret.runPosition(m_turret.getAngle() + m_limelight.tx());
+    
   }
 
   // Called once the command ends or is interrupted.
