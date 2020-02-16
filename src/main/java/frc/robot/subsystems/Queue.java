@@ -28,9 +28,9 @@ import frc.robot.sensors.PhotoEye;
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
   
-  private boolean photoEyeEnabled;
+  private boolean m_photoEyeEnabled;
   private final int m_photoEyeChannel;
-  private PhotoEye m_photoEye;
+  private final PhotoEye m_photoEye;
 
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
@@ -75,7 +75,8 @@ public class Queue extends SubsystemBase {
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
 
-    if (photoEyeEnabled) m_photoEye = new PhotoEye(m_photoEyeChannel);
+    if (m_photoEyeEnabled) m_photoEye = new PhotoEye(m_photoEyeChannel);
+    else m_photoEye = null;
 
     m_gateEnabled = Boolean.parseBoolean(properties.getProperty("gateEnabled"));
     m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
