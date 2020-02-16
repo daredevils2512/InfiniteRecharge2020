@@ -35,6 +35,7 @@ public class Magazine extends SubsystemBase {
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
+  private boolean m_photoEyesEnabled;
   private final int m_frontPhotoEyeChannel;
   private final int m_backPhotoEyeChannel;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
@@ -78,20 +79,27 @@ public class Magazine extends SubsystemBase {
     m_runMotor = new WPI_TalonSRX(m_runMotorID);
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    // m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-    // m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
-    m_frontPhotoEye = null;
-    m_backPhotoEye = null;
+    m_photoEyesEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
+
+    if (m_photoEyesEnabled) {
+      m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
+      m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
+    } else {
+      m_frontPhotoEye = null;
+      m_backPhotoEye = null;
+    }
   }
 
   @Override
   public void periodic() {
-    // updatePowerCellCount();
-    // m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
-    // m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
+    if (m_photoEyesEnabled) {
+      updatePowerCellCount();
+      m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
+      m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
+    }
 
-    // m_directionReversedEntry.setBoolean(getDirectionReversed());
-    // m_powerCellCountEntry.setNumber(getPowerCellCount());
+    m_directionReversedEntry.setBoolean(getDirectionReversed());
+    m_powerCellCountEntry.setNumber(getPowerCellCount());
   }
 
   public boolean getPowerCellDetectedFront() {
@@ -133,7 +141,7 @@ public class Magazine extends SubsystemBase {
       logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
     
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
-    if (deltaCount != 0) logger.log(Level.FINER, "power cell count", m_powerCellCount);
+    if (deltaCount != 0) logger.log(Level.FINE, "power cell count", m_powerCellCount);
   }
 
   public boolean getDirectionReversed() {
