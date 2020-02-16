@@ -349,7 +349,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getHeading() {
-    return m_pigeonEnabled ? getFusedHeading()%360 : 0.0;
+    return m_pigeonEnabled ? getFusedHeading() : 0.0;
   }
 
   /**
