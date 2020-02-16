@@ -34,13 +34,13 @@ public class Magazine extends SubsystemBase {
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
-  private final int m_frontPhotoEyeChannel = 6;
-  private final int m_backPhotoEyeChannel = 7;
+  private final int m_frontPhotoEyeChannel;
+  private final int m_backPhotoEyeChannel;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
-  private final int m_magazineRunMotorID;
-  private final WPI_TalonSRX m_magazineRunMotor;
+  private final int m_runMotorID;
+  private final WPI_TalonSRX m_runMotor;
   
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
@@ -53,6 +53,10 @@ public class Magazine extends SubsystemBase {
    * Creates a new magazine 
    */
   public Magazine() {
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
+    m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
+
     // Properties defaultProperties = new Properties();
     properties = new Properties();
     try {
@@ -65,26 +69,27 @@ public class Magazine extends SubsystemBase {
       logger.log(Level.SEVERE, "failed to load", e);
     }
 
-    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
-    m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
-    m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
+    m_runMotorID = Integer.parseInt("runMotorID");
 
-    m_magazineRunMotorID = Integer.parseInt(properties.getProperty("magazineRunMotorID"));
+    m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
+    m_backPhotoEyeChannel = Integer.parseInt(properties.getProperty("backPhotoEyeChannel"));
 
-    m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-    m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
+    m_runMotor = new WPI_TalonSRX(m_runMotorID);
 
-    m_magazineRunMotor = new WPI_TalonSRX(m_magazineRunMotorID);
+    // m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
+    // m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
+    m_frontPhotoEye = null;
+    m_backPhotoEye = null;
   }
 
   @Override
   public void periodic() {
-    updatePowerCellCount();
-    m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
-    m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
+    // updatePowerCellCount();
+    // m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
+    // m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
 
-    m_directionReversedEntry.setBoolean(getDirectionReversed());
-    m_powerCellCountEntry.setNumber(getPowerCellCount());
+    // m_directionReversedEntry.setBoolean(getDirectionReversed());
+    // m_powerCellCountEntry.setNumber(getPowerCellCount());
   }
 
   public boolean getPowerCellDetectedFront() {
@@ -130,14 +135,14 @@ public class Magazine extends SubsystemBase {
   }
 
   public boolean getDirectionReversed() {
-    return m_magazineRunMotor.getMotorOutputPercent() < 0;
+    return m_runMotor.getMotorOutputPercent() < 0;
   }
   
   public void setSpeed(double speed) {
-    m_magazineRunMotor.set(ControlMode.PercentOutput, speed);
+    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public void feedBalls(int amount) {
-    m_magazineRunMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward, arbitraryFeedForward);
+    m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward, arbitraryFeedForward);
   }
 }
