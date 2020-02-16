@@ -170,7 +170,21 @@ public class RobotContainer {
       intakeLogLevel = Level.parse(properties.getProperty("intake.logLevel"));
       intakeLog.setLevel(intakeLogLevel);
       m_intake = new Intake();
-      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, ));
+      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
+    }
+
+    if (magazineEnabled) {
+      magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
+      magazineLog.setLevel(magazineLogLevel);
+      m_magazine = new Magazine();
+      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+    }
+
+    if (queueEnabled) {
+      queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
+      queueLog.setLevel(queueLogLevel);
+      m_queue = new Queue();
+      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
     }
 
     if (shooterEnabled) {     
@@ -180,29 +194,16 @@ public class RobotContainer {
       m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getSlider));
     }
 
-    if (spinnerEnabled) {
-      spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
-      spinnerLog.setLevel(spinnerLogLevel);
-      m_spinner = new Spinner();
-    }
-
-    if (queueEnabled) {
-      queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
-      queueLog.setLevel(queueLogLevel);
-      m_queue = new Queue();
-    }
-
     if (turretEnabled) {
       turretLogLevel = Level.parse(properties.getProperty("turret.logLevel"));
       turretLog.setLevel(turretLogLevel);
       m_turret = new Turret();
     }
 
-    if (magazineEnabled) {
-      magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
-      magazineLog.setLevel(magazineLogLevel);
-      m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.hasPowerCell()));
+    if (spinnerEnabled) {
+      spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
+      spinnerLog.setLevel(spinnerLogLevel);
+      m_spinner = new Spinner();
     }
 
     if (climberEnabled) {
@@ -250,6 +251,8 @@ public class RobotContainer {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
         if (m_autoRefillQueueEnabled) {
           m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
+        } else {
+          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
         }
       }));
     }
@@ -259,6 +262,8 @@ public class RobotContainer {
         m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
         if (m_autoFeedShooterEnabled) {
           m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
+        } else {
+          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
         }
       }));
     }
