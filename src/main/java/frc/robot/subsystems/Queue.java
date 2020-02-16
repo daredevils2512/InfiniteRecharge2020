@@ -64,7 +64,7 @@ public class Queue extends SubsystemBase {
       // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       // defaultProperties.load(deployStream);
       properties.load(deployStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }

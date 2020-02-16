@@ -69,7 +69,7 @@ public class Turret extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
@@ -185,7 +185,7 @@ public class Turret extends SubsystemBase {
       properties.setProperty("I", "" + m_I);
       properties.setProperty("D", "" + m_D);
       properties.store(outputStream, "saved pId or somethinges");
-      logger.info("succesfuly saved");
+      logger.info("successfully saved");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to save", e);
       e.printStackTrace();
