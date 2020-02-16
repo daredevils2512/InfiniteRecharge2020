@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.commands.*;
 import frc.robot.controlboard.ControlBoard;
+import frc.robot.controlboard.JoystickUtil;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -103,7 +104,10 @@ public class RobotContainer {
 
   private boolean m_autoRefillQueueEnabled = false;
   private boolean m_autoFeedShooterEnabled = false;
-  private double m_intakeExtenderSlowify = 0.2;
+
+  private double m_intakeExtenderSpeed = 0.2;
+  private double m_magazineSpeed = 0.5;
+  private double m_queueSpeed = 0.5;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -149,7 +153,10 @@ public class RobotContainer {
       limelightLog.setLevel(limelightLogLevel);
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
-    if (turretEnabled && drivetrainEnabled && limelightEnabled) {m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);}
+
+    if (turretEnabled && drivetrainEnabled && limelightEnabled) {
+      m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
+    }
 
     if (drivetrainEnabled) {
       drivetrainLogLevel = Level.parse(properties.getProperty("drivetrain.logLevel"));
@@ -163,6 +170,21 @@ public class RobotContainer {
       intakeLogLevel = Level.parse(properties.getProperty("intake.logLevel"));
       intakeLog.setLevel(intakeLogLevel);
       m_intake = new Intake();
+      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
+    }
+
+    if (magazineEnabled) {
+      magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
+      magazineLog.setLevel(magazineLogLevel);
+      m_magazine = new Magazine();
+      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+    }
+
+    if (queueEnabled) {
+      queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
+      queueLog.setLevel(queueLogLevel);
+      m_queue = new Queue();
+      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
     }
 
     if (shooterEnabled) {     
@@ -172,29 +194,16 @@ public class RobotContainer {
       m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getSlider));
     }
 
-    if (spinnerEnabled) {
-      spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
-      spinnerLog.setLevel(spinnerLogLevel);
-      m_spinner = new Spinner();
-    }
-
-    if (queueEnabled) {
-      queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
-      queueLog.setLevel(queueLogLevel);
-      m_queue = new Queue();
-    }
-
     if (turretEnabled) {
       turretLogLevel = Level.parse(properties.getProperty("turret.logLevel"));
       turretLog.setLevel(turretLogLevel);
       m_turret = new Turret();
     }
 
-    if (magazineEnabled) {
-      magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
-      magazineLog.setLevel(magazineLogLevel);
-      m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.hasPowerCell()));
+    if (spinnerEnabled) {
+      spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
+      spinnerLog.setLevel(spinnerLogLevel);
+      m_spinner = new Spinner();
     }
 
     if (climberEnabled) {
@@ -211,15 +220,7 @@ public class RobotContainer {
 
     configureButtonBindings();
 
-    Trajectory trajectory;     
-    try {
-      Path path = Filesystem.getDeployDirectory().toPath().resolve(m_pathPath);
-      trajectory = TrajectoryUtil.fromPathweaverJson(path);
-      m_autonomousCommand = drivetrainEnabled ? new RamseteCommand(trajectory, m_drivetrain::getPose , new RamseteController(),
-         m_drivetrain.getKinematics(), m_drivetrain::setWheelSpeeds , m_drivetrain) : null; 
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to read path", e);
-    }
+    m_autonomousCommand = drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
   }
 
   /**
@@ -248,7 +249,22 @@ public class RobotContainer {
       // Toggle auto queue refilling
       m_controlBoard.extreme.joystickTopLeft.whenPressed(new InstantCommand(() -> {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
-        if (m_autoRefillQueueEnabled) m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.hasPowerCell()));
+        if (m_autoRefillQueueEnabled) {
+          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
+        } else {
+          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+        }
+      }));
+    }
+
+    if (queueEnabled && shooterEnabled) {
+      m_controlBoard.extreme.joystickBottomLeft.whenPressed(new InstantCommand(() -> {
+        m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
+        if (m_autoFeedShooterEnabled) {
+          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
+        } else {
+          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+        }
       }));
     }
 
@@ -274,14 +290,43 @@ public class RobotContainer {
 
   private double getMove() {
     double move = -m_controlBoard.xbox.getLeftStickY();
+    move = JoystickUtil.deadband(move, 0.05);
     move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
     return move / 2;
   }
 
   private double getTurn() {
     double turn = -m_controlBoard.xbox.getRightStickX();
+    turn = JoystickUtil.deadband(turn, 0.05);
     turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
     return turn / 2;
+  }
+
+  /**
+   * Temporary function for testing the intake
+   * @return
+   */
+  private double getIntakeExtenderSpeed() {
+    double speed = m_controlBoard.extreme.getPOVY();
+    return speed * m_intakeExtenderSpeed;
+  }
+
+  /**
+   * Manual magazine control
+   * @return Scaled magazine speed
+   */
+  private double getMagazineSpeed() {
+    double speed = m_controlBoard.extreme.joystickTopRight.get() ? m_magazineSpeed : 0;
+    return speed;
+  }
+
+  /**
+   * Manual queue control
+   * @return Scaled queue speed
+   */
+  private double getQueueSpeed() {
+    double speed = m_controlBoard.extreme.joystickBottomRight.get() ? m_queueSpeed : 0;
+    return speed;
   }
 
   public void setDriveType(DriveType driveType) {
@@ -314,7 +359,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilig.json") : null;
+    return m_autonomousCommand;
+    // return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilib.json") : null;
   }
 
   /**

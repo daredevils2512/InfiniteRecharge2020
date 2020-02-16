@@ -143,14 +143,13 @@ public class Drivetrain extends SubsystemBase {
    * Creates a new drivetrain
    */
   public Drivetrain() {
-
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
+    // Properties defaultProperties = new Properties();
+    properties = new Properties();
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
+      // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      // defaultProperties.load(deployStream);
+      properties.load(deployStream);
       logger.info("succesfuly loaded");
     } catch (IOException e) {
       logger.log(Level.SEVERE, "failed to load", e);

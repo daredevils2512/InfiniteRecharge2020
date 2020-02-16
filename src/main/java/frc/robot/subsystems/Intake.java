@@ -209,6 +209,7 @@ public class Intake extends SubsystemBase {
       properties.setProperty("pGain", "" + m_pGain);
       properties.setProperty("iGain", "" + m_iGain);
       properties.setProperty("dGain", "" + m_dGain);
+      properties.setProperty("arbitraryFeedforward", "" + m_arbitraryFeedForward);
       properties.store(outputStream, "set pid and stuff i think");
       logger.info("succesfuly saved");
     } catch(IOException e) {

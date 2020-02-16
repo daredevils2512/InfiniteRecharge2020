@@ -143,6 +143,10 @@ public final class Commands {
     return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
   }
 
+  public static Command runMagazine(Magazine magazine, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> magazine.setSpeed(speedSupplier.getAsDouble()), magazine);
+  }
+
   public static Command refillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
     return new RefillQueue(magazine, magazineSpeed, powerCellQueued);
   }
@@ -151,12 +155,16 @@ public final class Commands {
     return new AutoRefillQueue(magazine, magazineSpeed, powerCellQueued);
   }
 
+  public static Command runQueue(Queue queue, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> queue.run(speedSupplier.getAsDouble()), queue);
+  }
+
   public static Command feedShooter(Queue queue, DoubleSupplier queueSpeedSupplier) {
     return new FeedShooter(queue, queueSpeedSupplier);
   }
 
-  public static Command autoFeedShooter(Queue queue, DoubleSupplier queueSpeedSupplier, IntSupplier magazinePowerCellCountSupplier) {
-    return new AutoFeedShooter(queue, queueSpeedSupplier, magazinePowerCellCountSupplier);
+  public static Command autoFeedShooter(Queue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+    return new AutoFeedShooter(queue, queueSpeed, magazinePowerCellCountSupplier);
   }
 
   public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {

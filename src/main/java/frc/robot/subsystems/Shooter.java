@@ -32,9 +32,11 @@ public class Shooter extends SubsystemBase {
   private final Properties properties;
   private static final String PROPERTIES_NAME = "/shooter.properties";
 
-  private final int m_shooterID;
+  private final int m_shooter1ID;
+  private final int m_shooter2ID;
   private final int m_hoodID;
   private final TalonSRX m_shooter;
+  private final TalonSRX m_shooterFollower;
   private final TalonSRX m_hood;
 
   private final int m_shooterEncoderResolution;
@@ -58,19 +60,20 @@ public class Shooter extends SubsystemBase {
    * Creates a new power cell shooter
    */
   public Shooter() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
+    // Properties defaultProperties = new Properties();
+    properties = new Properties();
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
+      // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
+      // defaultProperties.load(deployStream);
+      properties.load(deployStream);
       logger.info("succesfuly loaded");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to save", e);
     }
 
-    m_shooterID = Integer.parseInt(properties.getProperty("shooterID"));
+    m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
+    m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
     m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
 
     m_shooterEncoderResolution = Integer.parseInt(properties.getProperty("shooterEncoderResolution"));
@@ -90,7 +93,9 @@ public class Shooter extends SubsystemBase {
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
 
-    m_shooter = new TalonSRX(m_shooterID);
+    m_shooter = new TalonSRX(m_shooter1ID);
+    m_shooterFollower = new TalonSRX(m_shooter2ID);
+    m_shooterFollower.follow(m_shooter);
     m_hood = new TalonSRX(m_hoodID);
 
     m_shooter.configFactoryDefault();
