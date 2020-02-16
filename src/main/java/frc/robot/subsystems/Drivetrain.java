@@ -382,9 +382,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
-    if (m_shifter.get() == m_lowGearValue) logger.fine("low gear");
     return m_shiftersEnabled ? m_shifter.get() == m_lowGearValue : false;
-
   }
 
   /**

@@ -86,6 +86,22 @@ public final class Commands {
     return new DriveStraight(drivetrain, distance);
   }
 
+  public static Command setDrivingInverted(Drivetrain drivetrain, boolean wantsInverted) {
+    return new InstantCommand(() -> drivetrain.setDrivingInverted(wantsInverted), drivetrain);
+  }
+
+  public static Command toggleInvertedDriving(Drivetrain drivetrain) {
+    return new InstantCommand(() -> drivetrain.setDrivingInverted(!drivetrain.getDrivingInverted()), drivetrain);
+  }
+
+  public static Command drivetrainSetLowGear(Drivetrain drivetrain, boolean wantsLowGear) {
+    return new InstantCommand(() -> drivetrain.setLowGear(wantsLowGear), drivetrain);
+  }
+
+  public static Command drivetrainToggleLowGear(Drivetrain drivetrain) {
+    return new InstantCommand(() -> drivetrain.setLowGear(!drivetrain.getLowGear()), drivetrain);
+  }
+
   //probly temporary
   public static Command climberUp(Climber climber, Double leftSpeed, Double rightSpeed) {
     return new RunCommand(() -> climber.climb(leftSpeed, rightSpeed), climber);
@@ -96,8 +112,7 @@ public final class Commands {
   }
 
   public static Command toggleQueueGate(Queue queue) {
-    boolean isQueueClosed = queue.getClosed();
-    return new InstantCommand(() -> queue.setClosed(!isQueueClosed), queue);
+    return new InstantCommand(() -> queue.setClosed(!queue.getClosed()), queue);
   }
 
   /**

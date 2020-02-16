@@ -225,10 +225,14 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    
     if (drivetrainEnabled) {
       // Toggle low gear
-      m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
+      m_controlBoard.xbox.rightBumper
+        .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
+        .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
+      m_controlBoard.xbox.leftBumper
+        .whenPressed(Commands.setDrivingInverted(m_drivetrain, true))
+        .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
     }
 
     if (intakeEnabled && magazineEnabled) {
