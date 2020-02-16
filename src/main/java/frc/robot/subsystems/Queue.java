@@ -48,7 +48,6 @@ public class Queue extends SubsystemBase {
   private final DoubleSolenoid.Value m_closedValue = Value.kReverse;
   private final DoubleSolenoid m_gate;
 
-
   /**
    * Creates a new Queue.
    */
@@ -106,7 +105,7 @@ public class Queue extends SubsystemBase {
     m_gate.set(wantsClosed ? m_closedValue : m_openValue);
   }
 
-  public boolean getBallInQueue() {
+  public boolean hasPowerCell() {
     return !m_photoEye.get();
   }
 }

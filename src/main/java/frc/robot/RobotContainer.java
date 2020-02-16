@@ -55,7 +55,7 @@ public class RobotContainer {
   private Turret m_turret;
   private Magazine m_magazine;
   private Climber m_climber;
-  private Compressor m_compressor;
+  private CompressorManager m_compressor;
   private final Properties properties;
 
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
@@ -72,6 +72,7 @@ public class RobotContainer {
   private static Logger shooterLog = Logger.getLogger(Shooter.class.getName());
   private static Logger spinnerLog = Logger.getLogger(Spinner.class.getName());
   private static Logger turretLog = Logger.getLogger(Turret.class.getName());
+  private static Logger limelightLog = Logger.getLogger(Limelight.class.getName());
 
   private Level climberLogLevel;
   private Level compressorLogLevel;
@@ -82,6 +83,7 @@ public class RobotContainer {
   private Level shooterLogLevel;
   private Level spinnerLogLevel;
   private Level turretLogLevel;
+  private Level limelightLogLevel;
 
   private final boolean limelightEnabled;
   private final boolean drivetrainEnabled;
@@ -126,34 +128,40 @@ public class RobotContainer {
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
     m_pathPath = properties.getProperty("PATH_PATH");
 
-    drivetrainLogLevel = Level.OFF;
-    intakeLogLevel = Level.OFF;
-    shooterLogLevel = Level.OFF;
-    spinnerLogLevel = Level.OFF;
-    queueLogLevel = Level.OFF;
-    turretLogLevel = Level.OFF;
-    magazineLogLevel = Level.OFF;
-    climberLogLevel = Level.OFF;
-    compressorLogLevel = Level.OFF;
 
-    if (limelightEnabled) {m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));}
+    limelightLog.setLevel(Level.OFF);
+    drivetrainLog.setLevel(Level.OFF);
+    intakeLog.setLevel(Level.OFF);
+    shooterLog.setLevel(Level.OFF);
+    spinnerLog.setLevel(Level.OFF);
+    queueLog.setLevel(Level.OFF);
+    turretLog.setLevel(Level.OFF);
+    magazineLog.setLevel(Level.OFF);
+    climberLog.setLevel(Level.OFF);
+    compressorLog.setLevel(Level.OFF);
+
+    if (limelightEnabled) {
+      limelightLogLevel = Level.parse(properties.getProperty("limelight.logLevel"));
+      limelightLog.setLevel(limelightLogLevel);
+      m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
+    }
     if (turretEnabled && drivetrainEnabled && limelightEnabled) {m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);}
 
     if (drivetrainEnabled) {
-      m_drivetrain = new Drivetrain();
       drivetrainLogLevel = Level.parse(properties.getProperty("drivetrain.logLevel"));
       drivetrainLog.setLevel(drivetrainLogLevel);
+      m_drivetrain = new Drivetrain();
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
-      m_intake = new Intake();
       intakeLogLevel = Level.parse(properties.getProperty("intake.logLevel"));
       intakeLog.setLevel(intakeLogLevel);
+      m_intake = new Intake();
     }
 
-    if (shooterEnabled) {
+    if (shooterEnabled) {     
       m_shooter = new Shooter();
       shooterLogLevel = Level.parse(properties.getProperty("shooter.logLevel"));
       shooterLog.setLevel(shooterLogLevel);
@@ -161,40 +169,40 @@ public class RobotContainer {
     }
 
     if (spinnerEnabled) {
-      m_spinner = new Spinner();
       spinnerLogLevel = Level.parse(properties.getProperty("spinner.logLevel"));
       spinnerLog.setLevel(spinnerLogLevel);
+      m_spinner = new Spinner();
     }
 
     if (queueEnabled) {
-      m_queue = new Queue();
       queueLogLevel = Level.parse(properties.getProperty("queue.logLevel"));
       queueLog.setLevel(queueLogLevel);
+      m_queue = new Queue();
     }
 
     if (turretEnabled) {
-      m_turret = new Turret();
       turretLogLevel = Level.parse(properties.getProperty("turret.logLevel"));
       turretLog.setLevel(turretLogLevel);
+      m_turret = new Turret();
     }
 
     if (magazineEnabled) {
-      m_magazine = new Magazine();
       magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
       magazineLog.setLevel(magazineLogLevel);
-      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
+      m_magazine = new Magazine();
+      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.hasPowerCell()));
     }
 
     if (climberEnabled) {
-      m_climber = new Climber();
       climberLogLevel = Level.parse(properties.getProperty("climber.logLevel"));
       climberLog.setLevel(climberLogLevel);
+      m_climber = new Climber();
     }
 
     if (compressorEnabled) {
-      m_compressor = new Compressor();
       compressorLogLevel = Level.parse(properties.getProperty("compressor.logLevel"));
       compressorLog.setLevel(compressorLogLevel);
+      m_compressor = new CompressorManager();
     }
 
     configureButtonBindings();
@@ -223,15 +231,17 @@ public class RobotContainer {
       m_controlBoard.xbox.rightBumper.whenPressed(() -> m_drivetrain.setLowGear(true), m_drivetrain).whenReleased(() -> m_drivetrain.setLowGear(false), m_drivetrain);
     }
 
-    if (intakeEnabled) {
+    if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.intake(m_intake));
+      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
     }
+
     if (shooterEnabled) {
       // Run shooter at a set motor output
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
       
     }
+
     if (spinnerEnabled) {
       // Extend/retract spinner
       m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));

@@ -322,19 +322,19 @@ public class Drivetrain extends SubsystemBase {
     m_isDrivingInverted = wantsInverted;
   }
 
-  private double getLeftDistance() {
+  public double getLeftDistance() {
     return m_leftEncoder.getDistance();
   }
 
-  private double getRightDistance() {
+  public double getRightDistance() {
     return m_rightEncoder.getDistance();
   }
 
-  private double getLeftVelocity() {
+  public double getLeftVelocity() {
     return m_leftEncoder.getRate();
   }
 
-  private double getRightVelocity() {
+  public double getRightVelocity() {
     return m_rightEncoder.getRate();
   }
 
@@ -343,14 +343,17 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private double getYaw() {
+    logger.log(Level.FINER, "yaw = ", m_gyroData[0]);
     return m_gyroData[0];
   }
 
   private double getPitch() {
+    logger.log(Level.FINER, "pitch = ", m_gyroData[1]);
     return m_gyroData[1];
   }
 
   private double getRoll() {
+    logger.log(Level.FINER, "roll = ", m_gyroData[2]);
     return m_gyroData[2];
   }
 
@@ -374,7 +377,7 @@ public class Drivetrain extends SubsystemBase {
     if (m_shiftersEnabled) {
       m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
     } else {
-      logger.warning("shifters disabled");
+      logger.info("shifters disabled");
     }
   }
 

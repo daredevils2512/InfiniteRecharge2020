@@ -7,6 +7,9 @@
 
 package frc.robot.vision;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
@@ -14,6 +17,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * Limelight manager for power cell target tracking
  */
 public class Limelight {
+  private static Logger logger = Logger.getLogger(Limelight.class.getName());
   // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
   public static final double RANGE_Y_DEGREES = 24.85;
@@ -47,6 +51,7 @@ public class Limelight {
   }
 
   public Pipeline getDefaultPipeline() {
+    logger.log(Level.FINE, "default pipeline = ", m_pipeline);
     return m_pipeline;
   }
 
@@ -100,6 +105,7 @@ public class Limelight {
     if (tx() != 0) { 
       lastPostion = tx(); 
     }
+    logger.log(Level.FINER, "last pos", lastPostion);
     return lastPostion;
   }
 }
