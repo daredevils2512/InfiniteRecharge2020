@@ -181,7 +181,7 @@ public class RobotContainer {
       magazineLogLevel = Level.parse(properties.getProperty("magazine.logLevel"));
       magazineLog.setLevel(magazineLogLevel);
       m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.getBallInQueue()));
+      m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, 0.5, () -> m_queue.hasPowerCell()));
     }
 
     if (climberEnabled) {
@@ -218,10 +218,12 @@ public class RobotContainer {
       // Start/stop intaking
       m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
     }
+
     if (shooterEnabled) {
       // Run shooter at a set motor output
       m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
     }
+
     if (spinnerEnabled) {
       // Extend/retract spinner
       m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));

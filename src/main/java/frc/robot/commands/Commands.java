@@ -9,6 +9,7 @@ package frc.robot.commands;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -122,6 +123,14 @@ public final class Commands {
 
   public static Command autoRefillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
     return new AutoRefillQueue(magazine, magazineSpeed, powerCellQueued);
+  }
+
+  public static Command feedShooter(Queue queue, DoubleSupplier queueSpeedSupplier) {
+    return new FeedShooter(queue, queueSpeedSupplier);
+  }
+
+  public static Command autoFeedShooter(Queue queue, DoubleSupplier queueSpeedSupplier, IntSupplier magazinePowerCellCountSupplier) {
+    return new AutoFeedShooter(queue, queueSpeedSupplier, magazinePowerCellCountSupplier);
   }
 
   public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {
