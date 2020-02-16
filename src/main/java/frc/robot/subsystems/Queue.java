@@ -28,7 +28,8 @@ import frc.robot.sensors.PhotoEye;
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
   
-  private int m_photoEyeChannel;
+  private boolean m_photoEyeEnabled;
+  private final int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
 
   public final NetworkTable m_networkTable;
@@ -63,12 +64,10 @@ public class Queue extends SubsystemBase {
       // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       // defaultProperties.load(deployStream);
       properties.load(deployStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
-
-    m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
     m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
@@ -76,7 +75,8 @@ public class Queue extends SubsystemBase {
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
 
-    m_photoEye = new PhotoEye(m_photoEyeChannel);
+    if (m_photoEyeEnabled) m_photoEye = new PhotoEye(m_photoEyeChannel);
+    else m_photoEye = null;
 
     m_gateEnabled = Boolean.parseBoolean(properties.getProperty("gateEnabled"));
     m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));

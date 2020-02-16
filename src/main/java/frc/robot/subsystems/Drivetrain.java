@@ -149,7 +149,7 @@ public class Drivetrain extends SubsystemBase {
       // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       // defaultProperties.load(deployStream);
       properties.load(deployStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch (Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
@@ -432,7 +432,7 @@ public class Drivetrain extends SubsystemBase {
       properties.setProperty("rightIGain", "" + m_rightIGain);
       properties.setProperty("rightDGain", "" + m_rightDGain);
       properties.store(outputStream, "saved PID and everything else too");
-      logger.info("succesfuly saved");
+      logger.info("succesfully saved");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to save", e);
     }

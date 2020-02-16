@@ -86,7 +86,7 @@ public class Intake extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
@@ -211,7 +211,7 @@ public class Intake extends SubsystemBase {
       properties.setProperty("dGain", "" + m_dGain);
       properties.setProperty("arbitraryFeedforward", "" + m_arbitraryFeedForward);
       properties.store(outputStream, "set pid and stuff i think");
-      logger.info("succesfuly saved");
+      logger.info("succesfully saved");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }

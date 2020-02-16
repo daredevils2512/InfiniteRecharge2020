@@ -107,7 +107,7 @@ public class RobotContainer {
     try {
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
       properties.load(deployStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }

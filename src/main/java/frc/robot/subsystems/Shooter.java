@@ -66,7 +66,7 @@ public class Shooter extends SubsystemBase {
       // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       // defaultProperties.load(deployStream);
       properties.load(deployStream);
-      logger.info("succesfuly loaded");
+      logger.info("succesfully loaded");
     } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to save", e);
     }
@@ -215,7 +215,7 @@ public class Shooter extends SubsystemBase {
       properties.setProperty("hoodPositionIGain", "" + m_hoodPositionIGain);
       properties.setProperty("hoodPositionDGain", "" + m_hoodPositionDGain);
       properties.store(outputStream, "saved PId or somethbings");
-      logger.info("succesfuly saved");
+      logger.info("succesfully saved");
     } catch(IOException e) {
       logger.log(Level.SEVERE, "failed to save", e);
     }
