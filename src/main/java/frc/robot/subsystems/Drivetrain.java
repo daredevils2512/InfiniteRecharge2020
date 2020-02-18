@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
 /**
  * The drivetrain is a 6 wheel west coast differential drivetrain
@@ -73,7 +74,7 @@ public class Drivetrain extends SubsystemBase {
   private final NetworkTableEntry m_lowGearEntry;
   
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/drivetrain.properties";
+  private static final String NAME = "drivetrain";
 
   private final int m_leftDriveMasterID; //should be in properties file
   private final int m_leftDriveFollowerID;
@@ -115,6 +116,7 @@ public class Drivetrain extends SubsystemBase {
   private final double m_maxSpeedLowGear; // Max speed in low gear in meters per second
   private final double m_maxAngularSpeedHighGear;
   private final double m_maxAngularSpeedLowGear;
+  private final double m_maxAcceleration;
 
   private boolean m_isDrivingInverted = false;
 
@@ -141,18 +143,7 @@ public class Drivetrain extends SubsystemBase {
    * Creates a new drivetrain
    */
   public Drivetrain() {
-
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(NAME);
 
     m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));
     m_leftDriveFollowerID = Integer.parseInt(properties.getProperty("leftDriveFollowerID"));
@@ -181,6 +172,7 @@ public class Drivetrain extends SubsystemBase {
     m_maxSpeedLowGear = Double.parseDouble(properties.getProperty("maxSpeedLowGear"));
     m_maxAngularSpeedHighGear = Double.parseDouble(properties.getProperty("maxAngularSpeedHighGear"));
     m_maxAngularSpeedLowGear = Double.parseDouble(properties.getProperty("maxAngularSpeedLowGear"));
+    m_maxAcceleration = Double.parseDouble(properties.getProperty("maxAcceleration"));
 
     m_staticGain = Double.parseDouble(properties.getProperty("staticGain"));
     m_velocityGain = Double.parseDouble(properties.getProperty("velocityGain"));
@@ -298,6 +290,14 @@ public class Drivetrain extends SubsystemBase {
     return getLowGear() ? m_maxAngularSpeedLowGear : m_maxAngularSpeedHighGear;
   }
 
+  /**
+   * in meters per second per second
+   * @return m/s^2
+   */
+  public double getMaxAcceleration() {
+    return m_maxAcceleration;
+  }
+
   private void resetEncoders() {
     m_leftEncoder.reset();
     m_rightEncoder.reset();
@@ -311,20 +311,24 @@ public class Drivetrain extends SubsystemBase {
     m_isDrivingInverted = wantsInverted;
   }
 
-  private double getLeftDistance() {
+  public double getLeftDistance() {
     return m_leftEncoder.getDistance();
   }
 
-  private double getRightDistance() {
+  public double getRightDistance() {
     return m_rightEncoder.getDistance();
   }
 
-  private double getLeftVelocity() {
+  public double getLeftVelocity() {
     return m_leftEncoder.getRate();
   }
 
-  private double getRightVelocity() {
+  public double getRightVelocity() {
     return m_rightEncoder.getRate();
+  }
+
+  public DifferentialDriveKinematics getKinematics() {
+    return m_kinematics;
   }
 
   private double getYaw() {
@@ -348,7 +352,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getHeading() {
-    return m_pigeonEnabled ? getFusedHeading()%360 : 0.0;
+    return m_pigeonEnabled ? getFusedHeading() : 0.0;
   }
 
   /**
@@ -367,9 +371,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
-    if (m_shifter.get() == m_lowGearValue) logger.fine("low gear");
     return m_shiftersEnabled ? m_shifter.get() == m_lowGearValue : false;
-
   }
 
   /**
@@ -411,25 +413,17 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void saveProperties() {
-    try {
-      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      properties.setProperty("leftPGain", "" + m_leftPGain);
-      properties.setProperty("leftIGain", "" + m_leftIGain);
-      properties.setProperty("leftDGain", "" + m_leftDGain);
-
-      properties.setProperty("rightPGain", "" + m_rightPGain);
-      properties.setProperty("rightIGain", "" + m_rightIGain);
-      properties.setProperty("rightDGain", "" + m_rightDGain);
-      properties.store(outputStream, "saved PID and everything else too");
-      logger.info("succesfuly saved");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
+    PropertyFiles.saveProperties(properties, new Double[]{m_leftPGain, m_leftIGain, m_leftDGain, m_rightPGain, m_rightIGain, m_rightDGain}, new String[]{"leftPGain", "leftIGain", "leftDGain", "rightPGain", "rightIGain", "rightDGain"}, NAME);
   }
 
   public void simpleArcadeDrive(double move, double turn) {
     m_leftDriveMaster.set(ControlMode.PercentOutput, move - turn);
     m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
+  }
+
+  public void voltageTank(double left, double right) {
+    m_leftDriveMaster.setVoltage(left);
+    m_rightDriveMaster.setVoltage(right);
   }
 
   /**
@@ -440,6 +434,10 @@ public class Drivetrain extends SubsystemBase {
   public void velocityArcadeDrive(double velocity, double angularVelocity) {
     velocity = m_isDrivingInverted ? -velocity : velocity;
     setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
+  }
+
+  public void setWheelSpeeds(double left, double right) {
+    setSpeeds(new DifferentialDriveWheelSpeeds(left, right));
   }
 
   private void setSpeeds(DifferentialDriveWheelSpeeds wheelSpeeds) {
