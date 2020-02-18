@@ -7,11 +7,6 @@
 
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -22,14 +17,14 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
 public class Shooter extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Shooter.class.getName());
   private final NetworkTable m_networkTable;
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/shooter.properties";
+  private static final String NAME = "shooter";
 
   private final int m_shooterID;
   private final int m_hoodID;
@@ -57,18 +52,7 @@ public class Shooter extends SubsystemBase {
    * Creates a new power cell shooter
    */
   public Shooter() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
-
+    properties = PropertyFiles.loadProperties(NAME);
     m_shooterID = Integer.parseInt(properties.getProperty("shooterID"));
     m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
 
@@ -198,19 +182,6 @@ public class Shooter extends SubsystemBase {
   }
 
   public void savePID() {
-    try {
-      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      properties.setProperty("shooterVelocityPGain", "" + m_shooterVelocityPGain);
-      properties.setProperty("shooterVelocityIGain", "" + m_shooterVelocityIGain);
-      properties.setProperty("shooterVelocityDGain", "" + m_shooterVelocityDGain);
-
-      properties.setProperty("hoodPositionPGain", "" + m_hoodPositionPGain);
-      properties.setProperty("hoodPositionIGain", "" + m_hoodPositionIGain);
-      properties.setProperty("hoodPositionDGain", "" + m_hoodPositionDGain);
-      properties.store(outputStream, "saved PId or somethbings");
-      logger.info("succesfuly saved");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
+    PropertyFiles.saveProperties(properties, new Double[]{m_shooterVelocityPGain, m_shooterVelocityIGain, m_shooterVelocityDGain, m_hoodPositionPGain, m_hoodPositionIGain, m_hoodPositionDGain}, new String[]{"shooterVelocityPGain", "shooterVelocityIGain", "shooterVelocityDGain", "hoodPositionPGain", "hoodPositionIGain", "hoodPositionDGain"}, NAME);
   }
 }

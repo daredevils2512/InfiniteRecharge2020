@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.utils.PropertyFiles;
 
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
@@ -35,7 +36,7 @@ public class Queue extends SubsystemBase {
   public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/queue.properties";
+  private static final String NAME = "queue";
 
   private final int m_runMotorID;
   private final TalonSRX m_runMotor;
@@ -51,17 +52,7 @@ public class Queue extends SubsystemBase {
    * Creates a new Queue.
    */
   public Queue() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(NAME);
 
     m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
 

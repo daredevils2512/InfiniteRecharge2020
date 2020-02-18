@@ -24,11 +24,12 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.utils.PropertyFiles;
 
 public class Magazine extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Magazine.class.getName());
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/magazine.properties";
+  private static final String NAME = "magazine";
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
@@ -53,17 +54,7 @@ public class Magazine extends SubsystemBase {
    * Creates a new magazine 
    */
   public Magazine() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(NAME);
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
