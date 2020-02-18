@@ -9,7 +9,10 @@ package frc.robot;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Consumer;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
@@ -18,6 +21,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
@@ -85,6 +89,7 @@ public class RobotContainer {
   private final boolean magazineEnabled;
   private final boolean climberEnabled;
   private final boolean compressorEnabled;
+  private Map<Consumer<Command>, Command> buttonBinds = new HashMap<>();
 
   private Command m_defaultDriveCommand;
 
@@ -94,15 +99,15 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.2;
-  private double m_magazineSpeed;
-  private double m_queueSpeed;
+  private double m_magazineSpeed = 0.5;
+  private double m_queueSpeed = 0.5;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
-    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName());
+    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
@@ -162,14 +167,12 @@ public class RobotContainer {
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
-      m_magazineSpeed= Double.parseDouble(properties.getProperty("magazine.runSpeed"));
       magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
       m_magazine = new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
     }
 
     if (queueEnabled) {
-      m_queueSpeed= Double.parseDouble(properties.getProperty("queueSpeed"));
       queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
       m_queue = new Queue(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
       m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
@@ -249,7 +252,8 @@ public class RobotContainer {
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
       
     }
-
+    
+    
     if (spinnerEnabled) {
       // Extend/retract spinner
       m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
