@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
 /**
  * The drivetrain is a 6 wheel west coast differential drivetrain
@@ -73,7 +74,7 @@ public class Drivetrain extends SubsystemBase {
   private final NetworkTableEntry m_lowGearEntry;
   
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/drivetrain.properties";
+  private static final String NAME = "drivetrain";
 
   private final int m_leftDriveMasterID; //should be in properties file
   private final int m_leftDriveFollowerID;
@@ -142,17 +143,7 @@ public class Drivetrain extends SubsystemBase {
    * Creates a new drivetrain
    */
   public Drivetrain() {
-    // Properties defaultProperties = new Properties();
-    properties = new Properties();
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      // defaultProperties.load(deployStream);
-      properties.load(deployStream);
-      logger.info("succesfully loaded");
-    } catch (Exception e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(NAME);
 
     m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));
     m_leftDriveFollowerID = Integer.parseInt(properties.getProperty("leftDriveFollowerID"));
@@ -422,20 +413,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void saveProperties() {
-    try {
-      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      properties.setProperty("leftPGain", "" + m_leftPGain);
-      properties.setProperty("leftIGain", "" + m_leftIGain);
-      properties.setProperty("leftDGain", "" + m_leftDGain);
-
-      properties.setProperty("rightPGain", "" + m_rightPGain);
-      properties.setProperty("rightIGain", "" + m_rightIGain);
-      properties.setProperty("rightDGain", "" + m_rightDGain);
-      properties.store(outputStream, "saved PID and everything else too");
-      logger.info("succesfully saved");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
+    PropertyFiles.saveProperties(properties, new Double[]{m_leftPGain, m_leftIGain, m_leftDGain, m_rightPGain, m_rightIGain, m_rightDGain}, new String[]{"leftPGain", "leftIGain", "leftDGain", "rightPGain", "rightIGain", "rightDGain"}, NAME);
   }
 
   public void simpleArcadeDrive(double move, double turn) {

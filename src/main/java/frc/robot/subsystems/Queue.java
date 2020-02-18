@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.utils.PropertyFiles;
 
 public class Queue extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Queue.class.getName());
@@ -37,7 +38,7 @@ public class Queue extends SubsystemBase {
   public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/queue.properties";
+  private static final String NAME = "queue";
 
   private final int m_runMotorID;
   private final TalonSRX m_runMotor;
@@ -54,21 +55,11 @@ public class Queue extends SubsystemBase {
    * Creates a new Queue.
    */
   public Queue() {
+    properties = PropertyFiles.loadProperties(NAME);
+    
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
     m_isClosedEntry = m_networkTable.getEntry("Is closed");
-
-    // Properties defaultProperties = new Properties();
-    properties = new Properties();
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      // InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      // defaultProperties.load(deployStream);
-      properties.load(deployStream);
-      logger.info("succesfully loaded");
-    } catch(Exception e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
     m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));

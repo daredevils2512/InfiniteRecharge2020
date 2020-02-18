@@ -1,15 +1,12 @@
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
 public class Climber extends SubsystemBase {
   private static Logger logger = Logger.getLogger(Climber.class.getName());
@@ -26,20 +23,10 @@ public class Climber extends SubsystemBase {
   private final WPI_TalonSRX m_rightHorizontalMaster;
 
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/climber.properties";
+  private static final String NAME = "climber";
 
   public Climber() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfully loaded");
-    } catch(Exception e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(NAME);
 
     m_leftClimberMasterID = Integer.parseInt(properties.getProperty("leftClimberMasterID"));
     m_rightClimberMasterID = Integer.parseInt(properties.getProperty("rightClimberMasterID"));

@@ -7,11 +7,6 @@
 
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -23,8 +18,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 import frc.robot.utils.DareMathUtil;
 
 public class Turret extends SubsystemBase {
@@ -35,7 +30,7 @@ public class Turret extends SubsystemBase {
   private final NetworkTableEntry m_wrappedAngleEntry;
 
   private final Properties properties;
-  private static final String PROPERTIES_NAME = "/turret.properties";
+  private static final String NAME = "turret";
 
   private final int m_turretMasterID; // TODO: Configure CAN on turret
   private final TalonSRX m_turretMaster;
@@ -62,17 +57,7 @@ public class Turret extends SubsystemBase {
    * Creates a new turret
    */
   public Turret() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfully loaded");
-    } catch(Exception e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(NAME);
 
     m_turretMasterID = Integer.parseInt(properties.getProperty("turretMasterID"));
 
@@ -179,16 +164,6 @@ public class Turret extends SubsystemBase {
   }
 
   public void savePID() {
-    try {
-      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      properties.setProperty("P", "" + m_P);
-      properties.setProperty("I", "" + m_I);
-      properties.setProperty("D", "" + m_D);
-      properties.store(outputStream, "saved pId or somethinges");
-      logger.info("successfully saved");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-      e.printStackTrace();
-    }
+    PropertyFiles.saveProperties(properties, new Double[]{m_P, m_I, m_D}, new String[]{"P", "I", "D"}, NAME);
   }
 }
