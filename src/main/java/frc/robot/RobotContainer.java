@@ -9,7 +9,6 @@ package frc.robot;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -17,13 +16,9 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.robot.commands.*;
+import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
 import frc.robot.sensors.ColorSensor.ColorDetect;
@@ -34,6 +29,7 @@ import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
+import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
 import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
@@ -98,8 +94,8 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.2;
-  private double m_magazineSpeed = 0.5;
-  private double m_queueSpeed = 0.5;
+  private double m_magazineSpeed;
+  private double m_queueSpeed;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -158,6 +154,7 @@ public class RobotContainer {
     if (shooterEnabled) {
       shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
+      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
     }
 
     if (spinnerEnabled) {
@@ -165,12 +162,14 @@ public class RobotContainer {
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
+      m_magazineSpeed= Double.parseDouble(properties.getProperty("magazine.runSpeed"));
       magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
       m_magazine = new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
     }
 
     if (queueEnabled) {
+      m_queueSpeed= Double.parseDouble(properties.getProperty("queueSpeed"));
       queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
       m_queue = new Queue(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
       m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
@@ -242,7 +241,7 @@ public class RobotContainer {
     }
 
     if (turretEnabled && limelightEnabled) {
-      m_controlBoard.extreme.trigger.toggleWhenPressed(new FindTarget(m_turret, m_limelight, 5.0));
+      m_controlBoard.extreme.trigger.toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
     }
 
     if (shooterEnabled) {
@@ -256,8 +255,8 @@ public class RobotContainer {
       m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
       m_controlBoard.extreme.baseFrontRight.whenPressed(Commands.setSpinnerExtended(m_spinner, false));
 
-      m_controlBoard.extreme.baseMiddleLeft.whenPressed( new RotationControl (m_spinner, 3));
-      m_controlBoard.extreme.baseMiddleRight.whenPressed( new PrecisionControl(m_spinner, ColorDetect.Red));
+      m_controlBoard.extreme.baseMiddleLeft.whenPressed(Commands.rotationControl(m_spinner, 3));
+      m_controlBoard.extreme.baseMiddleRight.whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
     }
   }
 
@@ -299,6 +298,12 @@ public class RobotContainer {
    */
   private double getQueueSpeed() {
     double speed = m_controlBoard.extreme.joystickBottomRight.get() ? m_queueSpeed : 0;
+    return speed;
+  }
+
+  private double getShooterSpeed() {
+    double speed = m_controlBoard.extreme.getSlider();
+    speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
     return speed;
   }
 
