@@ -45,15 +45,19 @@ public class Intake extends SubsystemBase {
   private final int m_extendMotorID;
   private final TalonSRX m_extendMotor;
 
-  // private final int m_retractedLimitSwitchPort;
+  private boolean m_retractedLimitSwitchEnabled;
+  private boolean m_extendedLimitSwitchEnabled;
+
+  private final int m_retractedLimitSwitchPort;
   private final int m_extendedLimitSwitchPort;
-  // private final LimitSwitch m_retractedLimitSwitch;
+  private final LimitSwitch m_retractedLimitSwitch;
   private final LimitSwitch m_extendedLimitSwitch;
 
   private final int m_extenderEncoderResolution;
   private final double m_extenderGearRatio; // TODO: Find intake extender gear ratio
   // TODO: Find the intake range of motion
   private final double m_extendedAngle; // Angle in degrees, assuming retracted is zero degrees
+  private final double m_retractedAngle;
 
   // TODO: Configure PID for intake extender
   private final int m_motionMagicSlot;
@@ -93,12 +97,16 @@ public class Intake extends SubsystemBase {
 
     m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
 
-    // m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
+    m_retractedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("retractedLimitSwitchEnabled"));
+    m_extendedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("extendedLimitSwitchEnabled"));
+
+    m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
     m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
 
     m_extenderEncoderResolution = Integer.parseInt(properties.getProperty("extenderEncoderResolution"));
     m_extenderGearRatio = Double.parseDouble(properties.getProperty("extenderGearRatio"));
     m_extendedAngle = Double.parseDouble(properties.getProperty("extendedAngle"));
+    m_retractedAngle = Double.parseDouble(properties.getProperty("retractedAngle"));
 
     m_motionMagicSlot = Integer.parseInt(properties.getProperty("motionMagicSlot"));
     m_pGain = Double.parseDouble(properties.getProperty("pGain"));
@@ -114,8 +122,10 @@ public class Intake extends SubsystemBase {
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
 
-    // m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
-    m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
+    if (m_retractedLimitSwitchEnabled) {m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
+    } else {m_retractedLimitSwitch = null;}
+    if (m_extendedLimitSwitchEnabled) {m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
+    } else {m_extendedLimitSwitch = null;}
   }
 
   @Override
@@ -129,9 +139,17 @@ public class Intake extends SubsystemBase {
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
 
-    if (m_extendedLimitSwitch.get()) {
-      m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
-    } else if (m_motionMagicEnabled) {
+    if (m_extendedLimitSwitchEnabled) {  
+      if (m_extendedLimitSwitch.get()) {
+        m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
+      }
+    }
+    if (m_retractedLimitSwitchEnabled) {
+      if (m_retractedLimitSwitch.get()) {
+        m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_retractedAngle));
+      }
+    }
+    if (m_motionMagicEnabled) {
       double targetAngle = m_extended ? m_extendedAngle : 0;
       double targetPosition = toEncoderTicks(targetAngle);
       // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar is 1)
