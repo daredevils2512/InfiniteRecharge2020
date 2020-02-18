@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,37 +14,39 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 public class PropertyFiles {
 
-  public static Properties loadProperties(String name) {
+  public static Properties loadProperties(String name, boolean loadDefault) {
     String location = "/" + name + ".properties";
+    Properties properties = null;
     Properties defaultProperties = new Properties();
-    Properties properties = new Properties(defaultProperties);        
     try {
+      if (loadDefault) {
+        InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + location);
+        defaultProperties.load(robotStream);
+      }
+      properties = new Properties(defaultProperties);
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
-      InputStream robotStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-    } catch(IOException e) {
+      properties.load(deployStream);
+    } catch (IOException e) {
       e.printStackTrace();
     }
     return properties;
+
   }
 
-  public static void saveProperties(Properties properties, Object[] values, String[] keys, String name) {
-    if (values == keys) {
+  public static Properties loadProperties(String name) {
+    return PropertyFiles.loadProperties(name, false);
+  }
+
+  public static void saveProperties(Properties properties, Map<String, Object> values, String name) {
       try {
         String location = "/" + name + ".properties";
-        int i = 0;
-        for (Object value : values) {
-          properties.setProperty(keys[i], value.toString());
-          i++;
+        for (String key : values.keySet()) {
+          properties.setProperty(key, values.get(key).toString());
         }
         OutputStream outputStream = new FileOutputStream(Filesystem.getDeployDirectory() + location);
         properties.store(outputStream, "saved properties");
       } catch(IOException e) {
         e.printStackTrace();
       }
-    } else {
-        Logger.getAnonymousLogger().log(Level.SEVERE, "must be exactly oNE value for each key to save properties");
-    }
   }
 }

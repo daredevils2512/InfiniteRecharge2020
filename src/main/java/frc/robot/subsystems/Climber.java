@@ -1,19 +1,16 @@
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
-public class Climber extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Climber.class.getName());
-  //dont have numbers for these
+public class Climber extends PropertySubsystem {
+  // dont have numbers for these
   private final int m_leftClimberMasterID;
   private final int m_rightClimberMasterID;
   private final int m_leftHorizontalMasterID;
@@ -25,21 +22,8 @@ public class Climber extends SubsystemBase {
   private final WPI_TalonSRX m_leftHorizontalMaster;
   private final WPI_TalonSRX m_rightHorizontalMaster;
 
-  private final Properties properties;
-  private static final String PROPERTIES_NAME = "/climber.properties";
-
   public Climber() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfully loaded");
-    } catch(Exception e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    super(Climber.class.getSimpleName());
 
     m_leftClimberMasterID = Integer.parseInt(properties.getProperty("leftClimberMasterID"));
     m_rightClimberMasterID = Integer.parseInt(properties.getProperty("rightClimberMasterID"));
@@ -65,12 +49,15 @@ public class Climber extends SubsystemBase {
 
   // TODO: Implement climbing
   public void climbLeft(Drivetrain drivetrain, double speed) {
-    
+
   }
 
   public void climbRight(Drivetrain drivetrain, double speed) {
-    
+
   }
 
-
+  @Override
+  protected Map<String, Object> getValues() {
+    return null;
+  }
 }

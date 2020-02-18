@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -20,11 +22,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.PropertyFiles;
 
-public class Shooter extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Shooter.class.getName());
+public class Shooter extends PropertySubsystem {
   private final NetworkTable m_networkTable;
-  private final Properties properties;
-  private static final String NAME = "shooter";
 
   private final int m_shooter1ID;
   private final int m_shooter2ID;
@@ -54,10 +53,10 @@ public class Shooter extends SubsystemBase {
    * Creates a new power cell shooter
    */
   public Shooter() {
-    properties = PropertyFiles.loadProperties(NAME);
+    super(Shooter.class.getSimpleName());
 
     m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
-    m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));  
+    m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
     m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
 
     m_shooterEncoderResolution = Integer.parseInt(properties.getProperty("shooterEncoderResolution"));
@@ -95,9 +94,9 @@ public class Shooter extends SubsystemBase {
     m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
     m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
     m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
-    
+
     m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery >true
-    
+
     m_hood.setNeutralMode(NeutralMode.Brake);
   }
 
@@ -135,11 +134,13 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Set closed loop velocity control target
+   * 
    * @param targetVelocity Target velocity in revolutions per minute
    */
   public void setTargetVelocity(double velocity) {
     // m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
-    // m_shooter.set(ControlMode.Velocity, toEncoderPulsesPer100Milliseconds(velocity));
+    // m_shooter.set(ControlMode.Velocity,
+    // toEncoderPulsesPer100Milliseconds(velocity));
   }
 
   public void stop() {
@@ -148,6 +149,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Set hood target angle for position PID
+   * 
    * @param angle Angle in degrees
    */
   public void setTargetAngle(double angle) {
@@ -156,15 +158,17 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Get shooter velocity
+   * 
    * @return Velocity in revolutions per minute
    */
   public double getVelocity() {
-    // return toRPM(m_shooter.getSelectedSensorVelocity());  
+    // return toRPM(m_shooter.getSelectedSensorVelocity());
     return 0;
   }
 
   /**
    * Get hood angle
+   * 
    * @return Angle in degrees
    */
   public double getAngle() {
@@ -174,22 +178,32 @@ public class Shooter extends SubsystemBase {
 
   private int toEncoderPulsesPer100Milliseconds(double rpm) {
     // To encoder pulses then to 100ms
-    return (int)(rpm / m_shooterGearRatio * m_shooterEncoderResolution / 60 / 10);
+    return (int) (rpm / m_shooterGearRatio * m_shooterEncoderResolution / 60 / 10);
   }
 
   private double toRPM(int encoderPulsesPer100Milliseconds) {
-    return (double)(encoderPulsesPer100Milliseconds * 10 * 60) / m_shooterEncoderResolution / m_shooterGearRatio;
+    return (double) (encoderPulsesPer100Milliseconds * 10 * 60) / m_shooterEncoderResolution / m_shooterGearRatio;
   }
 
   private int toEncoderPulsesHood(double angle) {
-    return (int)(angle / 360 / m_hoodGearRatio * m_hoodEncoderResolution);
+    return (int) (angle / 360 / m_hoodGearRatio * m_hoodEncoderResolution);
   }
 
   private double toAngleHood(int encoderPulses) {
-    return (double)encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
+    return (double) encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
   }
 
-  public void savePID() {
-    PropertyFiles.saveProperties(properties, new Double[]{m_shooterVelocityPGain, m_shooterVelocityIGain, m_shooterVelocityDGain, m_hoodPositionPGain, m_hoodPositionIGain, m_hoodPositionDGain}, new String[]{"shooterVelocityPGain", "shooterVelocityIGain", "shooterVelocityDGain", "hoodPositionPGain", "hoodPositionIGain", "hoodPositionDGain"}, NAME);
+  @Override
+  protected Map<String, Object> getValues() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("shooterVelocityPGain", m_shooterVelocityPGain);
+    values.put("shooterVelocityIGain", m_shooterVelocityIGain);
+    values.put("shooterVelocityDGain", m_shooterVelocityDGain);
+
+    values.put("hoodPositionPGain", m_hoodPositionPGain);
+    values.put("hoodPositionIGain", m_hoodPositionIGain);
+    values.put("hoodPositionDGain", m_hoodPositionDGain);
+
+    return values;
   }
 }

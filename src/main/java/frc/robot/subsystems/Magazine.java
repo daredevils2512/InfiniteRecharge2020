@@ -11,6 +11,7 @@ import java.util.logging.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -26,15 +27,12 @@ import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
 import frc.robot.utils.PropertyFiles;
 
-public class Magazine extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Magazine.class.getName());
-  private final Properties properties;
-  private static final String NAME = "magazine";
+public class Magazine extends PropertySubsystem {
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
-  
+
   private boolean m_photoEyeEnabled;
   private final int m_frontPhotoEyeChannel = 6;
   private final int m_backPhotoEyeChannel = 7;
@@ -43,19 +41,19 @@ public class Magazine extends SubsystemBase {
 
   private final int m_magazineRunMotorID;
   private final WPI_TalonSRX m_magazineRunMotor;
-  
+
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
-  
+
   private int m_powerCellCount;
   private boolean m_powerCellPreviouslyDetectedFront;
   private boolean m_powerCellPreviouslyDetectedBack;
 
   /**
-   * Creates a new magazine 
+   * Creates a new magazine
    */
   public Magazine() {
-    properties = PropertyFiles.loadProperties(NAME);
+    super(Magazine.class.getSimpleName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
@@ -85,7 +83,8 @@ public class Magazine extends SubsystemBase {
 
   public boolean getPowerCellDetectedFront() {
     if (m_photoEyeEnabled) {
-      if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
+      if (m_frontPhotoEye.get())
+        logger.fine("power cell detected front");
       return m_frontPhotoEye.get();
     } else {
       return false;
@@ -94,7 +93,8 @@ public class Magazine extends SubsystemBase {
 
   public boolean getPowerCellDetectedBack() {
     if (m_photoEyeEnabled) {
-      if (m_backPhotoEye.get()) logger.fine("power cell detected back");
+      if (m_backPhotoEye.get())
+        logger.fine("power cell detected back");
       return m_backPhotoEye.get();
     } else {
       return false;
@@ -112,8 +112,8 @@ public class Magazine extends SubsystemBase {
   public void resetBallCount() {
     setBallsInMag(0);
   }
-  
-  //might be temporary
+
+  // might be temporary
   public void updatePowerCellCount() {
     int deltaCount = 0;
     if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront)
@@ -122,26 +122,33 @@ public class Magazine extends SubsystemBase {
       deltaCount--;
     if (getDirectionReversed())
       deltaCount = -deltaCount; // Counting direction is reversed if the magazine is being run backwards
-    
+
     int newCount = m_powerCellCount + deltaCount;
     if (newCount < 0)
       logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
     else if (newCount > 3)
       logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
-    
+
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
-    if (deltaCount != 0) logger.log(Level.FINER, "power cell count", m_powerCellCount);
+    if (deltaCount != 0)
+      logger.log(Level.FINER, "power cell count", m_powerCellCount);
   }
 
   public boolean getDirectionReversed() {
     return m_magazineRunMotor.getMotorOutputPercent() < 0;
   }
-  
+
   public void setSpeed(double speed) {
     m_magazineRunMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public void feedBalls(int amount) {
-    m_magazineRunMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward, arbitraryFeedForward);
+    m_magazineRunMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
+        arbitraryFeedForward);
+  }
+
+  @Override
+  protected Map<String, Object> getValues() {
+    return null;
   }
 }
