@@ -34,10 +34,8 @@ public class Magazine extends PropertySubsystem {
   private final NetworkTableEntry m_powerCellCountEntry;
 
   private boolean m_photoEyeEnabled;
-  private final int m_frontPhotoEyeChannel = 6;
-  private final int m_backPhotoEyeChannel = 7;
+  private final int m_magazinePhotoEye = 6;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
-  private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
   private final int m_magazineRunMotorID;
   private final WPI_TalonSRX m_magazineRunMotor;
@@ -47,12 +45,14 @@ public class Magazine extends PropertySubsystem {
 
   private int m_powerCellCount;
   private boolean m_powerCellPreviouslyDetectedFront;
-  private boolean m_powerCellPreviouslyDetectedBack;
+
+  private final Runnable m_incrementPowerCellCount;
+  private final Runnable m_decrementPowerCellCount;
 
   /**
    * Creates a new magazine
    */
-  public Magazine() {
+  public Magazine(Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
     super(Magazine.class.getSimpleName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
@@ -62,20 +62,20 @@ public class Magazine extends PropertySubsystem {
     m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
 
     if (m_photoEyeEnabled) {
-      m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-      m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
+      m_frontPhotoEye = new PhotoEye(m_magazinePhotoEye);
     } else {
       m_frontPhotoEye = null;
-      m_backPhotoEye = null;
     }
     m_magazineRunMotor = new WPI_TalonSRX(m_magazineRunMotorID);
+
+    m_incrementPowerCellCount = incrementPowerCellCount;
+    m_decrementPowerCellCount = decrementPowerCellCount;
   }
 
   @Override
   public void periodic() {
     updatePowerCellCount();
     m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
-    m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
 
     m_directionReversedEntry.setBoolean(getDirectionReversed());
     m_powerCellCountEntry.setNumber(getPowerCellCount());
@@ -86,16 +86,6 @@ public class Magazine extends PropertySubsystem {
       if (m_frontPhotoEye.get())
         logger.fine("power cell detected front");
       return m_frontPhotoEye.get();
-    } else {
-      return false;
-    }
-  }
-
-  public boolean getPowerCellDetectedBack() {
-    if (m_photoEyeEnabled) {
-      if (m_backPhotoEye.get())
-        logger.fine("power cell detected back");
-      return m_backPhotoEye.get();
     } else {
       return false;
     }
@@ -115,23 +105,28 @@ public class Magazine extends PropertySubsystem {
 
   // might be temporary
   public void updatePowerCellCount() {
-    int deltaCount = 0;
-    if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront)
-      deltaCount++;
-    if (!getPowerCellDetectedBack() && m_powerCellPreviouslyDetectedBack)
-      deltaCount--;
-    if (getDirectionReversed())
-      deltaCount = -deltaCount; // Counting direction is reversed if the magazine is being run backwards
+    // int deltaCount = 0;
+    // if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront)
+    //   deltaCount++;
+    // if (getDirectionReversed())
+    //   deltaCount = -deltaCount; // Counting direction is reversed if the magazine is being run backwards
 
-    int newCount = m_powerCellCount + deltaCount;
-    if (newCount < 0)
-      logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
-    else if (newCount > 3)
-      logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
+    // int newCount = m_powerCellCount + deltaCount;
+    // if (newCount < 0)
+    //   logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
+    // else if (newCount > 3)
+    //   logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
 
-    m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
-    if (deltaCount != 0)
-      logger.log(Level.FINER, "power cell count", m_powerCellCount);
+    // m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
+    // if (deltaCount != 0)
+    //   logger.log(Level.FINER, "power cell count", m_powerCellCount);
+
+    if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront) {
+      if (getDirectionReversed())
+        m_decrementPowerCellCount.run();
+      else
+        m_incrementPowerCellCount.run();
+    }
   }
 
   public boolean getDirectionReversed() {

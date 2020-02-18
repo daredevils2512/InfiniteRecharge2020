@@ -159,6 +159,10 @@ public final class Commands {
     return new RunCommand(() -> queue.run(speedSupplier.getAsDouble()), queue);
   }
 
+  public static Command acceptFromMagazine(Queue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+    return new AcceptFromMagazine(queue, queueSpeed, magazinePowerCellCountSupplier);
+  }
+
   public static Command feedShooter(Queue queue, DoubleSupplier queueSpeedSupplier) {
     return new FeedShooter(queue, queueSpeedSupplier);
   }
