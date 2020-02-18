@@ -34,8 +34,8 @@ public class Magazine extends PropertySubsystem {
   private final NetworkTableEntry m_powerCellCountEntry;
 
   private boolean m_photoEyeEnabled;
-  private final int m_frontPhotoEyeChannel = 6;
-  private final int m_backPhotoEyeChannel = 7;
+  private final int m_frontPhotoEyeChannel = -1;
+  private final int m_backPhotoEyeChannel = -1;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
