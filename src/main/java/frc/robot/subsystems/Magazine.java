@@ -93,13 +93,21 @@ public class Magazine extends SubsystemBase {
   }
 
   public boolean getPowerCellDetectedFront() {
-    if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
-    return m_frontPhotoEye.get();
+    if (m_photoEyeEnabled) {
+      if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
+      return m_frontPhotoEye.get();
+    } else {
+      return false;
+    }
   }
 
   public boolean getPowerCellDetectedBack() {
-    if (m_backPhotoEye.get()) logger.fine("power cell detected back");
-    return m_backPhotoEye.get();
+    if (m_photoEyeEnabled) {
+      if (m_backPhotoEye.get()) logger.fine("power cell detected back");
+      return m_backPhotoEye.get();
+    } else {
+      return false;
+    }
   }
 
   public int getPowerCellCount() {
