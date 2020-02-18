@@ -93,11 +93,11 @@ public class Drivetrain extends SubsystemBase {
   private final Encoder m_leftEncoder;
   private final Encoder m_rightEncoder;
 
-  private final int m_pigeonID; //should be in properties file
+  private final int m_pigeonID; // in properties file
   private PigeonIMU m_pigeon;
   private final boolean m_pigeonEnabled;
 
-  private final int m_shifterForwardChannel; //should be in properties file
+  private final int m_shifterForwardChannel; // in properties file
   private final int m_shifterReverseChannel;
   private DoubleSolenoid m_shifter;
   private final Value m_highGearValue = Value.kForward;

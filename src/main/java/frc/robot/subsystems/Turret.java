@@ -41,8 +41,8 @@ public class Turret extends SubsystemBase {
   private final double m_maxTurnDegrees;
   private final double m_tolerance; //in degrees
 
-  private final double m_minAngle = -160.0; // Angle in degrees
-  private final double m_maxAngle = 70.0; // Angle in degrees
+  private final double m_minAngle; // Angle in degrees
+  private final double m_maxAngle; // Angle in degrees
   private final double m_thatHex = 30.0;
 
   // TODO: Tune position PID
@@ -65,6 +65,8 @@ public class Turret extends SubsystemBase {
     m_gearRatio = Double.parseDouble(properties.getProperty("gearRatio"));
     m_maxTurnDegrees = Double.parseDouble(properties.getProperty("maxTurnDegrees"));
     m_tolerance = Double.parseDouble(properties.getProperty("tolerance"));
+    m_maxAngle = Double.parseDouble(properties.getProperty("maxAngle"));
+    m_minAngle = Double.parseDouble(properties.getProperty("minAngle"));
 
     m_positionSlot = Integer.parseInt(properties.getProperty("positionSlot"));
     m_P = Double.parseDouble(properties.getProperty("P"));
