@@ -1,7 +1,6 @@
 package frc.robot.utils;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +40,7 @@ public class PropertyFiles {
                 OutputStream outputStream = new FileOutputStream(Filesystem.getDeployDirectory() + location);
                 properties.store(outputStream, "saved properties");
             } catch(IOException e) {
-                e.printStackTrace();
+                Logger.getAnonymousLogger().log(Level.SEVERE, "error saving properties", e);
             }
         } else {
             Logger.getAnonymousLogger().log(Level.SEVERE, "must be exactly oNE value for each key to save properties");
