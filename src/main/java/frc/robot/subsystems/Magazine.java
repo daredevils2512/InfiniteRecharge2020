@@ -8,40 +8,33 @@
 package frc.robot.subsystems;
 
 import java.util.logging.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
-import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
-import frc.robot.utils.PropertyFiles;
 
 public class Magazine extends PropertySubsystem {
-
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
-
-  private boolean m_photoEyeEnabled;
-  private final int m_frontPhotoEyeChannel = -1;
-  private final int m_backPhotoEyeChannel = -1;
+  
+  private boolean m_photoEyesEnabled;
+  private final int m_frontPhotoEyeChannel;
+  private final int m_backPhotoEyeChannel;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
-  private final int m_magazineRunMotorID;
-  private final WPI_TalonSRX m_magazineRunMotor;
-
+  private final int m_runMotorID;
+  private final WPI_TalonSRX m_runMotor;
+  
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
 
@@ -58,31 +51,40 @@ public class Magazine extends PropertySubsystem {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
-    m_magazineRunMotorID = Integer.parseInt(properties.getProperty("magazineRunMotorID"));
-    m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
 
-    if (m_photoEyeEnabled) {
+    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
+
+    m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
+    m_backPhotoEyeChannel = Integer.parseInt(properties.getProperty("backPhotoEyeChannel"));
+
+    m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
+
+    m_photoEyesEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
+
+    if (m_photoEyesEnabled) {
       m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
       m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
     } else {
       m_frontPhotoEye = null;
       m_backPhotoEye = null;
     }
-    m_magazineRunMotor = new WPI_TalonSRX(m_magazineRunMotorID);
   }
 
   @Override
   public void periodic() {
-    updatePowerCellCount();
-    m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
-    m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
+    if (m_photoEyesEnabled) {
+      updatePowerCellCount();
+      m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
+      m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
+    }
 
     m_directionReversedEntry.setBoolean(getDirectionReversed());
     m_powerCellCountEntry.setNumber(getPowerCellCount());
   }
 
   public boolean getPowerCellDetectedFront() {
-    if (m_photoEyeEnabled) {
+    if (m_photoEyesEnabled) {
       if (m_frontPhotoEye.get())
         logger.fine("power cell detected front");
       return m_frontPhotoEye.get();
@@ -92,7 +94,7 @@ public class Magazine extends PropertySubsystem {
   }
 
   public boolean getPowerCellDetectedBack() {
-    if (m_photoEyeEnabled) {
+    if (m_photoEyesEnabled) {
       if (m_backPhotoEye.get())
         logger.fine("power cell detected back");
       return m_backPhotoEye.get();
@@ -135,15 +137,15 @@ public class Magazine extends PropertySubsystem {
   }
 
   public boolean getDirectionReversed() {
-    return m_magazineRunMotor.getMotorOutputPercent() < 0;
+    return m_runMotor.getMotorOutputPercent() < 0;
   }
 
   public void setSpeed(double speed) {
-    m_magazineRunMotor.set(ControlMode.PercentOutput, speed);
+    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public void feedBalls(int amount) {
-    m_magazineRunMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
+    m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
         arbitraryFeedForward);
   }
 

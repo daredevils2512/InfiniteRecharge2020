@@ -9,21 +9,20 @@ package frc.robot;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Consumer;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.robot.commands.*;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
 import frc.robot.sensors.ColorSensor.ColorDetect;
@@ -34,6 +33,7 @@ import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
+import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
@@ -87,6 +87,7 @@ public class RobotContainer {
   private final boolean magazineEnabled;
   private final boolean climberEnabled;
   private final boolean compressorEnabled;
+  private Map<Consumer<Command>, Command> buttonBinds = new HashMap<>();
 
   private Command m_defaultDriveCommand;
 
@@ -104,7 +105,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
-    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName());
+    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
@@ -156,6 +157,7 @@ public class RobotContainer {
     if (shooterEnabled) {
       shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
+      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
     }
 
     if (spinnerEnabled) {
@@ -240,7 +242,7 @@ public class RobotContainer {
     }
 
     if (turretEnabled && limelightEnabled) {
-      m_controlBoard.extreme.trigger.toggleWhenPressed(new FindTarget(m_turret, m_limelight, 5.0));
+      m_controlBoard.extreme.trigger.toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
     }
 
     if (shooterEnabled) {
@@ -248,14 +250,15 @@ public class RobotContainer {
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
       
     }
-
+    
+    
     if (spinnerEnabled) {
       // Extend/retract spinner
       m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
       m_controlBoard.extreme.baseFrontRight.whenPressed(Commands.setSpinnerExtended(m_spinner, false));
 
-      m_controlBoard.extreme.baseMiddleLeft.whenPressed( new RotationControl (m_spinner, 3));
-      m_controlBoard.extreme.baseMiddleRight.whenPressed( new PrecisionControl(m_spinner, ColorDetect.Red));
+      m_controlBoard.extreme.baseMiddleLeft.whenPressed(Commands.rotationControl(m_spinner, 3));
+      m_controlBoard.extreme.baseMiddleRight.whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
     }
   }
 
@@ -297,6 +300,12 @@ public class RobotContainer {
    */
   private double getQueueSpeed() {
     double speed = m_controlBoard.extreme.joystickBottomRight.get() ? m_queueSpeed : 0;
+    return speed;
+  }
+
+  private double getShooterSpeed() {
+    double speed = m_controlBoard.extreme.getSlider();
+    speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
     return speed;
   }
 
