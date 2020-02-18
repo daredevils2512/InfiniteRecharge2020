@@ -96,8 +96,8 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.2;
-  private double m_magazineSpeed = 0.5;
-  private double m_queueSpeed = 0.5;
+  private double m_magazineSpeed;
+  private double m_queueSpeed;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -163,12 +163,14 @@ public class RobotContainer {
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
+      m_magazineSpeed= Double.parseDouble(properties.getProperty("magazine.runSpeed"));
       magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
       m_magazine = new Magazine();
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
     }
 
     if (queueEnabled) {
+      m_queueSpeed= Double.parseDouble(properties.getProperty("queueSpeed"));
       queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
       m_queue = new Queue();
       m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
