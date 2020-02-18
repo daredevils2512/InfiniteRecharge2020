@@ -96,8 +96,8 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.2;
-  private double m_magazineSpeed = 0.1;
-  private double m_queueSpeed = 0.1;
+  private double m_magazineSpeed = 0.5;
+  private double m_queueSpeed = 0.5;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
