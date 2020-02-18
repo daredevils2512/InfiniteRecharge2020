@@ -29,7 +29,9 @@ import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.Turret;
+import frc.robot.vision.Limelight;
 import frc.robot.RobotContainer;
+import frc.robot.sensors.ColorSensor.ColorDetect;
 
 /**
  * Definitions for all commands
@@ -171,6 +173,10 @@ public final class Commands {
     return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
   }
 
+  public static Command findTarget(Turret turret, Limelight limelight, double angleTolerance) {
+    return new FindTarget(turret, limelight, angleTolerance);
+  }
+
   /**
    * Set shooter percent output
    * @param shooter
@@ -198,6 +204,14 @@ public final class Commands {
     return new InstantCommand(() -> spinner.setExtended(wantsExtended), spinner);
   }
 
+  public static Command rotationControl(Spinner spinner, double rotations) {
+    return new RotationControl(spinner, rotations);
+  }
+
+  public static Command precisionControl(Spinner spinner, ColorDetect targetColor) {
+    return new PrecisionControl(spinner, targetColor);
+  }
+
   public static Command followPath(Drivetrain drivetrain, String file) {
     Trajectory trajectory;
     try {
@@ -207,9 +221,8 @@ public final class Commands {
       trajectory = null;
       e.printStackTrace();
     }
-  return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
-  drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain)
-    .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
-}
-
+    return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
+      drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain)
+      .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
+  }
 }
