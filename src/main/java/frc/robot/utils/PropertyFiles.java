@@ -28,24 +28,6 @@ public class PropertyFiles {
     return properties;
   }
 
-<<<<<<< HEAD
-    public static void saveProperties(Properties properties, Object[] values, String[] keys, String name) {
-        if (values == keys) {
-            try {
-                String location = "/" + name + ".properties";
-                int i = 0;
-                for (Object value : values) {
-                    properties.setProperty(keys[i], value.toString());
-                    i++;
-                }
-                OutputStream outputStream = new FileOutputStream(Filesystem.getDeployDirectory() + location);
-                properties.store(outputStream, "saved properties");
-            } catch(IOException e) {
-                Logger.getAnonymousLogger().log(Level.SEVERE, "error saving properties", e);
-            }
-        } else {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "must be exactly oNE value for each key to save properties");
-=======
   public static void saveProperties(Properties properties, Object[] values, String[] keys, String name) {
     if (values == keys) {
       try {
@@ -54,7 +36,6 @@ public class PropertyFiles {
         for (Object value : values) {
           properties.setProperty(keys[i], value.toString());
           i++;
->>>>>>> 8444218e505ae8e3aef5e8443da2c4238554f79b
         }
         OutputStream outputStream = new FileOutputStream(Filesystem.getDeployDirectory() + location);
         properties.store(outputStream, "saved properties");
