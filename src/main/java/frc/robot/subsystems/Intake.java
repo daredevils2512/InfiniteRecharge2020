@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,9 +38,16 @@ public class Intake extends SubsystemBase {
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
   private final NetworkTableEntry m_angleEntry;
+  private final NetworkTableEntry m_pGainEntry;
+  private final NetworkTableEntry m_iGainEntry;
+  private final NetworkTableEntry m_dGainEntry;
+  private final NetworkTableEntry m_arbitraryFeedforwardEntry;
 
   private final int m_extendMotorID;
   private final TalonSRX m_extendMotor;
+
+  private boolean m_retractedLimitSwitchEnabled;
+  private boolean m_extendedLimitSwitchEnabled;
 
   private final int m_retractedLimitSwitchPort;
   private final int m_extendedLimitSwitchPort;
@@ -50,13 +58,14 @@ public class Intake extends SubsystemBase {
   private final double m_extenderGearRatio; // TODO: Find intake extender gear ratio
   // TODO: Find the intake range of motion
   private final double m_extendedAngle; // Angle in degrees, assuming retracted is zero degrees
+  private final double m_retractedAngle;
 
   // TODO: Configure PID for intake extender
   private final int m_motionMagicSlot;
-  private final double m_pGain;
-  private final double m_iGain;
-  private final double m_dGain;
-  private final double m_arbitraryFeedForward;
+  private double m_pGain;
+  private double m_iGain;
+  private double m_dGain;
+  private double m_arbitraryFeedForward;
 
   private boolean m_extended = false;
 
@@ -67,8 +76,20 @@ public class Intake extends SubsystemBase {
    */
   public Intake() {
     properties = PropertyFiles.loadProperties(NAME);
+    
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_extendedEntry = m_networkTable.getEntry("Extended");
+    m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
+    m_angleEntry = m_networkTable.getEntry("Angle");
+    m_pGainEntry = m_networkTable.getEntry("P gain");
+    m_iGainEntry = m_networkTable.getEntry("I gain");
+    m_dGainEntry = m_networkTable.getEntry("D gain");
+    m_arbitraryFeedforwardEntry = m_networkTable.getEntry("Arbitrary feedforward");
 
     m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
+
+    m_retractedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("retractedLimitSwitchEnabled"));
+    m_extendedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("extendedLimitSwitchEnabled"));
 
     m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
     m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
@@ -76,17 +97,13 @@ public class Intake extends SubsystemBase {
     m_extenderEncoderResolution = Integer.parseInt(properties.getProperty("extenderEncoderResolution"));
     m_extenderGearRatio = Double.parseDouble(properties.getProperty("extenderGearRatio"));
     m_extendedAngle = Double.parseDouble(properties.getProperty("extendedAngle"));
+    m_retractedAngle = Double.parseDouble(properties.getProperty("retractedAngle"));
 
     m_motionMagicSlot = Integer.parseInt(properties.getProperty("motionMagicSlot"));
     m_pGain = Double.parseDouble(properties.getProperty("pGain"));
     m_iGain = Double.parseDouble(properties.getProperty("iGain"));
     m_dGain = Double.parseDouble(properties.getProperty("dGain"));
     m_arbitraryFeedForward = Double.parseDouble(properties.getProperty("arbitraryFeedForward"));
-
-    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
-    m_extendedEntry = m_networkTable.getEntry("Extended");
-    m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
-    m_angleEntry = m_networkTable.getEntry("Angle");
 
     m_extendMotor = new TalonSRX(m_extendMotorID);
     m_extendMotor.configFactoryDefault();
@@ -96,26 +113,48 @@ public class Intake extends SubsystemBase {
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
 
-    m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
-    m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
+    if (m_retractedLimitSwitchEnabled) {m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
+    } else {m_retractedLimitSwitch = null;}
+    if (m_extendedLimitSwitchEnabled) {m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
+    } else {m_extendedLimitSwitch = null;}
   }
 
   @Override
   public void periodic() {
-    if (m_retractedLimitSwitch.get()) {
-      m_extendMotor.setSelectedSensorPosition(0);
-    } else if (m_extendedLimitSwitch.get()) {
-      m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
-    } else if (m_motionMagicEnabled) {
+    m_pGain = m_pGainEntry.getNumber(m_pGain).doubleValue();
+    m_iGain = m_pGainEntry.getNumber(m_iGain).doubleValue();
+    m_dGain = m_pGainEntry.getNumber(m_dGain).doubleValue();
+    m_arbitraryFeedForward = m_pGainEntry.getNumber(m_arbitraryFeedForward).doubleValue();
+    
+    m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
+    m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
+    m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
+
+    if (m_extendedLimitSwitchEnabled) {  
+      if (m_extendedLimitSwitch.get()) {
+        m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
+      }
+    }
+    if (m_retractedLimitSwitchEnabled) {
+      if (m_retractedLimitSwitch.get()) {
+        m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_retractedAngle));
+      }
+    }
+    if (m_motionMagicEnabled) {
       double targetAngle = m_extended ? m_extendedAngle : 0;
       double targetPosition = toEncoderTicks(targetAngle);
-      double gravityScalar = Math.cos(Math.toRadians(targetAngle));
+      // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar is 1)
+      double gravityScalar = Math.sin(Math.toRadians(targetAngle));
       m_extendMotor.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
     }
 
     m_extendedEntry.setBoolean(m_extended);
     m_motionMagicEnbledEntry.setBoolean(m_motionMagicEnabled);
     m_angleEntry.setNumber(toDegrees(m_extendMotor.getSelectedSensorPosition()));
+    m_pGainEntry.setNumber(m_pGain);
+    m_iGainEntry.setNumber(m_iGain);
+    m_dGainEntry.setNumber(m_dGain);
+    m_arbitraryFeedforwardEntry.setNumber(m_arbitraryFeedForward);
   }
 
   public void setMotionMagicEnabled(boolean wantsEnabled) {
@@ -123,6 +162,10 @@ public class Intake extends SubsystemBase {
       m_extendMotor.set(ControlMode.PercentOutput, 0);
     }
     m_motionMagicEnabled = wantsEnabled;
+  }
+
+  public void resetIntakeExtenderAngle() {
+    m_extendMotor.setSelectedSensorPosition(0);
   }
 
   public boolean getExtended() {
@@ -141,10 +184,9 @@ public class Intake extends SubsystemBase {
     // Stop running motion magic so it doesn't interfere
     m_motionMagicEnabled = false;
 
-    if (m_retractedLimitSwitch.get()) {
-      output = Math.max(0, output);
-    } else if (m_extendedLimitSwitch.get()) {
+    if (m_extendedLimitSwitch.get()) {
       output = Math.min(output, 0);
+      m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
     }
 
     m_extendMotor.set(ControlMode.PercentOutput, output);

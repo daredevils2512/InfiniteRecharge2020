@@ -35,8 +35,9 @@ public class Magazine extends SubsystemBase {
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
-  private final int m_frontPhotoEyeChannel = 4;
-  private final int m_backPhotoEyeChannel = 5;
+  private boolean m_photoEyeEnabled;
+  private final int m_frontPhotoEyeChannel = 6;
+  private final int m_backPhotoEyeChannel = 7;
   private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
   private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
 
@@ -59,12 +60,16 @@ public class Magazine extends SubsystemBase {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
-
     m_magazineRunMotorID = Integer.parseInt(properties.getProperty("magazineRunMotorID"));
+    m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
 
-    m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-    m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
-
+    if (m_photoEyeEnabled) {
+      m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
+      m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
+    } else {
+      m_frontPhotoEye = null;
+      m_backPhotoEye = null;
+    }
     m_magazineRunMotor = new WPI_TalonSRX(m_magazineRunMotorID);
   }
 
@@ -79,13 +84,21 @@ public class Magazine extends SubsystemBase {
   }
 
   public boolean getPowerCellDetectedFront() {
-    if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
-    return m_frontPhotoEye.get();
+    if (m_photoEyeEnabled) {
+      if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
+      return m_frontPhotoEye.get();
+    } else {
+      return false;
+    }
   }
 
   public boolean getPowerCellDetectedBack() {
-    if (m_backPhotoEye.get()) logger.fine("power cell detected back");
-    return m_backPhotoEye.get();
+    if (m_photoEyeEnabled) {
+      if (m_backPhotoEye.get()) logger.fine("power cell detected back");
+      return m_backPhotoEye.get();
+    } else {
+      return false;
+    }
   }
 
   public int getPowerCellCount() {

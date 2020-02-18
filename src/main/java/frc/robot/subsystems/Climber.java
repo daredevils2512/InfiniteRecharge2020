@@ -36,8 +36,8 @@ public class Climber extends SubsystemBase {
       InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
       defaultProperties.load(deployStream);
       properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch(IOException e) {
+      logger.info("succesfully loaded");
+    } catch(Exception e) {
       logger.log(Level.SEVERE, "failed to load", e);
     }
 
