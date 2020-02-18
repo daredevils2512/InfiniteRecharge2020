@@ -8,10 +8,7 @@
 package frc.robot.subsystems;
 
 import java.util.logging.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -21,17 +18,10 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
-import frc.robot.utils.PropertyFiles;
 
-public class Magazine extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Magazine.class.getName());
-  private final Properties properties;
-  private static final String NAME = "magazine";
-
+public class Magazine extends PropertySubsystem {
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
@@ -47,20 +37,20 @@ public class Magazine extends SubsystemBase {
   
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
-  
+
   private int m_powerCellCount;
   private boolean m_powerCellPreviouslyDetectedFront;
   private boolean m_powerCellPreviouslyDetectedBack;
 
   /**
-   * Creates a new magazine 
+   * Creates a new magazine
    */
   public Magazine() {
+    super(Magazine.class.getSimpleName());
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
-
-    properties = PropertyFiles.loadProperties(NAME);
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
 
@@ -95,7 +85,8 @@ public class Magazine extends SubsystemBase {
 
   public boolean getPowerCellDetectedFront() {
     if (m_photoEyesEnabled) {
-      if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
+      if (m_frontPhotoEye.get())
+        logger.fine("power cell detected front");
       return m_frontPhotoEye.get();
     } else {
       return false;
@@ -104,7 +95,8 @@ public class Magazine extends SubsystemBase {
 
   public boolean getPowerCellDetectedBack() {
     if (m_photoEyesEnabled) {
-      if (m_backPhotoEye.get()) logger.fine("power cell detected back");
+      if (m_backPhotoEye.get())
+        logger.fine("power cell detected back");
       return m_backPhotoEye.get();
     } else {
       return false;
@@ -122,8 +114,8 @@ public class Magazine extends SubsystemBase {
   public void resetBallCount() {
     setBallsInMag(0);
   }
-  
-  //might be temporary
+
+  // might be temporary
   public void updatePowerCellCount() {
     int deltaCount = 0;
     if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront)
@@ -132,26 +124,33 @@ public class Magazine extends SubsystemBase {
       deltaCount--;
     if (getDirectionReversed())
       deltaCount = -deltaCount; // Counting direction is reversed if the magazine is being run backwards
-    
+
     int newCount = m_powerCellCount + deltaCount;
     if (newCount < 0)
       logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
     else if (newCount > 3)
       logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
-    
+
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
-    if (deltaCount != 0) logger.log(Level.FINE, "power cell count", m_powerCellCount);
+    if (deltaCount != 0)
+      logger.log(Level.FINER, "power cell count", m_powerCellCount);
   }
 
   public boolean getDirectionReversed() {
     return m_runMotor.getMotorOutputPercent() < 0;
   }
-  
+
   public void setSpeed(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public void feedBalls(int amount) {
-    m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward, arbitraryFeedForward);
+    m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
+        arbitraryFeedForward);
+  }
+
+  @Override
+  protected Map<String, Object> getValues() {
+    return null;
   }
 }

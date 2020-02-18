@@ -7,7 +7,8 @@
 
 package frc.robot.subsystems;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -18,19 +19,14 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.PropertyFiles;
+
 import frc.robot.utils.DareMathUtil;
 
-public class Turret extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Turret.class.getName());
+public class Turret extends PropertySubsystem {
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_angleEntry;
   private final NetworkTableEntry m_wrappedAngleEntry;
-
-  private final Properties properties;
-  private static final String NAME = "turret";
 
   private final int m_turretMasterID; // TODO: Configure CAN on turret
   private final TalonSRX m_turretMaster;
@@ -41,8 +37,8 @@ public class Turret extends SubsystemBase {
   private final double m_maxTurnDegrees;
   private final double m_tolerance; //in degrees
 
-  private final double m_minAngle = -160.0; // Angle in degrees
-  private final double m_maxAngle = 70.0; // Angle in degrees
+  private final double m_minAngle; // Angle in degrees
+  private final double m_maxAngle; // Angle in degrees
   private final double m_thatHex = 30.0;
 
   // TODO: Tune position PID
@@ -57,14 +53,15 @@ public class Turret extends SubsystemBase {
    * Creates a new turret
    */
   public Turret() {
-    properties = PropertyFiles.loadProperties(NAME);
-
+    super(Turret.class.getSimpleName());
     m_turretMasterID = Integer.parseInt(properties.getProperty("turretMasterID"));
 
     m_encoderResolution = Integer.parseInt(properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(properties.getProperty("gearRatio"));
     m_maxTurnDegrees = Double.parseDouble(properties.getProperty("maxTurnDegrees"));
     m_tolerance = Double.parseDouble(properties.getProperty("tolerance"));
+    m_maxAngle = Double.parseDouble(properties.getProperty("maxAngle"));
+    m_minAngle = Double.parseDouble(properties.getProperty("minAngle"));
 
     m_positionSlot = Integer.parseInt(properties.getProperty("positionSlot"));
     m_P = Double.parseDouble(properties.getProperty("P"));
@@ -163,7 +160,12 @@ public class Turret extends SubsystemBase {
     return (int)((angle / 360) * m_encoderResolution);
   }
 
-  public void savePID() {
-    PropertyFiles.saveProperties(properties, new Double[]{m_P, m_I, m_D}, new String[]{"P", "I", "D"}, NAME);
+  @Override
+  protected Map<String, Object> getValues() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("P", m_P);
+    values.put("I", m_I);
+    values.put("D", m_D);
+    return values;
   }
 }

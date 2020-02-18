@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -8,9 +9,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.PropertyFiles;
 
-public class Climber extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Climber.class.getName());
-  //dont have numbers for these
+public class Climber extends PropertySubsystem {
+  // dont have numbers for these
   private final int m_leftClimberMasterID;
   private final int m_rightClimberMasterID;
   private final int m_leftHorizontalMasterID;
@@ -22,11 +22,8 @@ public class Climber extends SubsystemBase {
   private final WPI_TalonSRX m_leftHorizontalMaster;
   private final WPI_TalonSRX m_rightHorizontalMaster;
 
-  private final Properties properties;
-  private static final String NAME = "climber";
-
   public Climber() {
-    properties = PropertyFiles.loadProperties(NAME);
+    super(Climber.class.getSimpleName());
 
     m_leftClimberMasterID = Integer.parseInt(properties.getProperty("leftClimberMasterID"));
     m_rightClimberMasterID = Integer.parseInt(properties.getProperty("rightClimberMasterID"));
@@ -52,12 +49,15 @@ public class Climber extends SubsystemBase {
 
   // TODO: Implement climbing
   public void climbLeft(Drivetrain drivetrain, double speed) {
-    
+
   }
 
   public void climbRight(Drivetrain drivetrain, double speed) {
-    
+
   }
 
-
+  @Override
+  protected Map<String, Object> getValues() {
+    return null;
+  }
 }

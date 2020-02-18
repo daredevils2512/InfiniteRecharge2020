@@ -7,9 +7,7 @@
 
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -21,15 +19,12 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.PhotoEye;
 import frc.robot.utils.PropertyFiles;
 
-public class Queue extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Queue.class.getName());
-  
+public class Queue extends PropertySubsystem {
   private boolean m_photoEyeEnabled;
   private final int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
@@ -37,8 +32,6 @@ public class Queue extends SubsystemBase {
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
-  private final Properties properties;
-  private static final String NAME = "queue";
 
   private final int m_runMotorID;
   private final TalonSRX m_runMotor;
@@ -55,8 +48,8 @@ public class Queue extends SubsystemBase {
    * Creates a new Queue.
    */
   public Queue() {
-    properties = PropertyFiles.loadProperties(NAME);
-    
+    super(Queue.class.getSimpleName());
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
     m_isClosedEntry = m_networkTable.getEntry("Is closed");
@@ -68,8 +61,10 @@ public class Queue extends SubsystemBase {
     m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    if (m_photoEyeEnabled) m_photoEye = new PhotoEye(m_photoEyeChannel);
-    else m_photoEye = null;
+    if (m_photoEyeEnabled)
+      m_photoEye = new PhotoEye(m_photoEyeChannel);
+    else
+      m_photoEye = null;
 
     m_gateEnabled = Boolean.parseBoolean(properties.getProperty("gateEnabled"));
     m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
@@ -112,5 +107,10 @@ public class Queue extends SubsystemBase {
     } else {
       return false;
     }
+  }
+
+  @Override
+  protected Map<String, Object> getValues() {
+    return null;
   }
 }

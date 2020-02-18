@@ -13,6 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -28,12 +30,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.LimitSwitch;
 import frc.robot.utils.PropertyFiles;
 
-public class Intake extends SubsystemBase {
-  private static final Logger logger = Logger.getLogger(Intake.class.getName());
+public class Intake extends PropertySubsystem {
 
   private final NetworkTable m_networkTable;
-  private final Properties properties;
-  private static final String NAME = "intake";
 
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
@@ -70,12 +69,12 @@ public class Intake extends SubsystemBase {
   private boolean m_extended = false;
 
   private boolean m_motionMagicEnabled = false;
-  
+
   /**
    * Creates a new power cell intake
    */
   public Intake() {
-    properties = PropertyFiles.loadProperties(NAME);
+    super(Intake.class.getSimpleName());
     
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
@@ -113,10 +112,16 @@ public class Intake extends SubsystemBase {
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
 
-    if (m_retractedLimitSwitchEnabled) {m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
-    } else {m_retractedLimitSwitch = null;}
-    if (m_extendedLimitSwitchEnabled) {m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
-    } else {m_extendedLimitSwitch = null;}
+    if (m_retractedLimitSwitchEnabled) {
+      m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
+    } else {
+      m_retractedLimitSwitch = null;
+    }
+    if (m_extendedLimitSwitchEnabled) {
+      m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
+    } else {
+      m_extendedLimitSwitch = null;
+    }
   }
 
   @Override
@@ -125,12 +130,12 @@ public class Intake extends SubsystemBase {
     m_iGain = m_pGainEntry.getNumber(m_iGain).doubleValue();
     m_dGain = m_pGainEntry.getNumber(m_dGain).doubleValue();
     m_arbitraryFeedForward = m_pGainEntry.getNumber(m_arbitraryFeedForward).doubleValue();
-    
+
     m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
 
-    if (m_extendedLimitSwitchEnabled) {  
+    if (m_extendedLimitSwitchEnabled) {
       if (m_extendedLimitSwitch.get()) {
         m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
       }
@@ -143,9 +148,11 @@ public class Intake extends SubsystemBase {
     if (m_motionMagicEnabled) {
       double targetAngle = m_extended ? m_extendedAngle : 0;
       double targetPosition = toEncoderTicks(targetAngle);
-      // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar is 1)
+      // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar
+      // is 1)
       double gravityScalar = Math.sin(Math.toRadians(targetAngle));
-      m_extendMotor.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward, m_arbitraryFeedForward * gravityScalar);
+      m_extendMotor.set(ControlMode.MotionMagic, targetPosition, DemandType.ArbitraryFeedForward,
+          m_arbitraryFeedForward * gravityScalar);
     }
 
     m_extendedEntry.setBoolean(m_extended);
@@ -169,7 +176,8 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean getExtended() {
-    if (m_extended) logger.fine("intake extended");
+    if (m_extended)
+      logger.fine("intake extended");
     return m_extended;
   }
 
@@ -194,25 +202,34 @@ public class Intake extends SubsystemBase {
 
   /**
    * Convert from raw sensor units to an angle in degrees
-   * <p>Applies only the the extender
+   * <p>
+   * Applies only the the extender
+   * 
    * @param sensorUnits
    * @return Angle in degrees
    */
   private double toDegrees(int sensorUnits) {
-    return (double)sensorUnits / m_extenderEncoderResolution * m_extenderGearRatio * 360;
+    return (double) sensorUnits / m_extenderEncoderResolution * m_extenderGearRatio * 360;
   }
 
   /**
    * Convert from an angle in degrees to raw sensor units
-   * <p>Applies only to the extender
+   * <p>
+   * Applies only to the extender
+   * 
    * @param degrees
    * @return
    */
   private int toEncoderTicks(double degrees) {
-    return (int)(degrees / 360 / m_extenderGearRatio * m_extenderEncoderResolution);
+    return (int) (degrees / 360 / m_extenderGearRatio * m_extenderEncoderResolution);
   }
 
-  public void savePID() {
-    PropertyFiles.saveProperties(properties, new Double[]{m_pGain, m_iGain, m_dGain}, new String[]{"pGain", "iGain", "dGain"}, NAME);
+  @Override
+  protected Map<String, Object> getValues() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("pGain", m_pGain);
+    values.put("iGain", m_iGain);
+    values.put("dGain", m_dGain);
+    return values;
   }
 }

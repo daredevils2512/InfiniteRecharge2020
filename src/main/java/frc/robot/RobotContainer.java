@@ -31,6 +31,7 @@ import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
+import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.Limelight.Pipeline;
@@ -91,22 +92,15 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.2;
-  private double m_magazineSpeed = 0.5;
-  private double m_queueSpeed = 0.5;
+  private double m_magazineSpeed;
+  private double m_queueSpeed;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
-    properties = new Properties();
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      properties.load(deployStream);
-      logger.info("succesfully loaded");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName());
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
@@ -166,12 +160,14 @@ public class RobotContainer {
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
+      m_magazineSpeed= Double.parseDouble(properties.getProperty("magazine.runSpeed"));
       magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
       m_magazine = new Magazine();
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
     }
 
     if (queueEnabled) {
+      m_queueSpeed= Double.parseDouble(properties.getProperty("queueSpeed"));
       queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
       m_queue = new Queue();
       m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
@@ -349,8 +345,8 @@ public class RobotContainer {
    */
   public void saveAllProperties() {
     if (drivetrainEnabled) m_drivetrain.saveProperties();
-    if (intakeEnabled) m_intake.savePID();
-    if (shooterEnabled) m_shooter.savePID();
-    if (turretEnabled) m_turret.savePID();
+    if (intakeEnabled) m_intake.saveProperties();
+    if (shooterEnabled) m_shooter.saveProperties();
+    if (turretEnabled) m_turret.saveProperties();
   }
 }
