@@ -35,6 +35,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DriveType;
+import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.Limelight.Pipeline;
@@ -103,14 +104,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
-    properties = new Properties();
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      properties.load(deployStream);
-      logger.info("succesfully loaded");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
+    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName());
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
@@ -346,8 +340,8 @@ public class RobotContainer {
    */
   public void saveAllProperties() {
     if (drivetrainEnabled) m_drivetrain.saveProperties();
-    if (intakeEnabled) m_intake.savePID();
-    if (shooterEnabled) m_shooter.savePID();
-    if (turretEnabled) m_turret.savePID();
+    if (intakeEnabled) m_intake.saveProperties();
+    if (shooterEnabled) m_shooter.saveProperties();
+    if (turretEnabled) m_turret.saveProperties();
   }
 }
