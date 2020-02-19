@@ -127,9 +127,9 @@ public class Magazine extends PropertySubsystem {
 
     int newCount = m_powerCellCount + deltaCount;
     if (newCount < 0)
-      logger.log(Level.WARNING, "Power cell count exceeded lower bounds");
+      logger.warning("Power cell count exceeded lower bounds");
     else if (newCount > 3)
-      logger.log(Level.WARNING, "Power cell count exceeded upper bounds");
+      logger.warning("Power cell count exceeded upper bounds");
 
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
     if (deltaCount != 0)
