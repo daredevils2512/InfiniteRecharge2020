@@ -14,12 +14,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -81,10 +82,12 @@ public class Drivetrain extends SubsystemBase {
   private final int m_rightDriveMasterID;
   private final int m_rightDriveFollowerID;
 
-  private final WPI_TalonFX m_leftDriveMaster;
-  private final WPI_TalonFX m_leftDriveFollower;
-  private final WPI_TalonFX m_rightDriveMaster;
-  private final WPI_TalonFX m_rightDriveFollower;
+  private final String m_motorType;
+
+  private final BaseMotorController m_leftDriveMaster;
+  private final BaseMotorController m_leftDriveFollower;
+  private final BaseMotorController m_rightDriveMaster;
+  private final BaseMotorController m_rightDriveFollower;
 
   private final int m_leftEncoderChannelA; //should be in properties file
   private final int m_leftEncoderChannelB;
@@ -160,6 +163,8 @@ public class Drivetrain extends SubsystemBase {
     m_rightDriveMasterID = Integer.parseInt(properties.getProperty("rightDriveMasterID"));
     m_rightDriveFollowerID = Integer.parseInt(properties.getProperty("rightDriveFollowerID"));
 
+    m_motorType = properties.getProperty("motorType");
+
     m_leftEncoderChannelA = Integer.parseInt(properties.getProperty("leftEncoderChannelA"));
     m_leftEncoderChannelB = Integer.parseInt(properties.getProperty("leftEncoderChannelB"));
     m_rightEncoderChannelA = Integer.parseInt(properties.getProperty("rightEncoderChannelA"));
@@ -214,10 +219,10 @@ public class Drivetrain extends SubsystemBase {
     m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
     m_lowGearEntry = m_networkTable.getEntry("Low gear");
 
-    m_leftDriveMaster = new WPI_TalonFX(m_leftDriveMasterID);
-    m_leftDriveFollower = new WPI_TalonFX(m_leftDriveFollowerID);
-    m_rightDriveMaster = new WPI_TalonFX(m_rightDriveMasterID);
-    m_rightDriveFollower = new WPI_TalonFX(m_rightDriveFollowerID);
+    m_leftDriveMaster = getMotor(m_motorType, m_leftDriveMasterID);
+    m_leftDriveFollower = getMotor(m_motorType, m_leftDriveFollowerID);
+    m_rightDriveMaster = getMotor(m_motorType, m_rightDriveMasterID);
+    m_rightDriveFollower = getMotor(m_motorType, m_rightDriveFollowerID);
 
     // Config to factory defaults to prevent unexpected behavior
     m_leftDriveMaster.configFactoryDefault();
@@ -285,6 +290,31 @@ public class Drivetrain extends SubsystemBase {
     m_pitchEntry.setNumber(getPitch());
     m_rollEntry.setNumber(getRoll());
     m_lowGearEntry.setBoolean(getLowGear());
+  }
+
+  public BaseMotorController getMotor(String type, int port) {
+    BaseMotorController controller = null;
+    try {
+      Class cls = Class.forName("com.ctre.phoenix.motorcontrol.can." + type);
+      Class param = Integer.class;
+      Constructor constructor = cls.getConstructor(param);
+      controller = (BaseMotorController) constructor.newInstance(port);
+    } catch(ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch(SecurityException e) {
+      e.printStackTrace();
+    } catch(InvocationTargetException e) {
+      e.printStackTrace();
+    } catch (NoSuchMethodException e) {
+      e.printStackTrace();
+    } catch (InstantiationException e) {
+      e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (IllegalArgumentException e) {
+      e.printStackTrace();
+    }
+    return controller;
   }
 
   /**
@@ -442,7 +472,7 @@ public class Drivetrain extends SubsystemBase {
     double leftPIDOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
     double rightPIDOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
 
-    m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
-    m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
+    m_leftDriveMaster.set(ControlMode.PercentOutput, leftFeedforward + leftPIDOutput);
+    m_rightDriveMaster.set(ControlMode.PercentOutput, rightFeedforward + rightPIDOutput);
   }
 }
