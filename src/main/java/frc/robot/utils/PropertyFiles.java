@@ -27,9 +27,9 @@ public class PropertyFiles {
       properties = new Properties(defaultProperties);
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
       properties.load(deployStream);
-      logger.info("successfully loadded" + name);
+      logger.info("successfully loadded " + name);
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "failed to load" + name, e);
+      logger.log(Level.SEVERE, "failed to load " + name, e);
     }
     return properties;
 
@@ -47,9 +47,9 @@ public class PropertyFiles {
         }
         OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + location);
         properties.store(outputStream, "saved properties");
-        logger.info("successfully saved" + name);
+        logger.info("successfully saved " + name);
       } catch(IOException e) {
-        logger.log(Level.SEVERE, "failed to save" + name, e);
+        logger.log(Level.SEVERE, "failed to save " + name, e);
       }
   }
 
