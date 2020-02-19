@@ -7,14 +7,10 @@
 
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -23,18 +19,17 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
-public class Shooter extends SubsystemBase {
-  private static Logger logger = Logger.getLogger(Shooter.class.getName());
+public class Shooter extends PropertySubsystem {
   private final NetworkTable m_networkTable;
-  private final Properties properties;
-  private static final String PROPERTIES_NAME = "/shooter.properties";
 
-  private final int m_shooterID;
+  private final int m_shooter1ID;
+  private final int m_shooter2ID;
   private final int m_hoodID;
   private final TalonSRX m_shooter;
+  private final TalonSRX m_shooterFollower;
   private final TalonSRX m_hood;
 
   private final int m_shooterEncoderResolution;
@@ -58,19 +53,10 @@ public class Shooter extends SubsystemBase {
    * Creates a new power cell shooter
    */
   public Shooter() {
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
+    super(Shooter.class.getSimpleName());
 
-    m_shooterID = Integer.parseInt(properties.getProperty("shooterID"));
+    m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
+    m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
     m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
 
     m_shooterEncoderResolution = Integer.parseInt(properties.getProperty("shooterEncoderResolution"));
@@ -90,7 +76,9 @@ public class Shooter extends SubsystemBase {
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
 
-    m_shooter = new TalonSRX(m_shooterID);
+    m_shooter = new TalonSRX(m_shooter1ID);
+    m_shooterFollower = new TalonSRX(m_shooter2ID);
+    m_shooterFollower.follow(m_shooter);
     m_hood = new TalonSRX(m_hoodID);
 
     m_shooter.configFactoryDefault();
@@ -101,14 +89,14 @@ public class Shooter extends SubsystemBase {
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
 
     m_hood.configFactoryDefault();
-    m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+    // m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
     m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
     m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
     m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
-    
+
     m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery >true
-    
+
     m_hood.setNeutralMode(NeutralMode.Brake);
   }
 
@@ -137,7 +125,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void resetHoodAngle(double angle) {
-    m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
+    // m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
   public void setPercentOutput(double speed) {
@@ -146,11 +134,13 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Set closed loop velocity control target
+   * 
    * @param targetVelocity Target velocity in revolutions per minute
    */
   public void setTargetVelocity(double velocity) {
-    m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
-    m_shooter.set(ControlMode.Velocity, toEncoderPulsesPer100Milliseconds(velocity));
+    // m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
+    // m_shooter.set(ControlMode.Velocity,
+    // toEncoderPulsesPer100Milliseconds(velocity));
   }
 
   public void stop() {
@@ -159,59 +149,61 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Set hood target angle for position PID
+   * 
    * @param angle Angle in degrees
    */
   public void setTargetAngle(double angle) {
-    m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
+    // m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
   }
 
   /**
    * Get shooter velocity
+   * 
    * @return Velocity in revolutions per minute
    */
   public double getVelocity() {
-    return toRPM(m_shooter.getSelectedSensorVelocity());
+    // return toRPM(m_shooter.getSelectedSensorVelocity());
+    return 0;
   }
 
   /**
    * Get hood angle
+   * 
    * @return Angle in degrees
    */
   public double getAngle() {
-    return toAngleHood(m_hood.getSelectedSensorPosition());
+    // return toAngleHood(m_hood.getSelectedSensorPosition());
+    return 0.0;
   }
 
   private int toEncoderPulsesPer100Milliseconds(double rpm) {
     // To encoder pulses then to 100ms
-    return (int)(rpm / m_shooterGearRatio * m_shooterEncoderResolution / 60 / 10);
+    return (int) (rpm / m_shooterGearRatio * m_shooterEncoderResolution / 60 / 10);
   }
 
   private double toRPM(int encoderPulsesPer100Milliseconds) {
-    return (double)(encoderPulsesPer100Milliseconds * 10 * 60) / m_shooterEncoderResolution / m_shooterGearRatio;
+    return (double) (encoderPulsesPer100Milliseconds * 10 * 60) / m_shooterEncoderResolution / m_shooterGearRatio;
   }
 
   private int toEncoderPulsesHood(double angle) {
-    return (int)(angle / 360 / m_hoodGearRatio * m_hoodEncoderResolution);
+    return (int) (angle / 360 / m_hoodGearRatio * m_hoodEncoderResolution);
   }
 
   private double toAngleHood(int encoderPulses) {
-    return (double)encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
+    return (double) encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
   }
 
-  public void savePID() {
-    try {
-      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      properties.setProperty("shooterVelocityPGain", "" + m_shooterVelocityPGain);
-      properties.setProperty("shooterVelocityIGain", "" + m_shooterVelocityIGain);
-      properties.setProperty("shooterVelocityDGain", "" + m_shooterVelocityDGain);
+  @Override
+  protected Map<String, Object> getValues() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("shooterVelocityPGain", m_shooterVelocityPGain);
+    values.put("shooterVelocityIGain", m_shooterVelocityIGain);
+    values.put("shooterVelocityDGain", m_shooterVelocityDGain);
 
-      properties.setProperty("hoodPositionPGain", "" + m_hoodPositionPGain);
-      properties.setProperty("hoodPositionIGain", "" + m_hoodPositionIGain);
-      properties.setProperty("hoodPositionDGain", "" + m_hoodPositionDGain);
-      properties.store(outputStream, "saved PId or somethbings");
-      logger.info("succesfuly saved");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
+    values.put("hoodPositionPGain", m_hoodPositionPGain);
+    values.put("hoodPositionIGain", m_hoodPositionIGain);
+    values.put("hoodPositionDGain", m_hoodPositionDGain);
+
+    return values;
   }
 }
