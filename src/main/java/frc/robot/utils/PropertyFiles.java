@@ -43,10 +43,11 @@ public class PropertyFiles {
         for (String key : values.keySet()) {
           properties.setProperty(key, values.get(key).toString());
         }
-        OutputStream outputStream = new FileOutputStream(Filesystem.getDeployDirectory() + location);
+        OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + location);
         properties.store(outputStream, "saved properties");
       } catch(IOException e) {
         e.printStackTrace();
       }
   }
+
 }
