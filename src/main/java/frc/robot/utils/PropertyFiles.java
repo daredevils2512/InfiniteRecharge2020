@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import edu.wpi.first.wpilibj.Filesystem;
 
 public class PropertyFiles {
+  private static Logger logger = Logger.getLogger(PropertyFiles.class.getName());
 
   public static Properties loadProperties(String name, boolean loadDefault) {
     String location = "/" + name + ".properties";
@@ -26,8 +27,9 @@ public class PropertyFiles {
       properties = new Properties(defaultProperties);
       InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
       properties.load(deployStream);
+      logger.info("successfully loadded" + name);
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.log(Level.SEVERE, "failed to load" + name, e);
     }
     return properties;
 
@@ -45,8 +47,9 @@ public class PropertyFiles {
         }
         OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + location);
         properties.store(outputStream, "saved properties");
+        logger.info("successfully saved" + name);
       } catch(IOException e) {
-        e.printStackTrace();
+        logger.log(Level.SEVERE, "failed to save" + name, e);
       }
   }
 

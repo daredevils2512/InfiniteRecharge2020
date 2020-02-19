@@ -7,13 +7,13 @@ import java.util.logging.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.PropertyFiles;
 
-public abstract class PropertySubsystem extends SubsystemBase{
-    protected static Logger logger = Logger.getLogger(PropertySubsystem.class.getName());
-
+public abstract class PropertySubsystem extends SubsystemBase {
+    protected Logger logger;
     protected final Properties properties;
     private final String className;
 
     public PropertySubsystem(String className) {
+        this.logger = Logger.getLogger(className);
         this.className = className.toLowerCase();
         this.properties = PropertyFiles.loadProperties(this.className);
 
