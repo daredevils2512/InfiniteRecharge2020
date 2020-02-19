@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -58,6 +59,7 @@ public class Queue extends PropertySubsystem {
 
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
     if (m_photoEyeEnabled)
       m_photoEye = new PhotoEye(m_photoEyeChannel);
