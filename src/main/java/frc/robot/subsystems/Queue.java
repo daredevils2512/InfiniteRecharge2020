@@ -22,13 +22,14 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.sensors.PhotoEye;
 
 public class Queue extends PropertySubsystem {
+  private final NetworkTable m_networkTable;
+  private final NetworkTableEntry m_isClosedEntry;
+  private final NetworkTableEntry m_runSpeedEntry;
+  private final NetworkTableEntry m_hasPowerCellEntry;
+
   private final boolean m_photoEyeEnabled;
   private final int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
-
-  public final NetworkTable m_networkTable;
-  public final NetworkTableEntry m_isClosedEntry;
-  private final NetworkTableEntry m_runSpeedEntry;
 
   private final int m_runMotorID;
   private final TalonSRX m_runMotor;
@@ -50,6 +51,7 @@ public class Queue extends PropertySubsystem {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
     m_isClosedEntry = m_networkTable.getEntry("Is closed");
+    m_hasPowerCellEntry = m_networkTable.getEntry("Has power cell");
 
     m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
     m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
@@ -74,6 +76,7 @@ public class Queue extends PropertySubsystem {
   public void periodic() {
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
     m_isClosedEntry.setBoolean(getClosed());
+    m_hasPowerCellEntry.setBoolean(hasPowerCell());
   }
 
   public void run(double speed) {
