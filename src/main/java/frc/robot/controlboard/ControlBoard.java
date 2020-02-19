@@ -29,7 +29,12 @@ public class ControlBoard {
     properties = PropertyFiles.loadProperties(this.getClass().getSimpleName().toLowerCase());
   }
 
-  public ControlBoard(String propertiesstring) {
+
+  /**
+   * mainly for testing
+   * @param propertiesstring a string that pretends to be a file for testing
+   */
+  ControlBoard(String propertiesstring) {
     properties = new Properties();
     try {
       InputStream deployStream = new ByteArrayInputStream(propertiesstring.getBytes());
