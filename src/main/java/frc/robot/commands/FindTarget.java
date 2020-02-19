@@ -9,7 +9,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Turret;
 import frc.robot.vision.Limelight;
@@ -41,8 +40,10 @@ public class FindTarget extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putNumber("target position", m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
+    // SmartDashboard.putNumber("target position", m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
     m_turret.runPosition(m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
+    // m_turret.runPosition(m_turret.getAngle() + m_limelight.tx());
+    
   }
 
   // Called once the command ends or is interrupted.

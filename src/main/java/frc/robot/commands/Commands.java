@@ -7,11 +7,19 @@
 
 package frc.robot.commands;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
@@ -21,7 +29,9 @@ import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.Turret;
+import frc.robot.vision.Limelight;
 import frc.robot.RobotContainer;
+import frc.robot.sensors.ColorSensor.ColorDetect;
 
 /**
  * Definitions for all commands
@@ -74,6 +84,26 @@ public final class Commands {
     return new AccelerationLimitedVelocityArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration, maxTurnAcceleration);
   }
 
+  public static Command driveStraight(Drivetrain drivetrain, double distance) {
+    return new DriveStraight(drivetrain, distance);
+  }
+
+  public static Command setDrivingInverted(Drivetrain drivetrain, boolean wantsInverted) {
+    return new InstantCommand(() -> drivetrain.setDrivingInverted(wantsInverted), drivetrain);
+  }
+
+  public static Command toggleInvertedDriving(Drivetrain drivetrain) {
+    return new InstantCommand(() -> drivetrain.setDrivingInverted(!drivetrain.getDrivingInverted()), drivetrain);
+  }
+
+  public static Command drivetrainSetLowGear(Drivetrain drivetrain, boolean wantsLowGear) {
+    return new InstantCommand(() -> drivetrain.setLowGear(wantsLowGear), drivetrain);
+  }
+
+  public static Command drivetrainToggleLowGear(Drivetrain drivetrain) {
+    return new InstantCommand(() -> drivetrain.setLowGear(!drivetrain.getLowGear()), drivetrain);
+  }
+
   //probly temporary
   public static Command climberUp(Climber climber, Double leftSpeed, Double rightSpeed) {
     return new RunCommand(() -> climber.climb(leftSpeed, rightSpeed), climber);
@@ -84,8 +114,7 @@ public final class Commands {
   }
 
   public static Command toggleQueueGate(Queue queue) {
-    boolean isQueueClosed = queue.getClosed();
-    return new InstantCommand(() -> queue.setClosed(!isQueueClosed), queue);
+    return new InstantCommand(() -> queue.setClosed(!queue.getClosed()), queue);
   }
 
   /**
@@ -116,6 +145,10 @@ public final class Commands {
     return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
   }
 
+  public static Command runMagazine(Magazine magazine, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> magazine.setSpeed(speedSupplier.getAsDouble()), magazine);
+  }
+
   public static Command refillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
     return new RefillQueue(magazine, magazineSpeed, powerCellQueued);
   }
@@ -124,8 +157,24 @@ public final class Commands {
     return new AutoRefillQueue(magazine, magazineSpeed, powerCellQueued);
   }
 
+  public static Command runQueue(Queue queue, DoubleSupplier speedSupplier) {
+    return new RunCommand(() -> queue.run(speedSupplier.getAsDouble()), queue);
+  }
+
+  public static Command feedShooter(Queue queue, DoubleSupplier queueSpeedSupplier) {
+    return new FeedShooter(queue, queueSpeedSupplier);
+  }
+
+  public static Command autoFeedShooter(Queue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+    return new AutoFeedShooter(queue, queueSpeed, magazinePowerCellCountSupplier);
+  }
+
   public static Command moveTurret(Turret turret, DoubleSupplier speedSupplier) {
     return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
+  }
+
+  public static Command findTarget(Turret turret, Limelight limelight, double angleTolerance) {
+    return new FindTarget(turret, limelight, angleTolerance);
   }
 
   /**
@@ -134,7 +183,9 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command runShooter(Shooter shooter, DoubleSupplier speedSupplier) {
+    System.out.println(speedSupplier.getAsDouble());
     return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
+    // return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 
   public static Command setShooterVelocity(Shooter shooter, DoubleSupplier velocitySupplier) {
@@ -153,4 +204,25 @@ public final class Commands {
     return new InstantCommand(() -> spinner.setExtended(wantsExtended), spinner);
   }
 
+  public static Command rotationControl(Spinner spinner, double rotations) {
+    return new RotationControl(spinner, rotations);
+  }
+
+  public static Command precisionControl(Spinner spinner, ColorDetect targetColor) {
+    return new PrecisionControl(spinner, targetColor);
+  }
+
+  public static Command followPath(Drivetrain drivetrain, String file) {
+    Trajectory trajectory;
+    try {
+      Path path = Filesystem.getDeployDirectory().toPath().resolve("paths/" + file);
+      trajectory = TrajectoryUtil.fromPathweaverJson(path);
+    } catch(IOException e) {
+      trajectory = null;
+      e.printStackTrace();
+    }
+    return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
+      drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain)
+      .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
+  }
 }

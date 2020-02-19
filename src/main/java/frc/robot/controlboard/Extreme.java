@@ -49,4 +49,20 @@ public class Extreme {
   public double getStickY() {
     return m_joystick.getRawAxis(m_stickYAxis);
   }
+
+  public double getSlider() {
+    return m_joystick.getRawAxis(3);
+  }
+
+  public double getPOVDirection() {
+    return m_joystick.getPOV();
+  }
+
+  public double getPOVX() {
+    return Math.sin(Math.toRadians(getPOVDirection()));
+  }
+
+  public double getPOVY() {
+    return Math.cos(Math.toRadians(getPOVDirection()));
+  }
 }

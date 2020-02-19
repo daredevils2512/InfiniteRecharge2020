@@ -7,13 +7,14 @@
 
 package frc.robot.subsystems;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -40,21 +41,20 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.PropertyFiles;
 
 /**
- * The drivetrain is a 6 wheel west coast differential drivetrain
- * with two-gear transmission. It consists of four {@link TalonFX}
- * motor controllers for driving (two per side), a {@link DoubleSolenoid}
- * for shifting, two 256PPR optical encoders (one per side)
- * mounted to the output of the gearbox for distance calculation,
- * and a {@link PigeonIMU} for heading calculation.
+ * The drivetrain is a 6 wheel west coast differential drivetrain with two-gear
+ * transmission. It consists of four {@link TalonFX} motor controllers for
+ * driving (two per side), a {@link DoubleSolenoid} for shifting, two 256PPR
+ * optical encoders (one per side) mounted to the output of the gearbox for
+ * distance calculation, and a {@link PigeonIMU} for heading calculation.
  */
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends PropertySubsystem {
   /**
-   * All network table enties are stored as variables so they
-   * can be referenced more reliably (instead of by name via string)
+   * All network table enties are stored as variables so they can be referenced
+   * more reliably (instead of by name via string)
    */
-  private static Logger logger = Logger.getLogger(Drivetrain.class.getName());
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_leftPGainEntry;
   private final NetworkTableEntry m_leftIGainEntry;
@@ -72,11 +72,8 @@ public class Drivetrain extends SubsystemBase {
   private final NetworkTableEntry m_rollEntry;
   private final NetworkTableEntry m_fusedHeadingEntry;
   private final NetworkTableEntry m_lowGearEntry;
-  
-  private final Properties properties;
-  private static final String PROPERTIES_NAME = "/drivetrain.properties";
 
-  private final int m_leftDriveMasterID; //should be in properties file
+  private final int m_leftDriveMasterID; // should be in properties file
   private final int m_leftDriveFollowerID;
   private final int m_rightDriveMasterID;
   private final int m_rightDriveFollowerID;
@@ -86,7 +83,7 @@ public class Drivetrain extends SubsystemBase {
   private final WPI_TalonFX m_rightDriveMaster;
   private final WPI_TalonFX m_rightDriveFollower;
 
-  private final int m_leftEncoderChannelA; //should be in properties file
+  private final int m_leftEncoderChannelA; // should be in properties file
   private final int m_leftEncoderChannelB;
   private final int m_rightEncoderChannelA;
   private final int m_rightEncoderChannelB;
@@ -94,28 +91,30 @@ public class Drivetrain extends SubsystemBase {
   private final Encoder m_leftEncoder;
   private final Encoder m_rightEncoder;
 
-  private final int m_pigeonID; //should be in properties file
+  private final int m_pigeonID; // in properties file
   private PigeonIMU m_pigeon;
   private final boolean m_pigeonEnabled;
 
-  private final int m_shifterForwardChannel; //should be in properties file
+  private final int m_shifterForwardChannel; // in properties file
   private final int m_shifterReverseChannel;
   private DoubleSolenoid m_shifter;
-  private final DoubleSolenoid.Value m_highGearValue = Value.kForward;
+  private final Value m_highGearValue = Value.kForward;
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
   private final boolean m_shiftersEnabled;
 
   private final int m_encoderResolution;
-  private final double m_gearRatio; // Encoder rotations to wheel rotations 
+  private final double m_gearRatio; // Encoder rotations to wheel rotations
   private final double m_wheelDiameter; // Wheel diameter is changed from inches to meters in the getter
   private final double m_wheelCircumference;
-  // TODO: Find out track width (can be calculated using the characterization tool)
+  // TODO: Find out track width (can be calculated using the characterization
+  // tool)
   private final double m_trackWidth;
   // TODO: Find out max speeds for low and high gear
   private final double m_maxSpeedHighGear; // Max speed in high gear in meters per second
   private final double m_maxSpeedLowGear; // Max speed in low gear in meters per second
   private final double m_maxAngularSpeedHighGear;
   private final double m_maxAngularSpeedLowGear;
+  private final double m_maxAcceleration;
 
   private boolean m_isDrivingInverted = false;
 
@@ -142,19 +141,7 @@ public class Drivetrain extends SubsystemBase {
    * Creates a new drivetrain
    */
   public Drivetrain() {
-
-    Properties defaultProperties = new Properties();
-    properties = new Properties(defaultProperties);
-    try {
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + PROPERTIES_NAME);
-      InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      defaultProperties.load(deployStream);
-      properties.load(robotStream);
-      logger.info("succesfuly loaded");
-    } catch (IOException e) {
-      logger.log(Level.SEVERE, "failed to load", e);
-    }
-
+    super(Drivetrain.class.getSimpleName());
     m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));
     m_leftDriveFollowerID = Integer.parseInt(properties.getProperty("leftDriveFollowerID"));
     m_rightDriveMasterID = Integer.parseInt(properties.getProperty("rightDriveMasterID"));
@@ -164,7 +151,7 @@ public class Drivetrain extends SubsystemBase {
     m_leftEncoderChannelB = Integer.parseInt(properties.getProperty("leftEncoderChannelB"));
     m_rightEncoderChannelA = Integer.parseInt(properties.getProperty("rightEncoderChannelA"));
     m_rightEncoderChannelB = Integer.parseInt(properties.getProperty("rightEncoderChannelB"));
-    
+
     m_pigeonID = Integer.parseInt(properties.getProperty("pigeonID"));
     m_pigeonEnabled = Boolean.parseBoolean(properties.getProperty("pigeonEnabled"));
 
@@ -182,6 +169,7 @@ public class Drivetrain extends SubsystemBase {
     m_maxSpeedLowGear = Double.parseDouble(properties.getProperty("maxSpeedLowGear"));
     m_maxAngularSpeedHighGear = Double.parseDouble(properties.getProperty("maxAngularSpeedHighGear"));
     m_maxAngularSpeedLowGear = Double.parseDouble(properties.getProperty("maxAngularSpeedLowGear"));
+    m_maxAcceleration = Double.parseDouble(properties.getProperty("maxAcceleration"));
 
     m_staticGain = Double.parseDouble(properties.getProperty("staticGain"));
     m_velocityGain = Double.parseDouble(properties.getProperty("velocityGain"));
@@ -194,7 +182,6 @@ public class Drivetrain extends SubsystemBase {
     m_rightPGain = Double.parseDouble(properties.getProperty("rightPGain"));
     m_rightIGain = Double.parseDouble(properties.getProperty("rightIGain"));
     m_rightDGain = Double.parseDouble(properties.getProperty("rightDGain"));
-
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftPGainEntry = m_networkTable.getEntry("Left P gain");
@@ -289,6 +276,7 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * Get the current max speed depending on the current gear
+   * 
    * @return Speed in meters per second
    */
   public double getMaxSpeed() {
@@ -297,6 +285,15 @@ public class Drivetrain extends SubsystemBase {
 
   public double getMaxAngularSpeed() {
     return getLowGear() ? m_maxAngularSpeedLowGear : m_maxAngularSpeedHighGear;
+  }
+
+  /**
+   * in meters per second per second
+   * 
+   * @return m/s^2
+   */
+  public double getMaxAcceleration() {
+    return m_maxAcceleration;
   }
 
   private void resetEncoders() {
@@ -312,20 +309,24 @@ public class Drivetrain extends SubsystemBase {
     m_isDrivingInverted = wantsInverted;
   }
 
-  private double getLeftDistance() {
+  public double getLeftDistance() {
     return m_leftEncoder.getDistance();
   }
 
-  private double getRightDistance() {
+  public double getRightDistance() {
     return m_rightEncoder.getDistance();
   }
 
-  private double getLeftVelocity() {
+  public double getLeftVelocity() {
     return m_leftEncoder.getRate();
   }
 
-  private double getRightVelocity() {
+  public double getRightVelocity() {
     return m_rightEncoder.getRate();
+  }
+
+  public DifferentialDriveKinematics getKinematics() {
+    return m_kinematics;
   }
 
   private double getYaw() {
@@ -349,14 +350,16 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getHeading() {
-    return m_pigeonEnabled ? getFusedHeading()%360 : 0.0;
+    return m_pigeonEnabled ? getFusedHeading() : 0.0;
   }
 
   /**
    * Must be called periodically to retrieve gyro data from the {@link PigeonIMU}
    */
   private void updateGyroData() {
-    if (m_pigeonEnabled) {m_pigeon.getYawPitchRoll(m_gyroData);}
+    if (m_pigeonEnabled) {
+      m_pigeon.getYawPitchRoll(m_gyroData);
+    }
   }
 
   public void setLowGear(boolean wantsLowGear) {
@@ -368,13 +371,12 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean getLowGear() {
-    if (m_shifter.get() == m_lowGearValue) logger.fine("low gear");
     return m_shiftersEnabled ? m_shifter.get() == m_lowGearValue : false;
-
   }
 
   /**
    * Get the current pose (rotation and translation) of the robot
+   * 
    * @return Pose with translation in meters
    */
   public Pose2d getPose() {
@@ -408,24 +410,8 @@ public class Drivetrain extends SubsystemBase {
    * Must be called periodically to maintain an accurate position and heading
    */
   private void updateOdometry() {
-    m_odometry.update(Rotation2d.fromDegrees(getFusedHeading()), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
-  }
-
-  public void saveProperties() {
-    try {
-      OutputStream outputStream = new FileOutputStream(Filesystem.getOperatingDirectory() + PROPERTIES_NAME);
-      properties.setProperty("leftPGain", "" + m_leftPGain);
-      properties.setProperty("leftIGain", "" + m_leftIGain);
-      properties.setProperty("leftDGain", "" + m_leftDGain);
-
-      properties.setProperty("rightPGain", "" + m_rightPGain);
-      properties.setProperty("rightIGain", "" + m_rightIGain);
-      properties.setProperty("rightDGain", "" + m_rightDGain);
-      properties.store(outputStream, "saved PID and everything else too");
-      logger.info("succesfuly saved");
-    } catch(IOException e) {
-      logger.log(Level.SEVERE, "failed to save", e);
-    }
+    m_odometry.update(Rotation2d.fromDegrees(getFusedHeading()), m_leftEncoder.getDistance(),
+        m_rightEncoder.getDistance());
   }
 
   public void simpleArcadeDrive(double move, double turn) {
@@ -433,14 +419,24 @@ public class Drivetrain extends SubsystemBase {
     m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
   }
 
+  public void voltageTank(double left, double right) {
+    m_leftDriveMaster.setVoltage(left);
+    m_rightDriveMaster.setVoltage(right);
+  }
+
   /**
    * Set the drivetrain's linear and angular target velocities
-   * @param velocity Velocity in meters per second
+   * 
+   * @param velocity        Velocity in meters per second
    * @param angularVelocity Angular velocity in radians per second
    */
   public void velocityArcadeDrive(double velocity, double angularVelocity) {
     velocity = m_isDrivingInverted ? -velocity : velocity;
     setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
+  }
+
+  public void setWheelSpeeds(double left, double right) {
+    setSpeeds(new DifferentialDriveWheelSpeeds(left, right));
   }
 
   private void setSpeeds(DifferentialDriveWheelSpeeds wheelSpeeds) {
@@ -452,4 +448,18 @@ public class Drivetrain extends SubsystemBase {
     m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
     m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
   }
+
+  @Override
+  protected Map<String, Object> getValues() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("leftPGain", m_leftPGain);
+    values.put("leftIGain", m_leftIGain);
+    values.put("leftDGain", m_leftDGain);
+    values.put("rightPGain", m_rightPGain);
+    values.put("rightIGain", m_rightIGain);
+    values.put("rightDGain", m_rightDGain);
+    return values;
+  }
+
+
 }
