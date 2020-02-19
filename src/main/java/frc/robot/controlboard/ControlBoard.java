@@ -7,6 +7,10 @@
 
 package frc.robot.controlboard;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
@@ -24,6 +28,16 @@ public class ControlBoard {
   public ControlBoard() {
     properties = PropertyFiles.loadProperties(this.getClass().getSimpleName().toLowerCase());
   }
+
+  public ControlBoard(String propertiesstring) {
+    properties = new Properties();
+    try {
+      InputStream deployStream = new ByteArrayInputStream(propertiesstring.getBytes());
+      properties.load(deployStream);
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+}
 
   public JoystickButton getButton(String propertiesKey) {
     String propertiesValue = properties.getProperty(propertiesKey);
