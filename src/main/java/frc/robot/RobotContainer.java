@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
@@ -215,7 +216,10 @@ public class RobotContainer {
 
     if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
+      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
+      // Toggle intake extender motion magic
+      m_controlBoard.extreme.sideButton.whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      m_controlBoard.extreme.baseFrontLeft.whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -254,11 +258,11 @@ public class RobotContainer {
     
     if (spinnerEnabled) {
       // Extend/retract spinner
-      m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
-      m_controlBoard.extreme.baseFrontRight.whenPressed(Commands.setSpinnerExtended(m_spinner, false));
+      // m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
+      // m_controlBoard.extreme.baseFrontRight.whenPressed(Commands.setSpinnerExtended(m_spinner, false));
 
-      m_controlBoard.extreme.baseMiddleLeft.whenPressed(Commands.rotationControl(m_spinner, 3));
-      m_controlBoard.extreme.baseMiddleRight.whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
+      // m_controlBoard.extreme.baseMiddleLeft.whenPressed(Commands.rotationControl(m_spinner, 3));
+      // m_controlBoard.extreme.baseMiddleRight.whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
     }
   }
 
@@ -281,7 +285,7 @@ public class RobotContainer {
    * @return
    */
   private double getIntakeExtenderSpeed() {
-    double speed = m_controlBoard.extreme.getPOVY();
+    double speed = m_controlBoard.extreme.getStickY();
     return speed * m_intakeExtenderSpeed;
   }
 

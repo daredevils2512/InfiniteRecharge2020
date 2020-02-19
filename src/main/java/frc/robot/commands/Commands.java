@@ -137,8 +137,8 @@ public final class Commands {
       new InstantCommand(() -> intake.setExtended(false), intake));
   }
 
-  public static Command runIntake(Intake intake, Magazine magazine, double speed) {
-    return new RunIntake(intake, magazine, speed);
+  public static Command runIntake(Intake intake, double speed) {
+    return new RunIntake(intake, speed);
   }
 
   public static Command runIntakeExtender_Temp(Intake intake, DoubleSupplier speedSupplier) {
