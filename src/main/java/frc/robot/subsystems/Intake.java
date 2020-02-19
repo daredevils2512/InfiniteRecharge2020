@@ -12,7 +12,9 @@ import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -31,8 +33,11 @@ public class Intake extends PropertySubsystem {
   private final NetworkTableEntry m_dGainEntry;
   private final NetworkTableEntry m_arbitraryFeedforwardEntry;
 
+  private final int m_runMotorID;
+  private final WPI_TalonSRX m_runMotor;
+
   private final int m_extendMotorID;
-  private final TalonSRX m_extendMotor;
+  private final WPI_TalonSRX m_extendMotor;
 
   private boolean m_retractedLimitSwitchEnabled;
   private boolean m_extendedLimitSwitchEnabled;
@@ -74,6 +79,7 @@ public class Intake extends PropertySubsystem {
     m_dGainEntry = m_networkTable.getEntry("D gain");
     m_arbitraryFeedforwardEntry = m_networkTable.getEntry("Arbitrary feedforward");
 
+    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
     m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
 
     m_retractedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("retractedLimitSwitchEnabled"));
@@ -93,7 +99,13 @@ public class Intake extends PropertySubsystem {
     m_dGain = Double.parseDouble(properties.getProperty("dGain"));
     m_arbitraryFeedForward = Double.parseDouble(properties.getProperty("arbitraryFeedForward"));
 
-    m_extendMotor = new TalonSRX(m_extendMotorID);
+    m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor.configFactoryDefault();
+    
+    m_runMotor.setInverted(InvertType.None);
+    m_runMotor.setNeutralMode(NeutralMode.Brake);
+
+    m_extendMotor = new WPI_TalonSRX(m_extendMotorID);
     m_extendMotor.configFactoryDefault();
 
     // Config PID for extender
@@ -151,6 +163,10 @@ public class Intake extends PropertySubsystem {
     m_iGainEntry.setNumber(m_iGain);
     m_dGainEntry.setNumber(m_dGain);
     m_arbitraryFeedforwardEntry.setNumber(m_arbitraryFeedForward);
+  }
+
+  public void runIntake(double speed) {
+    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   public void setMotionMagicEnabled(boolean wantsEnabled) {
