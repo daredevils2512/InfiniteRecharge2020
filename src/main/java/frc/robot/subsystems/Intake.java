@@ -7,28 +7,19 @@
 
 package frc.robot.subsystems;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.LimitSwitch;
-import frc.robot.utils.PropertyFiles;
 
 public class Intake extends PropertySubsystem {
 
@@ -111,6 +102,10 @@ public class Intake extends PropertySubsystem {
     m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
+
+    m_extendMotor.setInverted(InvertType.None);
+    m_extendMotor.setNeutralMode(NeutralMode.Coast);
+    m_extendMotor.setSensorPhase(false);
 
     if (m_retractedLimitSwitchEnabled) {
       m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
