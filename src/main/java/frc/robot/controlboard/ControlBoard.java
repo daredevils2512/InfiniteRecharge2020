@@ -41,6 +41,7 @@ public class ControlBoard {
 
   public JoystickButton getButton(String propertiesKey) {
     String propertiesValue = properties.getProperty(propertiesKey);
+    propertiesValue = propertiesValue.trim();
     Class cls = this.getClass();
     String[] splitValue = propertiesValue.split("\\.");
     String joystick = splitValue[0];
