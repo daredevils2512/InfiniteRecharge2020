@@ -46,7 +46,7 @@ public class Magazine extends PropertySubsystem {
    * Creates a new magazine
    */
   public Magazine() {
-    super(Magazine.class.getSimpleName());
+    super(Magazine.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");

@@ -48,7 +48,7 @@ public class Queue extends PropertySubsystem {
    * Creates a new Queue.
    */
   public Queue() {
-    super(Queue.class.getSimpleName());
+    super(Queue.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");

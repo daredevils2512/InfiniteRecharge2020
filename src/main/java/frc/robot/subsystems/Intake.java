@@ -68,7 +68,7 @@ public class Intake extends PropertySubsystem {
    * Creates a new power cell intake
    */
   public Intake() {
-    super(Intake.class.getSimpleName());
+    super(Intake.class.getName());
     
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");

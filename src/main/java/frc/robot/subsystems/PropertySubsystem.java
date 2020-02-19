@@ -8,13 +8,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.PropertyFiles;
 
 public abstract class PropertySubsystem extends SubsystemBase {
-    protected Logger logger;
+    protected final Logger logger;
     protected final Properties properties;
     private final String className;
 
-    public PropertySubsystem(String className) {
-        this.logger = Logger.getLogger(className);
-        this.className = className.toLowerCase();
+    public PropertySubsystem(String fullName) {
+        this.logger = Logger.getLogger(fullName);
+        String[] classNameArray = fullName.split("\\.");
+        className = classNameArray[classNameArray.length - 1].toLowerCase();
         this.properties = PropertyFiles.loadProperties(this.className);
 
     }

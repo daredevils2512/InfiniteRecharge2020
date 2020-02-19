@@ -23,7 +23,7 @@ public class Climber extends PropertySubsystem {
   private final WPI_TalonSRX m_rightHorizontalMaster;
 
   public Climber() {
-    super(Climber.class.getSimpleName());
+    super(Climber.class.getName());
 
     m_leftClimberMasterID = Integer.parseInt(properties.getProperty("leftClimberMasterID"));
     m_rightClimberMasterID = Integer.parseInt(properties.getProperty("rightClimberMasterID"));
