@@ -4,13 +4,9 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Transform2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
+import frc.robot.Constants;
 
 public class PoseConversions {
-  // TODO: Determine turret limelight to turret transform
-  private static final Transform2d TURRET_LIMELIGHT_TO_TURRET = new Transform2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0));
-  // TODO: Determine turret to robot transform
-  private static final Transform2d TURRET_TO_ROBOT = new Transform2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0));
-
   private PoseConversions() {
 
   }
@@ -27,11 +23,26 @@ public class PoseConversions {
     return new Pose2d(translationToTarget, rotationToTarget);
   }
 
+  /**
+   * Convert limelight relative pose to turret relative pose
+   * 
+   * <p>The Y axis of the turret relative pose is parallel to the flywheel's axis
+   * @param limelightRelativePose Limelight relative pose
+   * @return Turret relative pose
+   */
   public static Pose2d turretLimelightToTurret(Pose2d limelightRelativePose) {
-    return limelightRelativePose.transformBy(TURRET_LIMELIGHT_TO_TURRET);
+    return limelightRelativePose.relativeTo(Constants.TURRET_LIMELIGHT_TURRET_RELATIVE);
   }
 
-  public static Pose2d turretToRobot(Pose2d turretRelativePose) {
-    return turretRelativePose.transformBy(TURRET_TO_ROBOT);
+  /**
+   * Convert turret relative pose to robot relative pose
+   * @param turretRelativePose Turret relative pose
+   * @return Robot relative pose
+   */
+  public static Pose2d turretToRobot(Pose2d turretRelativePose, Rotation2d turretRotation) {
+    Pose2d newPose = turretRelativePose.relativeTo(Constants.TURRET_ROBOT_RELATIVE);
+    Transform2d turretRotationTransform = new Transform2d(new Translation2d(), turretRotation);
+    newPose.plus(turretRotationTransform);
+    return newPose;
   }
 }
