@@ -18,9 +18,11 @@ public class Climber extends PropertySubsystem {
 
   private final WPI_TalonSRX m_leftClimberMaster;
   private final WPI_TalonSRX m_rightClimberMaster;
+  private final boolean m_useVerticalClimb;
 
   private final WPI_TalonSRX m_leftHorizontalMaster;
   private final WPI_TalonSRX m_rightHorizontalMaster;
+  private final boolean m_useHorizontalClimb;
 
   public Climber() {
     super(Climber.class.getSimpleName());
@@ -29,22 +31,38 @@ public class Climber extends PropertySubsystem {
     m_rightClimberMasterID = Integer.parseInt(properties.getProperty("rightClimberMasterID"));
     m_leftHorizontalMasterID = Integer.parseInt(properties.getProperty("leftHorizontalMasterID"));
     m_rightHorizontalMasterID = Integer.parseInt(properties.getProperty("rightHorizontalMasterID"));
+    m_useVerticalClimb = Boolean.parseBoolean(properties.getProperty("useVerticalClimb"));
+    m_useHorizontalClimb = Boolean.parseBoolean(properties.getProperty("useHorizontalClimb"));
 
-    m_leftClimberMaster = new WPI_TalonSRX(m_leftClimberMasterID);
-    m_rightClimberMaster = new WPI_TalonSRX(m_rightClimberMasterID);
+    if (m_useVerticalClimb) {
+      m_leftClimberMaster = new WPI_TalonSRX(m_leftClimberMasterID);
+      m_rightClimberMaster = new WPI_TalonSRX(m_rightClimberMasterID);
+    } else {
+      m_leftClimberMaster = null;
+      m_rightClimberMaster = null;
+    }
 
-    m_leftHorizontalMaster = new WPI_TalonSRX(m_leftHorizontalMasterID);
-    m_rightHorizontalMaster = new WPI_TalonSRX(m_rightHorizontalMasterID);
+    if (m_useHorizontalClimb) {
+      m_leftHorizontalMaster = new WPI_TalonSRX(m_leftHorizontalMasterID);
+      m_rightHorizontalMaster = new WPI_TalonSRX(m_rightHorizontalMasterID);
+    } else {
+      m_leftHorizontalMaster = null;
+      m_rightHorizontalMaster = null;
+    }
   }
 
   public void climb(double leftSpeed, double rightSpeed) {
-    m_leftClimberMaster.set(leftSpeed);
-    m_rightClimberMaster.set(rightSpeed);
+    if (m_useVerticalClimb) {
+      m_leftClimberMaster.set(leftSpeed);
+      m_rightClimberMaster.set(rightSpeed);
+    }
   }
 
   public void climberMoveHorizontal(double speed) {
-    m_leftHorizontalMaster.set(speed);
-    m_rightHorizontalMaster.set(speed);
+    if (m_useHorizontalClimb) {
+      m_leftHorizontalMaster.set(speed);
+      m_rightHorizontalMaster.set(speed);
+    }
   }
 
   // TODO: Implement climbing
