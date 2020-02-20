@@ -123,20 +123,18 @@ public class RobotContainer {
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
-
-    limelightLog.setLevel(Level.OFF);
-    drivetrainLog.setLevel(Level.OFF);
-    intakeLog.setLevel(Level.OFF);
-    shooterLog.setLevel(Level.OFF);
-    spinnerLog.setLevel(Level.OFF);
-    queueLog.setLevel(Level.OFF);
-    turretLog.setLevel(Level.OFF);
-    magazineLog.setLevel(Level.OFF);
-    climberLog.setLevel(Level.OFF);
-    compressorLog.setLevel(Level.OFF);
+    limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel")));
+    drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel")));
+    intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel")));
+    shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
+    spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel")));
+    magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
+    queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
+    turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel")));
+    climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel")));
+    compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel")));
 
     if (limelightEnabled) {
-      limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel")));
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
 
@@ -145,52 +143,43 @@ public class RobotContainer {
     }
 
     if (drivetrainEnabled) {
-      drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel")));
       m_drivetrain = new Drivetrain();
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
-      intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel")));
       m_intake = new Intake();
       m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
     }
 
     if (shooterEnabled) {
-      shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
       m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
     }
 
     if (spinnerEnabled) {
-      spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel")));
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
-      magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
       m_magazine = new Magazine();
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
     }
 
     if (queueEnabled) {
-      queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
       m_queue = new Queue();
       m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
     }
 
     if (turretEnabled) {
-      turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel")));
       m_turret = new Turret();
     }
 
     if (climberEnabled) {
-      climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel")));
       m_climber = new Climber();
     }
 
     if (compressorEnabled) {
-      compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel")));
       m_compressor = new CompressorManager();
     }
 
