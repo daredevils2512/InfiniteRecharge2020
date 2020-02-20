@@ -48,7 +48,7 @@ public class Queue extends PropertySubsystem {
    * Creates a new Queue.
    */
   public Queue() {
-    super(Queue.class.getSimpleName());
+    super(Queue.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
@@ -89,6 +89,7 @@ public class Queue extends PropertySubsystem {
 
   public boolean getClosed() {
     if (m_gateEnabled) {
+      if (m_gate.get() == m_closedValue) logger.fine("gate closed"); 
       return m_gate.get() == m_closedValue;
     } else {
       return false;
@@ -103,6 +104,7 @@ public class Queue extends PropertySubsystem {
 
   public boolean hasPowerCell() {
     if (m_photoEyeEnabled) {
+      if (m_photoEye.get()) logger.fine("queue has power cell");
       return m_photoEye.get();
     } else {
       return false;

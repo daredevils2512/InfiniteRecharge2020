@@ -53,7 +53,7 @@ public class Shooter extends PropertySubsystem {
    * Creates a new power cell shooter
    */
   public Shooter() {
-    super(Shooter.class.getSimpleName());
+    super(Shooter.class.getName());
 
     m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
     m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));

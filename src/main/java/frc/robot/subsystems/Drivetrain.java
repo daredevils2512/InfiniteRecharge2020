@@ -141,7 +141,7 @@ public class Drivetrain extends PropertySubsystem {
    * Creates a new drivetrain
    */
   public Drivetrain() {
-    super(Drivetrain.class.getSimpleName());
+    super(Drivetrain.class.getName());
     m_leftDriveMasterID = Integer.parseInt(properties.getProperty("leftDriveMasterID"));
     m_leftDriveFollowerID = Integer.parseInt(properties.getProperty("leftDriveFollowerID"));
     m_rightDriveMasterID = Integer.parseInt(properties.getProperty("rightDriveMasterID"));
