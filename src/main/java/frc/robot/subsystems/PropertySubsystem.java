@@ -17,7 +17,7 @@ public abstract class PropertySubsystem extends SubsystemBase {
         String[] classNameArray = fullName.split("\\.");
         System.out.println(classNameArray.length);
         className = classNameArray[classNameArray.length - 1].toLowerCase();
-        this.properties = PropertyFiles.loadProperties(this.className);
+        this.properties = PropertyFiles.loadProperties(this.className, true);
 
     }
 

@@ -109,7 +109,7 @@ public final class Commands {
   }
 
   public static Command runQueue(Queue queue, Double speed) {
-    return new RunCommand(() -> queue.run(speed, false), queue);
+    return new RunCommand(() -> queue.run(speed, false), queue).andThen(new RunCommand(() -> queue.run(0.0)));
   }
 
   public static Command toggleQueueGate(Queue queue) {
@@ -136,8 +136,8 @@ public final class Commands {
       new InstantCommand(() -> intake.setExtended(false), intake));
   }
 
-  public static Command runIntake(Intake intake, Magazine magazine, double speed) {
-    return new RunIntake(intake, magazine, speed);
+  public static Command runIntake(Intake intake, double speed) {
+    return new RunIntake(intake, speed);
   }
 
   public static Command runIntakeExtender_Temp(Intake intake, DoubleSupplier speedSupplier) {

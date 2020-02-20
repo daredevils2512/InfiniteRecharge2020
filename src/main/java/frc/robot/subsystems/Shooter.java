@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -100,6 +101,7 @@ public class Shooter extends PropertySubsystem {
     m_shooter = new TalonSRX(m_shooter1ID);
     m_shooterFollower = new TalonSRX(m_shooter2ID);
     m_shooterFollower.follow(m_shooter);
+    m_shooterFollower.setInverted(InvertType.InvertMotorOutput);
 
     m_shooter.configFactoryDefault();
     m_shooterFollower.configFactoryDefault();
@@ -163,8 +165,9 @@ public class Shooter extends PropertySubsystem {
   }
 
   public void setPercentOutput(double speed) {
-    SmartDashboard.putNumber("Shooter speed", speed);
+    SmartDashboard.putNumber("set Shooter speed", speed);
     m_shooter.set(ControlMode.PercentOutput, speed);
+    SmartDashboard.putNumber("actual set shooter speed", m_shooter.getMotorOutputPercent());
   }
 
   /**

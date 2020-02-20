@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -124,6 +125,16 @@ public class RobotContainer {
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
+    SmartDashboard.putBoolean("limelight enabled", limelightEnabled);
+    SmartDashboard.putBoolean("drivetrain enabled", drivetrainEnabled);
+    SmartDashboard.putBoolean("intake enabled", intakeEnabled);
+    SmartDashboard.putBoolean("shooter enabled", shooterEnabled);
+    SmartDashboard.putBoolean("spinner enabled", spinnerEnabled);
+    SmartDashboard.putBoolean("queue enabled", queueEnabled);
+    SmartDashboard.putBoolean("turret enabled", turretEnabled);
+    SmartDashboard.putBoolean("magazine enabled", magazineEnabled);
+    SmartDashboard.putBoolean("climber enabled", climberEnabled);
+    SmartDashboard.putBoolean("compressor enabled", compressorEnabled);
 
     limelightLog.setLevel(Level.OFF);
     drivetrainLog.setLevel(Level.OFF);
@@ -161,7 +172,8 @@ public class RobotContainer {
     if (shooterEnabled) {
       shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
-      m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(0.5), m_shooter));
+      SmartDashboard.putNumber("desired shooter speed", getShooterSpeed());
+      m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(getShooterSpeed()), m_shooter));
     }
 
     if (spinnerEnabled) {
@@ -219,7 +231,8 @@ public class RobotContainer {
 
     if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
+      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
+      // m_controlBoard.getButton("runMagazine").toggleWhenPressed(Commands.runMagazine(m_magazine,()  ->0.5));
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -246,7 +259,7 @@ public class RobotContainer {
     }
 
     if (queueEnabled) {
-      m_controlBoard.getButton("runQueue").whenPressed(Commands.runQueue(m_queue, 1.0));
+      m_controlBoard.getButton("runQueue").whileHeld(Commands.runQueue(m_queue, 1.0));
     }
 
     if (turretEnabled && limelightEnabled) {
@@ -314,9 +327,9 @@ public class RobotContainer {
   }
 
   private double getShooterSpeed() {
-    double speed = m_controlBoard.extreme.getSlider();
+    double speed = -m_controlBoard.extreme.getSlider();
     speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
-    return 1.0;
+    return speed;
   }
 
   public void setDriveType(DriveType driveType) {
