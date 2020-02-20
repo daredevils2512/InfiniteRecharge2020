@@ -57,6 +57,7 @@ public class Queue extends PropertySubsystem {
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
     m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
+    m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
 
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
@@ -84,11 +85,13 @@ public class Queue extends PropertySubsystem {
   }
 
   private void updateMagazinePowerCellCount() {
-    if (m_photoEye.get() && !m_powerCellPreviouslyDetected && !getDirectionReversed()) {
-      m_decrementMagazinePowerCellCount.run();
-    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected && getDirectionReversed()) {
-      m_incrementMagazinePowerCellCount.run();
-    }
+    if (m_photoEyeEnabled) {
+      if (m_photoEye.get() && !m_powerCellPreviouslyDetected && !getDirectionReversed()) {
+        m_decrementMagazinePowerCellCount.run();
+      } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected && getDirectionReversed()) {
+        m_incrementMagazinePowerCellCount.run();
+      }
+    } else {logger.info("queue photoeye is disabled");}
   }
 
   public void run(double speed) {
