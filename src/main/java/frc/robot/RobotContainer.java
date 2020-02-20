@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -156,7 +157,7 @@ public class RobotContainer {
 
     if (shooterEnabled) {
       m_shooter = new Shooter();
-      m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(0.5), m_shooter));
+      m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(getShooterSpeed()), m_shooter));
     }
 
     if (spinnerEnabled) {
@@ -305,7 +306,8 @@ public class RobotContainer {
   private double getShooterSpeed() {
     double speed = m_controlBoard.extreme.getSlider();
     speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
-    return 1.0;
+    SmartDashboard.putNumber("Slider", speed);
+    return speed;
   }
 
   public void setDriveType(DriveType driveType) {
