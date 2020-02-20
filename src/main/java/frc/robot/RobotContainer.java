@@ -251,6 +251,7 @@ public class RobotContainer {
     if (shooterEnabled) {
       // Run shooter at a set motor output
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
+      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getSlider));
     }
     
     
@@ -261,6 +262,10 @@ public class RobotContainer {
 
       m_controlBoard.getButton("spinnerRotationControl").whenPressed(Commands.rotationControl(m_spinner, 3));
       m_controlBoard.getButton("spinnerColorControl").whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
+    }
+
+    if (turretEnabled) {
+      m_turret.setDefaultCommand(Commands.moveTurret(m_turret, m_controlBoard.extreme::getPOVX));
     }
   }
 

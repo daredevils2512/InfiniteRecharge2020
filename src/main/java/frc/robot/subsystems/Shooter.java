@@ -89,7 +89,7 @@ public class Shooter extends PropertySubsystem {
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
 
     m_hood.configFactoryDefault();
-    // m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+    m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
     m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
     m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
@@ -125,7 +125,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   public void resetHoodAngle(double angle) {
-    // m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
+    m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
   public void setPercentOutput(double speed) {
@@ -138,9 +138,9 @@ public class Shooter extends PropertySubsystem {
    * @param targetVelocity Target velocity in revolutions per minute
    */
   public void setTargetVelocity(double velocity) {
-    // m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
-    // m_shooter.set(ControlMode.Velocity,
-    // toEncoderPulsesPer100Milliseconds(velocity));
+    m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
+    m_shooter.set(ControlMode.Velocity,
+    toEncoderPulsesPer100Milliseconds(velocity));
   }
 
   public void stop() {
@@ -153,7 +153,7 @@ public class Shooter extends PropertySubsystem {
    * @param angle Angle in degrees
    */
   public void setTargetAngle(double angle) {
-    // m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
+    m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
   }
 
   /**
@@ -162,8 +162,7 @@ public class Shooter extends PropertySubsystem {
    * @return Velocity in revolutions per minute
    */
   public double getVelocity() {
-    // return toRPM(m_shooter.getSelectedSensorVelocity());
-    return 0;
+    return toRPM(m_shooter.getSelectedSensorVelocity());
   }
 
   /**
@@ -172,8 +171,7 @@ public class Shooter extends PropertySubsystem {
    * @return Angle in degrees
    */
   public double getAngle() {
-    // return toAngleHood(m_hood.getSelectedSensorPosition());
-    return 0.0;
+    return toAngleHood(m_hood.getSelectedSensorPosition());
   }
 
   private int toEncoderPulsesPer100Milliseconds(double rpm) {
