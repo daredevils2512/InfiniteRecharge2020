@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
@@ -98,7 +99,7 @@ public class RobotContainer {
   private boolean m_autoRefillQueueEnabled = false;
   private boolean m_autoFeedShooterEnabled = false;
 
-  private double m_intakeExtenderSpeed = 0.2;
+  private double m_intakeExtenderSpeed = 0.3;
   private double m_magazineSpeed = 0.5;
   private double m_queueSpeed = 0.5;
 
@@ -155,7 +156,10 @@ public class RobotContainer {
     if (intakeEnabled) {
       intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel")));
       m_intake = new Intake();
-      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
+      m_intake.setDefaultCommand(new RunCommand(() -> {
+        m_intake.runIntake(getIntakeSpeed());
+        m_intake.runExtender(getIntakeExtenderSpeed());
+      }, m_intake));
     }
 
     if (shooterEnabled) {
@@ -217,12 +221,15 @@ public class RobotContainer {
         .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
     }
 
+    if (intakeEnabled) {
+      // Start/stop intaking
+      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
+    }
+
     if (intakeEnabled && magazineEnabled) {
       // Toggle intake extender motion magic
       m_controlBoard.getButton("toggleIntakeMotionMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
       m_controlBoard.getButton("toggleIntakeExtended").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
-      // Start/stop intaking
-      m_controlBoard.getButton("runIntake").toggleWhenPressed(new RunCommand(() -> m_intake.runIntake(0.5), m_intake));
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -280,6 +287,11 @@ public class RobotContainer {
     turn = JoystickUtil.deadband(turn, 0.05);
     turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
     return turn / 2;
+  }
+
+  private double getIntakeSpeed() {
+    double speed = m_controlBoard.extreme.trigger.get() ? 0.5 : 0;
+    return speed;
   }
 
   /**

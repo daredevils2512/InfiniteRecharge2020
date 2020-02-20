@@ -110,7 +110,7 @@ public final class Commands {
   }
 
   public static Command runQueue(Queue queue, Double speed) {
-    return new RunCommand(() -> queue.run(speed, false), queue);
+    return new RunCommand(() -> queue.run(speed), queue);
   }
 
   public static Command toggleQueueGate(Queue queue) {

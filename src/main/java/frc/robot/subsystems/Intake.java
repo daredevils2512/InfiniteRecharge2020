@@ -116,7 +116,7 @@ public class Intake extends PropertySubsystem {
     m_runMotor = new WPI_TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
     
-    m_runMotor.setInverted(InvertType.None);
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
     m_runMotor.setNeutralMode(NeutralMode.Brake);
 
     m_extendMotor = new WPI_TalonSRX(m_extendMotorID);
@@ -130,7 +130,7 @@ public class Intake extends PropertySubsystem {
     m_extendMotor.configMotionAcceleration(toEncoderTicksPer100MillisecondsPerSecond(m_acceleration));
 
     m_extendMotor.setInverted(InvertType.InvertMotorOutput);
-    m_extendMotor.setNeutralMode(NeutralMode.Coast);
+    m_extendMotor.setNeutralMode(NeutralMode.Brake);
     m_extendMotor.setSensorPhase(false);
     m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_retractedAngle));
 
@@ -176,7 +176,7 @@ public class Intake extends PropertySubsystem {
       }
     }
     if (m_motionMagicEnabled) {
-      double targetAngle = m_extended ? m_extendedAngle : 0;
+      double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
       double targetPosition = toEncoderTicks(targetAngle);
       // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar
       // is 1)

@@ -82,11 +82,6 @@ public class Queue extends PropertySubsystem {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
-  public void run(double speed, boolean wantsClosed) {
-    setClosed(wantsClosed);
-    run(speed);
-  }
-
   public boolean getClosed() {
     if (m_gateEnabled) {
       return m_gate.get() == m_closedValue;
