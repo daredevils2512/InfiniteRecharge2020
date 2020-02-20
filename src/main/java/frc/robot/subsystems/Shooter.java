@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -18,10 +19,20 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends PropertySubsystem {
+  private final Logger m_logger;
+
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
+  private final NetworkTableEntry m_shooterVelocityEntry;
+  private final NetworkTableEntry m_shooterPGainEntry;
+  private final NetworkTableEntry m_shooterIGainEntry;
+  private final NetworkTableEntry m_shooterDGainEntry;
+  private final NetworkTableEntry m_hoodPGainEntry;
+  private final NetworkTableEntry m_hoodIGainEntry;
+  private final NetworkTableEntry m_hoodDGainEntry;
 
   private final int m_shooter1ID;
   private final int m_shooter2ID;
@@ -54,8 +65,17 @@ public class Shooter extends PropertySubsystem {
   public Shooter() {
     super(Shooter.class.getName());
 
+    m_logger = Logger.getLogger(Shooter.class.getName());
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
+    m_shooterVelocityEntry = m_networkTable.getEntry("Shooter velocity (RPM)");
+    m_shooterPGainEntry = m_networkTable.getEntry("P gain");
+    m_shooterIGainEntry = m_networkTable.getEntry("I gain");
+    m_shooterDGainEntry = m_networkTable.getEntry("D gain");
+    m_hoodPGainEntry = m_networkTable.getEntry("P gain");
+    m_hoodIGainEntry = m_networkTable.getEntry("I gain");
+    m_hoodDGainEntry = m_networkTable.getEntry("D gain");
 
     m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
     m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
@@ -109,10 +129,14 @@ public class Shooter extends PropertySubsystem {
 
   @Override
   public void periodic() {
-    // Remove once PID is tuned //or not
-    m_shooterVelocityPGain = m_networkTable.getEntry("Shooter velocity P gain").getDouble(m_shooterVelocityPGain);
-    m_shooterVelocityIGain = m_networkTable.getEntry("Shooter velocity I gain").getDouble(m_shooterVelocityIGain);
-    m_shooterVelocityDGain = m_networkTable.getEntry("Shooter velocity D gain").getDouble(m_shooterVelocityDGain);
+    // Remove once PID is tuned
+    m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
+    m_shooterVelocityIGain = m_shooterIGainEntry.getDouble(m_shooterVelocityIGain);
+    m_shooterVelocityDGain = m_shooterDGainEntry.getDouble(m_shooterVelocityDGain);
+    m_hoodPositionPGain = m_hoodPGainEntry.getDouble(m_hoodPositionPGain);
+    m_hoodPositionIGain = m_hoodIGainEntry.getDouble(m_hoodPositionIGain);
+    m_hoodPositionDGain = m_hoodDGainEntry.getDouble(m_hoodPositionDGain);
+
     m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
     m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
@@ -127,11 +151,11 @@ public class Shooter extends PropertySubsystem {
       m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
     }
 
-    m_networkTable.getEntry("Velocity (RPM)").setDouble(getVelocity());
-    m_networkTable.getEntry("Percent output").setDouble(m_shooter.getMotorOutputPercent());
-    m_networkTable.getEntry("Shooter velocity P gain").setDouble(m_shooterVelocityPGain);
-    m_networkTable.getEntry("Shooter velocity I gain").setDouble(m_shooterVelocityIGain);
-    m_networkTable.getEntry("Shooter velocity D gain").setDouble(m_shooterVelocityDGain);
+    m_shooterVelocityEntry.setDouble(getVelocity());
+    m_shooterOutputEntry.setDouble(m_shooter.getMotorOutputPercent());
+    m_shooterPGainEntry.setDouble(m_shooterVelocityPGain);
+    m_shooterIGainEntry.setDouble(m_shooterVelocityIGain);
+    m_shooterDGainEntry.setDouble(m_shooterVelocityDGain);
   }
 
   public void resetHoodAngle(double angle) {
@@ -139,6 +163,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   public void setPercentOutput(double speed) {
+    SmartDashboard.putNumber("Shooter speed", speed);
     m_shooter.set(ControlMode.PercentOutput, speed);
   }
 
