@@ -331,6 +331,7 @@ public class RobotContainer {
   private double getShooterSpeed() {
     double speed = -m_controlBoard.extreme.getSlider();
     speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
+    SmartDashboard.putNumber("Slider", speed);
     return speed;
   }
 
