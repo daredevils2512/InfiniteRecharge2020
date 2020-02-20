@@ -9,7 +9,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -22,8 +22,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends PropertySubsystem {
-  private final Logger m_logger;
-
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
   private final NetworkTableEntry m_shooterVelocityEntry;
@@ -64,8 +62,6 @@ public class Shooter extends PropertySubsystem {
    */
   public Shooter() {
     super(Shooter.class.getName());
-
-    m_logger = Logger.getLogger(Shooter.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
@@ -173,6 +169,7 @@ public class Shooter extends PropertySubsystem {
    * @param targetVelocity Target velocity in revolutions per minute
    */
   public void setTargetVelocity(double velocity) {
+    logger.log(Level.FINER, "setting velocity to = ", velocity);
     m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
     m_shooter.set(ControlMode.Velocity,
     toEncoderPulsesPer100Milliseconds(velocity));
