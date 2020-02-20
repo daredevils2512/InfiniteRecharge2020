@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
@@ -155,7 +156,7 @@ public class RobotContainer {
 
     if (shooterEnabled) {
       m_shooter = new Shooter();
-      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
+      m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(0.5), m_shooter));
     }
 
     if (spinnerEnabled) {
@@ -233,6 +234,10 @@ public class RobotContainer {
       }));
     }
 
+    if (queueEnabled) {
+      m_controlBoard.getButton("runQueue").whenPressed(Commands.runQueue(m_queue, 1.0));
+    }
+
     if (turretEnabled && limelightEnabled) {
       m_controlBoard.getButton("toggleFindTarget").toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
     }
@@ -242,7 +247,6 @@ public class RobotContainer {
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
     }
     
-    
     if (spinnerEnabled) {
       // Extend/retract spinner
       m_controlBoard.getButton("extendSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, true));
@@ -250,6 +254,10 @@ public class RobotContainer {
 
       m_controlBoard.getButton("spinnerRotationControl").whenPressed(Commands.rotationControl(m_spinner, 3));
       m_controlBoard.getButton("spinnerColorControl").whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
+    }
+
+    if (turretEnabled) {
+      m_turret.setDefaultCommand(Commands.moveTurret(m_turret, m_controlBoard.extreme::getPOVX));
     }
   }
 
@@ -297,7 +305,7 @@ public class RobotContainer {
   private double getShooterSpeed() {
     double speed = m_controlBoard.extreme.getSlider();
     speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
-    return speed;
+    return 1.0;
   }
 
   public void setDriveType(DriveType driveType) {
