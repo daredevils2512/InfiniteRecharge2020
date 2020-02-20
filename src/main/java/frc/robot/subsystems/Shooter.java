@@ -9,8 +9,6 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -20,8 +18,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.PropertyFiles;
 
 public class Shooter extends PropertySubsystem {
   private final NetworkTable m_networkTable;
@@ -32,7 +28,8 @@ public class Shooter extends PropertySubsystem {
   private final int m_hoodID;
   private final TalonSRX m_shooter;
   private final TalonSRX m_shooterFollower;
-  // private final TalonSRX m_hood;
+  private final TalonSRX m_hood;
+  private final Boolean m_hoodEnabled;
 
   private final int m_shooterEncoderResolution;
   private final int m_hoodEncoderResolution; // TODO: Check shooter encoder resolution
@@ -63,6 +60,7 @@ public class Shooter extends PropertySubsystem {
     m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
     m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
     m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
+    m_hoodEnabled = Boolean.parseBoolean(properties.getProperty("hoodEnabled"));
 
     m_shooterEncoderResolution = Integer.parseInt(properties.getProperty("shooterEncoderResolution"));
     m_hoodEncoderResolution = Integer.parseInt(properties.getProperty("hoodEncoderResolution"));
@@ -82,7 +80,6 @@ public class Shooter extends PropertySubsystem {
     m_shooter = new TalonSRX(m_shooter1ID);
     m_shooterFollower = new TalonSRX(m_shooter2ID);
     m_shooterFollower.follow(m_shooter);
-    // m_hood = new TalonSRX(m_hoodID);
 
     m_shooter.configFactoryDefault();
     m_shooterFollower.configFactoryDefault();
@@ -93,34 +90,42 @@ public class Shooter extends PropertySubsystem {
     m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
 
-    // m_hood.configFactoryDefault();
-    // m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-
-    // m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
-    // m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
-    // m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
+    if (m_hoodEnabled) {
+      m_hood = new TalonSRX(m_hoodID);
+      m_hood.configFactoryDefault();
+      m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+      m_hood.setNeutralMode(NeutralMode.Brake);
+    
+      m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
+      m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
+      m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
+    } else {
+      m_hood = null;
+    }
 
     m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery >true
 
-    // m_hood.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
   public void periodic() {
-    // Remove once PID is tuned
+    // Remove once PID is tuned //or not
     m_shooterVelocityPGain = m_networkTable.getEntry("Shooter velocity P gain").getDouble(m_shooterVelocityPGain);
     m_shooterVelocityIGain = m_networkTable.getEntry("Shooter velocity I gain").getDouble(m_shooterVelocityIGain);
     m_shooterVelocityDGain = m_networkTable.getEntry("Shooter velocity D gain").getDouble(m_shooterVelocityDGain);
-    m_hoodPositionPGain = m_networkTable.getEntry("Hood position P gain").getDouble(m_shooterVelocityPGain);
-    m_hoodPositionIGain = m_networkTable.getEntry("Hood position I gain").getDouble(m_shooterVelocityIGain);
-    m_hoodPositionDGain = m_networkTable.getEntry("Hood position D gain").getDouble(m_shooterVelocityDGain);
-
     m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
     m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
-    // m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
-    // m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
-    // m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
+
+    if (m_hoodEnabled) {
+      m_hoodPositionPGain = m_networkTable.getEntry("Hood position P gain").getDouble(m_shooterVelocityPGain);
+      m_hoodPositionIGain = m_networkTable.getEntry("Hood position I gain").getDouble(m_shooterVelocityIGain);
+      m_hoodPositionDGain = m_networkTable.getEntry("Hood position D gain").getDouble(m_shooterVelocityDGain);
+
+      m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
+      m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
+      m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
+    }
 
     m_networkTable.getEntry("Velocity (RPM)").setDouble(getVelocity());
     m_networkTable.getEntry("Percent output").setDouble(m_shooter.getMotorOutputPercent());
@@ -130,7 +135,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   public void resetHoodAngle(double angle) {
-    // m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
+    if (m_hoodEnabled) m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
   public void setPercentOutput(double speed) {
@@ -158,7 +163,7 @@ public class Shooter extends PropertySubsystem {
    * @param angle Angle in degrees
    */
   public void setTargetAngle(double angle) {
-    // m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
+    if (m_hoodEnabled) m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
   }
 
   /**
@@ -176,8 +181,7 @@ public class Shooter extends PropertySubsystem {
    * @return Angle in degrees
    */
   public double getAngle() {
-    // return toAngleHood(m_hood.getSelectedSensorPosition());
-    return 0;
+    return m_hoodEnabled ? toAngleHood(m_hood.getSelectedSensorPosition()) : 0.0;
   }
 
   private int toEncoderPulsesPer100Milliseconds(double rpm) {
@@ -203,11 +207,11 @@ public class Shooter extends PropertySubsystem {
     values.put("shooterVelocityPGain", m_shooterVelocityPGain);
     values.put("shooterVelocityIGain", m_shooterVelocityIGain);
     values.put("shooterVelocityDGain", m_shooterVelocityDGain);
-
-    values.put("hoodPositionPGain", m_hoodPositionPGain);
-    values.put("hoodPositionIGain", m_hoodPositionIGain);
-    values.put("hoodPositionDGain", m_hoodPositionDGain);
-
+    if (m_hoodEnabled) {
+      values.put("hoodPositionPGain", m_hoodPositionPGain);
+      values.put("hoodPositionIGain", m_hoodPositionIGain);
+      values.put("hoodPositionDGain", m_hoodPositionDGain);
+    }
     return values;
   }
 }
