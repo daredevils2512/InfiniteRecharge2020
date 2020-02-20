@@ -246,6 +246,10 @@ public class RobotContainer {
       }));
     }
 
+    if (queueEnabled) {
+      m_controlBoard.getButton("runQueue").whenPressed(Commands.runQueue(m_queue, 1.0));
+    }
+
     if (turretEnabled && limelightEnabled) {
       m_controlBoard.getButton("toggleFindTarget").toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
     }
