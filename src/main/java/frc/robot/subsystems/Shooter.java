@@ -20,12 +20,22 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.PropertyFiles;
 
 public class Shooter extends PropertySubsystem {
+  private final Logger m_logger;
+
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
+  private final NetworkTableEntry m_shooterVelocityEntry;
+  private final NetworkTableEntry m_shooterPGainEntry;
+  private final NetworkTableEntry m_shooterIGainEntry;
+  private final NetworkTableEntry m_shooterDGainEntry;
+  private final NetworkTableEntry m_hoodPGainEntry;
+  private final NetworkTableEntry m_hoodIGainEntry;
+  private final NetworkTableEntry m_hoodDGainEntry;
 
   private final int m_shooter1ID;
   private final int m_shooter2ID;
@@ -57,8 +67,17 @@ public class Shooter extends PropertySubsystem {
   public Shooter() {
     super(Shooter.class.getName());
 
+    m_logger = Logger.getLogger(Shooter.class.getName());
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
+    m_shooterVelocityEntry = m_networkTable.getEntry("Shooter velocity (RPM)");
+    m_shooterPGainEntry = m_networkTable.getEntry("P gain");
+    m_shooterIGainEntry = m_networkTable.getEntry("I gain");
+    m_shooterDGainEntry = m_networkTable.getEntry("D gain");
+    m_hoodPGainEntry = m_networkTable.getEntry("P gain");
+    m_hoodIGainEntry = m_networkTable.getEntry("I gain");
+    m_hoodDGainEntry = m_networkTable.getEntry("D gain");
 
     m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
     m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
@@ -108,12 +127,12 @@ public class Shooter extends PropertySubsystem {
   @Override
   public void periodic() {
     // Remove once PID is tuned
-    m_shooterVelocityPGain = m_networkTable.getEntry("Shooter velocity P gain").getDouble(m_shooterVelocityPGain);
-    m_shooterVelocityIGain = m_networkTable.getEntry("Shooter velocity I gain").getDouble(m_shooterVelocityIGain);
-    m_shooterVelocityDGain = m_networkTable.getEntry("Shooter velocity D gain").getDouble(m_shooterVelocityDGain);
-    m_hoodPositionPGain = m_networkTable.getEntry("Hood position P gain").getDouble(m_shooterVelocityPGain);
-    m_hoodPositionIGain = m_networkTable.getEntry("Hood position I gain").getDouble(m_shooterVelocityIGain);
-    m_hoodPositionDGain = m_networkTable.getEntry("Hood position D gain").getDouble(m_shooterVelocityDGain);
+    m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
+    m_shooterVelocityIGain = m_shooterIGainEntry.getDouble(m_shooterVelocityIGain);
+    m_shooterVelocityDGain = m_shooterDGainEntry.getDouble(m_shooterVelocityDGain);
+    m_hoodPositionPGain = m_hoodPGainEntry.getDouble(m_hoodPositionPGain);
+    m_hoodPositionIGain = m_hoodIGainEntry.getDouble(m_hoodPositionIGain);
+    m_hoodPositionDGain = m_hoodDGainEntry.getDouble(m_hoodPositionDGain);
 
     m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
     m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
@@ -134,6 +153,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   public void setPercentOutput(double speed) {
+    SmartDashboard.putNumber("Shooter speed", speed);
     m_shooter.set(ControlMode.PercentOutput, speed);
   }
 
