@@ -219,10 +219,10 @@ public class RobotContainer {
 
     if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
+      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
       // Toggle intake extender motion magic
-      m_controlBoard.extreme.sideButton.whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
-      m_controlBoard.extreme.baseFrontLeft.whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
+      m_controlBoard.getButton("toggleIntakeMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      m_controlBoard.getButton("toggleIntake").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -260,19 +260,11 @@ public class RobotContainer {
     
     if (spinnerEnabled) {
       // Extend/retract spinner
-<<<<<<< HEAD
-      // m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
-      // m_controlBoard.extreme.baseFrontRight.whenPressed(Commands.setSpinnerExtended(m_spinner, false));
-
-      // m_controlBoard.extreme.baseMiddleLeft.whenPressed(Commands.rotationControl(m_spinner, 3));
-      // m_controlBoard.extreme.baseMiddleRight.whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
-=======
       m_controlBoard.getButton("extendSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, true));
       m_controlBoard.getButton("retractSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, false));
 
       m_controlBoard.getButton("spinnerRotationControl").whenPressed(Commands.rotationControl(m_spinner, 3));
       m_controlBoard.getButton("spinnerColorControl").whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
->>>>>>> master
     }
   }
 
