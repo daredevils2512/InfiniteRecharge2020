@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 public class MagazinePowerCellCounter {
   private final Logger m_logger;
 
-  private int m_magazineCount;
+  private int m_magazineCount = 0;
 
   public MagazinePowerCellCounter() {
     m_logger = Logger.getLogger(MagazinePowerCellCounter.class.getName());

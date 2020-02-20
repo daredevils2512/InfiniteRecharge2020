@@ -67,7 +67,6 @@ public class RobotContainer {
   private CompressorManager m_compressor;
   private final Properties properties;
 
-  private static final String PROPERTIES_NAME = "/robotContainer.properties";
   private String m_pathPath = "paths/auto1.wpilib.json";
 
   private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
@@ -369,6 +368,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return m_autonomousCommand;
     // return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilib.json") : null;
+  }
+
+  //beacuse
+  public void robotContainerPeriodic() {
+    SmartDashboard.putNumber("power cell count", m_magazinePowerCellCounter.getCount());
   }
 
   /**
