@@ -40,13 +40,8 @@ public class Magazine extends PropertySubsystem {
   /**
    * Creates a new magazine
    */
-<<<<<<< HEAD
-  public Magazine() {
-    super(Magazine.class.getName());
-=======
   public Magazine(Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
-    super(Magazine.class.getSimpleName());
->>>>>>> origin/photoeye
+    super(Magazine.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
