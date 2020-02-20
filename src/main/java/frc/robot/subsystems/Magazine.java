@@ -22,17 +22,18 @@ import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.PhotoEye;
 
 public class Magazine extends PropertySubsystem {
+  public static class MagazineMap {
+    public int runMotorID = -1;
+    public int photoEyeChannel = -1;
+  }
+  
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
   
-  private boolean m_photoEyesEnabled;
-  private final int m_frontPhotoEyeChannel;
-  private final int m_backPhotoEyeChannel;
-  private final PhotoEye m_frontPhotoEye; // Photo eye closest to the intake
-  private final PhotoEye m_backPhotoEye; // Photo eye closest to the queue
+  private boolean m_photoEyeEnabled;
+  private final PhotoEye m_photoEye;
 
-  private final int m_runMotorID;
   private final WPI_TalonSRX m_runMotor;
   
   private final int ticksPerBall = 0;
@@ -45,35 +46,24 @@ public class Magazine extends PropertySubsystem {
   /**
    * Creates a new magazine
    */
-  public Magazine() {
-    super(Magazine.class.getName());
+  public Magazine(MagazineMap magazineMap) {
+    super(Magazine.class);
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
     m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
 
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-
-    m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
-    m_backPhotoEyeChannel = Integer.parseInt(properties.getProperty("backPhotoEyeChannel"));
-
-    m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor = new WPI_TalonSRX(magazineMap.runMotorID);
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    m_photoEyesEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
+    m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
-    if (m_photoEyesEnabled) {
-      m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-      m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
-    } else {
-      m_frontPhotoEye = null;
-      m_backPhotoEye = null;
-    }
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(magazineMap.photoEyeChannel) : null;
   }
 
   @Override
   public void periodic() {
-    if (m_photoEyesEnabled) {
+    if (m_photoEyeEnabled) {
       updatePowerCellCount();
       m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
       m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
@@ -84,23 +74,17 @@ public class Magazine extends PropertySubsystem {
   }
 
   public boolean getPowerCellDetectedFront() {
-    if (m_photoEyesEnabled) {
-      if (m_frontPhotoEye.get())
-        logger.fine("power cell detected front");
-      return m_frontPhotoEye.get();
+    if (m_photoEyeEnabled) {
+      if (m_photoEye.get())
+        m_logger.fine("power cell detected front");
+      return m_photoEye.get();
     } else {
       return false;
     }
   }
 
   public boolean getPowerCellDetectedBack() {
-    if (m_photoEyesEnabled) {
-      if (m_backPhotoEye.get())
-        logger.fine("power cell detected back");
-      return m_backPhotoEye.get();
-    } else {
-      return false;
-    }
+    return false;
   }
 
   public int getPowerCellCount() {
@@ -127,13 +111,13 @@ public class Magazine extends PropertySubsystem {
 
     int newCount = m_powerCellCount + deltaCount;
     if (newCount < 0)
-      logger.warning("Power cell count exceeded lower bounds");
+      m_logger.warning("Power cell count exceeded lower bounds");
     else if (newCount > 3)
-      logger.warning("Power cell count exceeded upper bounds");
+      m_logger.warning("Power cell count exceeded upper bounds");
 
     m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
     if (deltaCount != 0)
-      logger.log(Level.FINER, "power cell count", m_powerCellCount);
+      m_logger.log(Level.FINER, "power cell count", m_powerCellCount);
   }
 
   public boolean getDirectionReversed() {

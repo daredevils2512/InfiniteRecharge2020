@@ -22,6 +22,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.sensors.LimitSwitch;
 
 public class Intake extends PropertySubsystem {
+  public static class IntakeMap {
+    public int runMotorID = -1;
+    public int extendMotorID = -1;
+    public int retractedLimitSwitchChannel = -1;
+    public int extendedLimitSwitchChannel = -1;
+  }
 
   private final NetworkTable m_networkTable;
 
@@ -33,17 +39,11 @@ public class Intake extends PropertySubsystem {
   private final NetworkTableEntry m_dGainEntry;
   private final NetworkTableEntry m_arbitraryFeedforwardEntry;
 
-  private final int m_runMotorID;
   private final WPI_TalonSRX m_runMotor;
-
-  private final int m_extendMotorID;
   private final WPI_TalonSRX m_extendMotor;
 
   private boolean m_retractedLimitSwitchEnabled;
   private boolean m_extendedLimitSwitchEnabled;
-
-  private final int m_retractedLimitSwitchPort;
-  private final int m_extendedLimitSwitchPort;
   private final LimitSwitch m_retractedLimitSwitch;
   private final LimitSwitch m_extendedLimitSwitch;
 
@@ -67,8 +67,8 @@ public class Intake extends PropertySubsystem {
   /**
    * Creates a new power cell intake
    */
-  public Intake() {
-    super(Intake.class.getName());
+  public Intake(IntakeMap intakeMap) {
+    super(Intake.class);
     
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
@@ -79,33 +79,27 @@ public class Intake extends PropertySubsystem {
     m_dGainEntry = m_networkTable.getEntry("D gain");
     m_arbitraryFeedforwardEntry = m_networkTable.getEntry("Arbitrary feedforward");
 
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-    m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
+    m_retractedLimitSwitchEnabled = Boolean.parseBoolean(m_properties.getProperty("retractedLimitSwitchEnabled"));
+    m_extendedLimitSwitchEnabled = Boolean.parseBoolean(m_properties.getProperty("extendedLimitSwitchEnabled"));
 
-    m_retractedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("retractedLimitSwitchEnabled"));
-    m_extendedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("extendedLimitSwitchEnabled"));
+    m_extenderEncoderResolution = Integer.parseInt(m_properties.getProperty("extenderEncoderResolution"));
+    m_extenderGearRatio = Double.parseDouble(m_properties.getProperty("extenderGearRatio"));
+    m_extendedAngle = Double.parseDouble(m_properties.getProperty("extendedAngle"));
+    m_retractedAngle = Double.parseDouble(m_properties.getProperty("retractedAngle"));
 
-    m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
-    m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
+    m_motionMagicSlot = Integer.parseInt(m_properties.getProperty("motionMagicSlot"));
+    m_pGain = Double.parseDouble(m_properties.getProperty("pGain"));
+    m_iGain = Double.parseDouble(m_properties.getProperty("iGain"));
+    m_dGain = Double.parseDouble(m_properties.getProperty("dGain"));
+    m_arbitraryFeedForward = Double.parseDouble(m_properties.getProperty("arbitraryFeedForward"));
 
-    m_extenderEncoderResolution = Integer.parseInt(properties.getProperty("extenderEncoderResolution"));
-    m_extenderGearRatio = Double.parseDouble(properties.getProperty("extenderGearRatio"));
-    m_extendedAngle = Double.parseDouble(properties.getProperty("extendedAngle"));
-    m_retractedAngle = Double.parseDouble(properties.getProperty("retractedAngle"));
-
-    m_motionMagicSlot = Integer.parseInt(properties.getProperty("motionMagicSlot"));
-    m_pGain = Double.parseDouble(properties.getProperty("pGain"));
-    m_iGain = Double.parseDouble(properties.getProperty("iGain"));
-    m_dGain = Double.parseDouble(properties.getProperty("dGain"));
-    m_arbitraryFeedForward = Double.parseDouble(properties.getProperty("arbitraryFeedForward"));
-
-    m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor = new WPI_TalonSRX(intakeMap.runMotorID);
     m_runMotor.configFactoryDefault();
     
     m_runMotor.setInverted(InvertType.None);
     m_runMotor.setNeutralMode(NeutralMode.Brake);
 
-    m_extendMotor = new WPI_TalonSRX(m_extendMotorID);
+    m_extendMotor = new WPI_TalonSRX(intakeMap.extendMotorID);
     m_extendMotor.configFactoryDefault();
 
     // Config PID for extender
@@ -113,16 +107,8 @@ public class Intake extends PropertySubsystem {
     m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
 
-    if (m_retractedLimitSwitchEnabled) {
-      m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
-    } else {
-      m_retractedLimitSwitch = null;
-    }
-    if (m_extendedLimitSwitchEnabled) {
-      m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
-    } else {
-      m_extendedLimitSwitch = null;
-    }
+    m_retractedLimitSwitch = m_retractedLimitSwitchEnabled ? new LimitSwitch(intakeMap.retractedLimitSwitchChannel) : null;
+    m_extendedLimitSwitch = m_extendedLimitSwitchEnabled ? new LimitSwitch(intakeMap.extendedLimitSwitchChannel) : null;
   }
 
   @Override
@@ -182,7 +168,7 @@ public class Intake extends PropertySubsystem {
 
   public boolean getExtended() {
     if (m_extended)
-      logger.fine("intake extended");
+      m_logger.fine("intake extended");
     return m_extended;
   }
 
