@@ -125,16 +125,16 @@ public class RobotContainer {
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
-    limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel")));
-    drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel")));
-    intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel")));
-    shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
-    spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel")));
-    magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
-    queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
-    turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel")));
-    climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel")));
-    compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel")));
+    limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel").toUpperCase()));
+    drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel").toUpperCase()));
+    intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel").toUpperCase()));
+    shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel").toUpperCase()));
+    spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel").toUpperCase()));
+    magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel").toUpperCase()));
+    queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel").toUpperCase()));
+    turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel").toUpperCase()));
+    climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel").toUpperCase()));
+    compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel").toUpperCase()));
 
     if (limelightEnabled) {
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
