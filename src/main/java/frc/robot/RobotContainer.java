@@ -232,7 +232,9 @@ public class RobotContainer {
     if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
       m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
-      // m_controlBoard.getButton("runMagazine").toggleWhenPressed(Commands.runMagazine(m_magazine,()  ->0.5));
+      // Toggle intake extender motion magic
+      m_controlBoard.getButton("toggleIntakeMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      m_controlBoard.getButton("toggleIntake").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -304,7 +306,7 @@ public class RobotContainer {
    * @return
    */
   private double getIntakeExtenderSpeed() {
-    double speed = m_controlBoard.extreme.getPOVY();
+    double speed = m_controlBoard.extreme.getStickY();
     return speed * m_intakeExtenderSpeed;
   }
 
