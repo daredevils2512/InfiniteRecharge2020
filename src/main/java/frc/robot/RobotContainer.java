@@ -6,36 +6,18 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
-import frc.robot.controlboard.Xbox;
-import frc.robot.sensors.ColorSensor.ColorDetect;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Queue;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
@@ -213,7 +195,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     if (drivetrainEnabled) {
       // Toggle low gear
-      m_controlBoard.getButton("shiftDown")
+      m_controlBoard.getButton("shiftDrivetrain")
         .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
         .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
       m_controlBoard.getButton("invertDriving")
@@ -228,8 +210,8 @@ public class RobotContainer {
 
     if (intakeEnabled && magazineEnabled) {
       // Toggle intake extender motion magic
-      m_controlBoard.getButton("toggleIntakeMotionMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
-      m_controlBoard.getButton("toggleIntakeExtended").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
+      m_controlBoard.getButton("intakeMotionMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      m_controlBoard.getButton("intakeExtended").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
     }
 
     if (magazineEnabled && queueEnabled) {
