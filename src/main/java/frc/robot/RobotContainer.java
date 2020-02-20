@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
@@ -160,7 +161,7 @@ public class RobotContainer {
     if (shooterEnabled) {
       shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
-      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
+      m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(0.5), m_shooter));
     }
 
     if (spinnerEnabled) {
@@ -251,9 +252,7 @@ public class RobotContainer {
     if (shooterEnabled) {
       // Run shooter at a set motor output
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
-      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_controlBoard.extreme::getSlider));
     }
-    
     
     if (spinnerEnabled) {
       // Extend/retract spinner
@@ -313,7 +312,7 @@ public class RobotContainer {
   private double getShooterSpeed() {
     double speed = m_controlBoard.extreme.getSlider();
     speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
-    return speed;
+    return 1.0;
   }
 
   public void setDriveType(DriveType driveType) {
