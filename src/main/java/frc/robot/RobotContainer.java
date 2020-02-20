@@ -39,6 +39,7 @@ import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
+import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
@@ -52,6 +53,7 @@ import frc.robot.vision.Limelight.Pipeline;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
+  private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
   private Drivetrain m_drivetrain;
@@ -65,7 +67,6 @@ public class RobotContainer {
   private CompressorManager m_compressor;
   private final Properties properties;
 
-  private static final String PROPERTIES_NAME = "/robotContainer.properties";
   private String m_pathPath = "paths/auto1.wpilib.json";
 
   private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
@@ -136,6 +137,17 @@ public class RobotContainer {
     climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel").toUpperCase()));
     compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel").toUpperCase()));
 
+    SmartDashboard.putBoolean("limelight enabled", limelightEnabled);
+    SmartDashboard.putBoolean("drivetrain enabled", drivetrainEnabled);
+    SmartDashboard.putBoolean("intake enabled", intakeEnabled);
+    SmartDashboard.putBoolean("shooter enabled", shooterEnabled);
+    SmartDashboard.putBoolean("spinner enabled", spinnerEnabled);
+    SmartDashboard.putBoolean("queue enabled", queueEnabled);
+    SmartDashboard.putBoolean("turret enabled", turretEnabled);
+    SmartDashboard.putBoolean("magazine enabled", magazineEnabled);
+    SmartDashboard.putBoolean("climber enabled", climberEnabled);
+    SmartDashboard.putBoolean("compressor enabled", compressorEnabled);
+
     if (limelightEnabled) {
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
@@ -146,17 +158,18 @@ public class RobotContainer {
 
     if (drivetrainEnabled) {
       m_drivetrain = new Drivetrain();
-      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, this::getMove, this::getTurn);
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
       m_intake = new Intake();
-      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
+      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, this::getIntakeExtenderSpeed));
     }
 
     if (shooterEnabled) {
       m_shooter = new Shooter();
+      SmartDashboard.putNumber("desired shooter speed", getShooterSpeed());
       m_shooter.setDefaultCommand(new RunCommand(() -> m_shooter.setPercentOutput(getShooterSpeed()), m_shooter));
     }
 
@@ -164,13 +177,13 @@ public class RobotContainer {
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
-      m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+      m_magazine = new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
+      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
     }
 
     if (queueEnabled) {
-      m_queue = new Queue();
-      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+      m_queue = new Queue(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
+      m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
     }
 
     if (turretEnabled) {
@@ -209,7 +222,10 @@ public class RobotContainer {
 
     if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
+      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
+      // Toggle intake extender motion magic
+      m_controlBoard.getButton("toggleIntakeMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      m_controlBoard.getButton("toggleIntake").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -217,9 +233,9 @@ public class RobotContainer {
       m_controlBoard.getButton("autoRefillQueue").whenPressed(new InstantCommand(() -> {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
         if (m_autoRefillQueueEnabled) {
-          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
+          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
         } else {
-          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
         }
       }));
     }
@@ -228,15 +244,15 @@ public class RobotContainer {
       m_controlBoard.getButton("autoFeedShooter").whenPressed(new InstantCommand(() -> {
         m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
         if (m_autoFeedShooterEnabled) {
-          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
+          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
         } else {
-          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+          m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
         }
       }));
     }
 
     if (queueEnabled) {
-      m_controlBoard.getButton("runQueue").whenPressed(Commands.runQueue(m_queue, 1.0));
+      m_controlBoard.getButton("runQueue").whileHeld(Commands.runQueue(m_queue, 1.0));
     }
 
     if (turretEnabled && limelightEnabled) {
@@ -281,7 +297,7 @@ public class RobotContainer {
    * @return
    */
   private double getIntakeExtenderSpeed() {
-    double speed = m_controlBoard.extreme.getPOVY();
+    double speed = m_controlBoard.extreme.getStickY();
     return speed * m_intakeExtenderSpeed;
   }
 
@@ -304,7 +320,7 @@ public class RobotContainer {
   }
 
   private double getShooterSpeed() {
-    double speed = m_controlBoard.extreme.getSlider();
+    double speed = -m_controlBoard.extreme.getSlider();
     speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
     SmartDashboard.putNumber("Slider", speed);
     return speed;
@@ -342,6 +358,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return m_autonomousCommand;
     // return drivetrainEnabled ? Commands.followPath(m_drivetrain, "test.wpilib.json") : null;
+  }
+
+  //beacuse
+  public void robotContainerPeriodic() {
+    SmartDashboard.putNumber("power cell count", m_magazinePowerCellCounter.getCount());
   }
 
   /**

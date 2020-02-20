@@ -20,13 +20,13 @@ public class PropertyFiles {
     Properties properties = null;
     Properties defaultProperties = new Properties();
     try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
+      defaultProperties.load(deployStream);
+      properties = new Properties(defaultProperties);
       if (loadDefault) {
         InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + location);
-        defaultProperties.load(robotStream);
+        properties.load(robotStream);
       }
-      properties = new Properties(defaultProperties);
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
-      properties.load(deployStream);
       logger.info("successfully loadded " + name);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "failed to load " + name, e);
@@ -40,6 +40,7 @@ public class PropertyFiles {
   }
 
   public static void saveProperties(Properties properties, Map<String, Object> values, String name) {
+    properties.clear();
       try {
         String location = "/" + name + ".properties";
         for (String key : values.keySet()) {
@@ -51,6 +52,7 @@ public class PropertyFiles {
       } catch(IOException e) {
         logger.log(Level.SEVERE, "failed to save " + name, e);
       }
+      properties = PropertyFiles.loadProperties(name);
   }
 
 }

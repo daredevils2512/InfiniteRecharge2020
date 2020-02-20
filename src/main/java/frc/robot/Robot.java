@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
     if (newDriveType != m_currentDriveType) {
       m_robotContainer.setDriveType(newDriveType);
     }
+    m_robotContainer.robotContainerPeriodic();
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled
