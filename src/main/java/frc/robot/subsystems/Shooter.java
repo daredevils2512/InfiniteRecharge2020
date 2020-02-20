@@ -22,8 +22,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends PropertySubsystem {
-  private final Logger m_logger;
-
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
   private final NetworkTableEntry m_shooterVelocityEntry;
@@ -64,8 +62,6 @@ public class Shooter extends PropertySubsystem {
    */
   public Shooter() {
     super(Shooter.class.getName());
-
-    m_logger = Logger.getLogger(Shooter.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
