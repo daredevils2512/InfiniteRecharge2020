@@ -92,19 +92,6 @@ public class RobotContainer {
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
   private String m_pathPath = "paths/auto1.wpilib.json";
 
-  private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
-
-  private static Logger climberLog = Logger.getLogger(Climber.class.getName());
-  private static Logger compressorLog = Logger.getLogger(Compressor.class.getName());
-  private static Logger drivetrainLog = Logger.getLogger(Drivetrain.class.getName());
-  private static Logger intakeLog = Logger.getLogger(Intake.class.getName());
-  private static Logger magazineLog = Logger.getLogger(Magazine.class.getName());
-  private static Logger queueLog = Logger.getLogger(Queue.class.getName());
-  private static Logger shooterLog = Logger.getLogger(Shooter.class.getName());
-  private static Logger spinnerLog = Logger.getLogger(Spinner.class.getName());
-  private static Logger turretLog = Logger.getLogger(Turret.class.getName());
-  private static Logger limelightLog = Logger.getLogger(Limelight.class.getName());
-
   private final boolean limelightEnabled;
   private final boolean drivetrainEnabled;
   private final boolean intakeEnabled;
@@ -185,17 +172,6 @@ public class RobotContainer {
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
-    limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel").toUpperCase()));
-    drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel").toUpperCase()));
-    intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel").toUpperCase()));
-    shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel").toUpperCase()));
-    spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel").toUpperCase()));
-    magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel").toUpperCase()));
-    queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel").toUpperCase()));
-    turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel").toUpperCase()));
-    climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel").toUpperCase()));
-    compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel").toUpperCase()));
-
     if (limelightEnabled) {
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
@@ -258,6 +234,16 @@ public class RobotContainer {
     m_magazine.setDefaultCommand(m_manualMagazineCommand);
     m_queue.setDefaultCommand(m_manualQueueCommand);
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
+
+    m_climber.setLogLevel(properties.getProperty("climber.logLevel"));
+    m_intake.setLogLevel(properties.getProperty("intake.logLevel"));
+    m_shooter.setLogLevel(properties.getProperty("shooter.logLevel"));
+    m_drivetrain.setLogLevel(properties.getProperty("drivetrain.logLevel"));
+    m_spinner.setLogLevel(properties.getProperty("spinner.logLevel"));
+    m_magazine.setLogLevel(properties.getProperty("magazine.logLevel"));
+    m_queue.setLogLevel(properties.getProperty("queue.logLevel"));
+    m_turret.setLogLevel(properties.getProperty("turret.logLevel"));
+    m_compressor.setLogLevel(properties.getProperty("compressor.logLevel"));
 
     configureButtonBindings();
 
