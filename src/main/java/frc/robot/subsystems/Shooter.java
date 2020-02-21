@@ -98,6 +98,8 @@ public class Shooter extends PropertySubsystem {
     m_shooterFollower = new TalonSRX(m_shooter2ID);
     m_shooterFollower.follow(m_shooter);
     m_shooterFollower.setInverted(InvertType.InvertMotorOutput);
+    m_shooter.setNeutralMode(NeutralMode.Coast);
+    m_shooterFollower.setNeutralMode(NeutralMode.Coast);
 
     m_shooter.configFactoryDefault();
     m_shooterFollower.configFactoryDefault();
@@ -120,9 +122,6 @@ public class Shooter extends PropertySubsystem {
     } else {
       m_hood = null;
     }
-
-    m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery >true
-
   }
 
   @Override

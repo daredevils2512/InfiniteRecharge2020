@@ -26,7 +26,7 @@ public class Magazine extends PropertySubsystem {
   private boolean m_frontPhotoEyeEnabled;
   private final int m_frontPhotoEyeChannel;
   private final PhotoEye m_frontPhotoEye;
-  private boolean m_powerCellPreviouslyDetectedFront;
+  private boolean m_powerCellPreviouslyDetectedFront = false;
 
   private final Runnable m_incrementPowerCellCount;
   private final Runnable m_decrementPowerCellCount;
@@ -54,7 +54,7 @@ public class Magazine extends PropertySubsystem {
     m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    m_frontPhotoEye = m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : null;
+    m_frontPhotoEye = (m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : null);
     
     m_incrementPowerCellCount = incrementPowerCellCount;
     m_decrementPowerCellCount = decrementPowerCellCount;
@@ -63,15 +63,14 @@ public class Magazine extends PropertySubsystem {
   @Override
   public void periodic() {
     updatePowerCellCount();
-    m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
     
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
 
   public boolean getPowerCellDetectedFront() {
     if (m_frontPhotoEyeEnabled) {
-      if (m_frontPhotoEye.get())
-        logger.fine("power cell detected front");
+      if (m_frontPhotoEye.get()) {
+        logger.fine("power cell detected front");}
       return m_frontPhotoEye.get();
     } else {
       return false;
@@ -80,11 +79,17 @@ public class Magazine extends PropertySubsystem {
 
   // might be temporary
   public void updatePowerCellCount() {
+    logger.fine("update power cell count");
     if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront) {
-      if (getDirectionReversed())
+      if (getDirectionReversed()) {
         m_decrementPowerCellCount.run();
-      else
+        m_powerCellPreviouslyDetectedFront = false;
+      } else {
         m_incrementPowerCellCount.run();
+        m_powerCellPreviouslyDetectedFront = false;
+      }
+    } else if (getPowerCellDetectedFront() && !m_powerCellPreviouslyDetectedFront) {
+      m_powerCellPreviouslyDetectedFront = true;
     }
   }
 

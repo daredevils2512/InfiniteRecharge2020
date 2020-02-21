@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.sensors.PhotoEye;
 
 public class Queue extends PropertySubsystem {
-  private boolean m_photoEyeEnabled;
+  private final boolean m_photoEyeEnabled;
   private final int m_photoEyeChannel;
   private final PhotoEye m_photoEye;
 
@@ -57,6 +57,7 @@ public class Queue extends PropertySubsystem {
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
     m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
+    m_photoEyeEnabled = Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"));
 
     m_runMotor = new TalonSRX(m_runMotorID);
     m_runMotor.configFactoryDefault();
@@ -84,11 +85,16 @@ public class Queue extends PropertySubsystem {
   }
 
   private void updateMagazinePowerCellCount() {
-    if (m_photoEye.get() && !m_powerCellPreviouslyDetected && !getDirectionReversed()) {
-      m_decrementMagazinePowerCellCount.run();
-    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected && getDirectionReversed()) {
-      m_incrementMagazinePowerCellCount.run();
-    }
+    if (m_photoEye.get() && !m_powerCellPreviouslyDetected) {
+      m_powerCellPreviouslyDetected = true;
+    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected) {
+      if (!getDirectionReversed()) {
+        m_decrementMagazinePowerCellCount.run();
+      } else {
+        m_incrementMagazinePowerCellCount.run();
+      }
+      m_powerCellPreviouslyDetected = false;
+    } 
   }
 
   public void run(double speed) {

@@ -160,6 +160,8 @@ public class Intake extends PropertySubsystem {
     m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
     m_extendMotor.configMotionCruiseVelocity(toEncoderTicksPer100Milliseconds(m_cruiseVelocity));
     m_extendMotor.configMotionAcceleration(toEncoderTicksPer100MillisecondsPerSecond(m_acceleration));
+    m_networkTable.getEntry("forward limit switch").setBoolean(m_extendedLimitSwitch.get());
+    m_networkTable.getEntry("reverse limit switch").setBoolean(m_retractedLimitSwitch.get());
 
     if (m_resetEncoderEntry.getBoolean(false)) {
       resetIntakeExtenderAngle();

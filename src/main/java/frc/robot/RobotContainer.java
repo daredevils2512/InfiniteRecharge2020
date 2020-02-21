@@ -262,7 +262,7 @@ public class RobotContainer {
     }
 
     if (queueEnabled) {
-      m_controlBoard.getButton("runQueue").whileHeld(Commands.runQueue(m_queue, 1.0));
+      m_controlBoard.getButton("feedShooter").whenPressed(Commands.feedShooter(m_queue, () -> 0.75));
     }
 
     if (turretEnabled && limelightEnabled) {

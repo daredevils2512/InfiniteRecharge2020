@@ -29,4 +29,9 @@ public class AutoRefillQueue extends CommandBase {
   public void end(boolean interrupted) {
     m_magazine.setSpeed(0);
   }
+
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
 }
