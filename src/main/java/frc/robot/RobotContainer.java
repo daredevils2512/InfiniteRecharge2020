@@ -228,8 +228,8 @@ public class RobotContainer {
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
     m_intake.setDefaultCommand(m_manualIntakeCommand);
-    // m_magazine.setDefaultCommand(m_manualMagazineCommand);
-    // m_queue.setDefaultCommand(m_manualQueueCommand);
+    m_magazine.setDefaultCommand(m_manualMagazineCommand);
+    m_queue.setDefaultCommand(m_manualQueueCommand);
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
 
     configureButtonBindings();
