@@ -52,4 +52,8 @@ public class Xbox {
   public double getRightStickX() {
     return m_controller.getX(Hand.kRight);
   }
+
+  public double getRightTrigger() {
+    return m_controller.getTriggerAxis(Hand.kRight);
+  }
 }

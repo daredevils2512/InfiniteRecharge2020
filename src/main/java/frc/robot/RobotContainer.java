@@ -136,7 +136,7 @@ public class RobotContainer {
       return turn / 2;
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY());
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.extreme.getSlider());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger());
     m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
 
     // This should probably be extracted from here and from PropertySubsystem at
@@ -226,8 +226,10 @@ public class RobotContainer {
     m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
+    m_manualIntakeCommand = Commands.runIntake(m_intake, 0.5).andThen(Commands.runIntake(m_intake, 0.0));
+
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
-    // m_intake.setDefaultCommand(m_manualIntakeCommand);
+    m_intake.setDefaultCommand(m_manualIntakeCommand);
     // m_magazine.setDefaultCommand(m_manualMagazineCommand);
     // m_queue.setDefaultCommand(m_manualQueueCommand);
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));

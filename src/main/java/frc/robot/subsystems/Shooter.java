@@ -98,8 +98,11 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
     m_shooterFollower.follow(m_shooter);
 
-    m_shooter.setInverted(InvertType.None);
+    m_shooter.setInverted(InvertType.InvertMotorOutput);
     m_shooterFollower.setInverted(InvertType.FollowMaster);
+
+    m_shooter.setNeutralMode(NeutralMode.Coast);
+    m_shooterFollower.setNeutralMode(NeutralMode.Coast);
 
     m_shooter.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
