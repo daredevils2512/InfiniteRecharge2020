@@ -16,6 +16,16 @@ public class DummyIntake implements IIntake, IPropertySubsystem {
   }
 
   @Override
+  public boolean getMotionMagicEnabled() {
+    return false;
+  }
+
+  @Override
+  public void toggleMotionMagicEnabled() {
+    
+  }
+
+  @Override
   public void resetIntakeExtenderAngle() {
   }
 
@@ -26,6 +36,11 @@ public class DummyIntake implements IIntake, IPropertySubsystem {
 
   @Override
   public void setExtended(boolean wantsExtended) {
+  }
+
+  @Override
+  public void toggleExtended() {
+    
   }
 
   @Override
