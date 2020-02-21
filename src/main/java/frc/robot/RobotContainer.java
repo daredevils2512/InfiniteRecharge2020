@@ -48,32 +48,6 @@ import frc.robot.vision.Limelight.Pipeline;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private static final String DRIVE_LEFT_1_ID_PROPERTY = "driveLeft1ID";
-  private static final String DRIVE_LEFT_2_ID_PROPERTY = "driveLeft2ID";
-  private static final String DRIVE_RIGHT_1_ID_PROPERTY = "driveRight1ID";
-  private static final String DRIVE_RIGHT_2_ID_PROPERTY = "driveRgith2ID";
-  private static final String PIGEON_ID_PROPERTY = "pigeonID";
-  private static final String INTAKE_RUN_ID_PROPERTY = "intakeRunID";
-  private static final String INTAKE_EXTENDER_ID_PROPERTY = "intakeExtenderID";
-  private static final String MAGAZINE_RUN_ID_PROPERTY = "magazineRunID";
-  private static final String QUEUE_RUN_ID_PROPERTY = "queueRunID";
-  private static final String SHOOTER_1_ID_PROPERTY = "shooter1ID";
-  private static final String SHOOTER_2_ID_PROPERTY = "shooter2ID";
-  private static final String SHOOTER_HOOD_ID_PROPERTY = "shooterHoodID";
-  private static final String TURRET_ID_PROPERTY = "turretID";
-  private static final String CLIMBER_LEFT_ID_PROPERTY = "climberLeftID";
-  private static final String CLIMBER_RIGHT_ID_PROPERTY = "climberRightID";
-  private static final String DRIVE_LEFT_ENCODER_CHANNEL_A_PROPERTY = "driveLeftEncoderChannelA";
-  private static final String DRIVE_LEFT_ENCODER_CHANNEL_B_PROPERTY = "driveLeftEncoderChannelB";
-  private static final String DRIVE_RIGHT_ENCODER_CHANNEL_A_PROPERTY = "driveRightEncoderChannelA";
-  private static final String DRIVE_RIGHT_ENCODER_CHANNEL_B_PROPERTY = "driveRightEncoderChannelB";
-  private static final String INTAKE_RETRACTED_LIMIT_SWITCH_CHANNEL_PROPERTY = "intakeRetractedLimitSwitchChannel";
-  private static final String INTAKE_EXTENDED_LIMIT_SWITCH_CHANNEL_PROPERTY = "intakeExtendedLimitSwitchChannel";
-  private static final String MAGAZINE_PHOTO_EYE_CHANNEL_PROPERTY = "magazinePhotoEyeChannel";
-  private static final String QUEUE_PHOTO_EYE_CHANNEL_PROPERTY = "queuePhotoEyeChannel";
-  private static final String DRIVETRAIN_SHIFT_FORWARD_CHANNEL_PROPERTY = "drivetrainShiftForwardChannel";
-  private static final String DRIVETRAIN_SHIFT_REVERSE_CHANNEL_PROPERTY = "drivetrainShiftReverseChannel";
-
   private final ControlBoard m_controlBoard;
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
@@ -173,17 +147,17 @@ public class RobotContainer {
 
     if (drivetrainEnabled) {
       DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
-      drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty(DRIVE_LEFT_1_ID_PROPERTY));
-      drivetrainMap.driveLeft2ID = Integer.parseInt(robotMapProperties.getProperty(DRIVE_LEFT_2_ID_PROPERTY));
-      drivetrainMap.driveRight1ID = Integer.parseInt(robotMapProperties.getProperty(DRIVE_RIGHT_1_ID_PROPERTY));
-      drivetrainMap.driveRight2ID = Integer.parseInt(robotMapProperties.getProperty(DRIVE_RIGHT_2_ID_PROPERTY));
-      drivetrainMap.pigeonID = Integer.parseInt(robotMapProperties.getProperty(PIGEON_ID_PROPERTY));
-      drivetrainMap.driveLeftEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty(DRIVE_LEFT_ENCODER_CHANNEL_A_PROPERTY));
-      drivetrainMap.driveLeftEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty(DRIVE_LEFT_ENCODER_CHANNEL_B_PROPERTY));
-      drivetrainMap.driveRightEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty(DRIVE_RIGHT_ENCODER_CHANNEL_A_PROPERTY));
-      drivetrainMap.driveRightEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty(DRIVE_RIGHT_ENCODER_CHANNEL_B_PROPERTY));
-      drivetrainMap.shiftForwardChannel = Integer.parseInt(robotMapProperties.getProperty(DRIVETRAIN_SHIFT_FORWARD_CHANNEL_PROPERTY));
-      drivetrainMap.shiftReverseChannel = Integer.parseInt(robotMapProperties.getProperty(DRIVETRAIN_SHIFT_REVERSE_CHANNEL_PROPERTY));
+      drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
+      drivetrainMap.driveLeft2ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft2ID"));
+      drivetrainMap.driveRight1ID = Integer.parseInt(robotMapProperties.getProperty("driveRight1ID"));
+      drivetrainMap.driveRight2ID = Integer.parseInt(robotMapProperties.getProperty("driveRight2ID"));
+      drivetrainMap.pigeonID = Integer.parseInt(robotMapProperties.getProperty("pigeonID"));
+      drivetrainMap.driveLeftEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelA"));
+      drivetrainMap.driveLeftEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelB"));
+      drivetrainMap.driveRightEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelA"));
+      drivetrainMap.driveRightEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelB"));
+      drivetrainMap.shiftForwardChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftForwardChannel"));
+      drivetrainMap.shiftReverseChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftReverseChannel"));
       m_drivetrain = new Drivetrain(drivetrainMap);
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
@@ -191,19 +165,19 @@ public class RobotContainer {
 
     if (intakeEnabled) {
       IntakeMap intakeMap = new IntakeMap();
-      intakeMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty(INTAKE_RUN_ID_PROPERTY));
-      intakeMap.extendMotorID = Integer.parseInt(robotMapProperties.getProperty(INTAKE_EXTENDER_ID_PROPERTY));
-      intakeMap.retractedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty(INTAKE_RETRACTED_LIMIT_SWITCH_CHANNEL_PROPERTY));
-      intakeMap.extendedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty(INTAKE_EXTENDED_LIMIT_SWITCH_CHANNEL_PROPERTY));
+      intakeMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeRunID"));
+      intakeMap.extendMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeExtenderID"));
+      intakeMap.retractedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeRetractedLimitSwitchChannel"));
+      intakeMap.extendedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeExtendedLimitSwitchChannel"));
       m_intake = new Intake(intakeMap);
       m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
     }
 
     if (shooterEnabled) {
       ShooterMap shooterMap = new ShooterMap();
-      shooterMap.shooter1ID = Integer.parseInt(robotMapProperties.getProperty(SHOOTER_1_ID_PROPERTY));
-      shooterMap.shooter2ID = Integer.parseInt(robotMapProperties.getProperty(SHOOTER_2_ID_PROPERTY));
-      shooterMap.shooterHoodID = Integer.parseInt(robotMapProperties.getProperty(SHOOTER_HOOD_ID_PROPERTY));
+      shooterMap.shooter1ID = Integer.parseInt(robotMapProperties.getProperty("shooter1ID"));
+      shooterMap.shooter2ID = Integer.parseInt(robotMapProperties.getProperty("shooter2ID"));
+      shooterMap.shooterHoodID = Integer.parseInt(robotMapProperties.getProperty("shooterHoodID"));
       m_shooter = new Shooter(shooterMap);
       m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
     }
@@ -213,30 +187,30 @@ public class RobotContainer {
     }
     if (magazineEnabled) {
       MagazineMap magazineMap = new MagazineMap();
-      magazineMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty(MAGAZINE_RUN_ID_PROPERTY));
-      magazineMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty(MAGAZINE_PHOTO_EYE_CHANNEL_PROPERTY));
+      magazineMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("magazineRunID"));
+      magazineMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("magazinePhotoEyeChannel"));
       m_magazine = new Magazine(magazineMap);
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
     }
 
     if (queueEnabled) {
       QueueMap queueMap = new QueueMap();
-      queueMap.queueRunID = Integer.parseInt(robotMapProperties.getProperty(QUEUE_RUN_ID_PROPERTY));
-      queueMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty(QUEUE_PHOTO_EYE_CHANNEL_PROPERTY));
+      queueMap.queueRunID = Integer.parseInt(robotMapProperties.getProperty("queueRunID"));
+      queueMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("queuePhotoEyeChannel"));
       m_queue = new Queue(queueMap);
       m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
     }
 
     if (turretEnabled) {
       TurretMap turretMap = new TurretMap();
-      turretMap.turretID = Integer.parseInt(robotMapProperties.getProperty(TURRET_ID_PROPERTY));
+      turretMap.turretID = Integer.parseInt(robotMapProperties.getProperty("turretID"));
       m_turret = new Turret(turretMap);
     }
 
     if (climberEnabled) {
       ClimberMap climberMap = new ClimberMap();
-      climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty(CLIMBER_LEFT_ID_PROPERTY));
-      climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty(CLIMBER_RIGHT_ID_PROPERTY));
+      climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty("climberLeftID"));
+      climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty("climberRightID"));
       m_climber = new Climber(climberMap);
     }
 
