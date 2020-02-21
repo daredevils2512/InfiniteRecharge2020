@@ -306,7 +306,7 @@ public class RobotContainer {
    * @return Scaled magazine speed
    */
   private double getMagazineSpeed() {
-    double speed = m_controlBoard.extreme.joystickTopRight.get() ? m_magazineSpeed : 0;
+    double speed = m_controlBoard.getButton("runMagazine").get() ? m_magazineSpeed : 0;
     return speed;
   }
 

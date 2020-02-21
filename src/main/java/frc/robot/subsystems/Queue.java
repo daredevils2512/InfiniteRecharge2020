@@ -94,7 +94,7 @@ public class Queue extends PropertySubsystem {
         m_incrementMagazinePowerCellCount.run();
       }
       m_powerCellPreviouslyDetected = false;
-    } 
+    }
   }
 
   public void run(double speed) {
