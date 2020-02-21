@@ -8,7 +8,6 @@
 package frc.robot.controlboard;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -47,7 +46,7 @@ public class ControlBoard {
   public JoystickButton getButton(String propertiesKey) {
     String propertiesValue = properties.getProperty(propertiesKey);
     propertiesValue = propertiesValue.trim();
-    Class cls = this.getClass();
+    Class<? extends ControlBoard> cls = this.getClass();
     String[] splitValue = propertiesValue.split("\\.");
     String joystick = splitValue[0];
     String value = splitValue[1];

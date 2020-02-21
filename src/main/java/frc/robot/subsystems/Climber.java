@@ -1,13 +1,8 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.PropertyFiles;
 
 public class Climber extends PropertySubsystem {
   // dont have numbers for these

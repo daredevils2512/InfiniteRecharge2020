@@ -6,7 +6,10 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.DoubleSupplier;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
@@ -15,11 +18,13 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.Commands;
+import frc.robot.controlboard.ButtonCommand;
 import frc.robot.controlboard.ControlBoard;
+import frc.robot.controlboard.JoystickCommand;
 import frc.robot.controlboard.JoystickUtil;
 import frc.robot.subsystems.*;
-import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
@@ -75,9 +80,15 @@ public class RobotContainer {
   private final boolean compressorEnabled;
 
   private Command m_defaultDriveCommand;
+  private Command m_manualIntakeCommand;
+  private Command m_manualMagazineCommand;
+  private Command m_manualQueueCommand;
 
   private Command m_autonomousCommand;
 
+  private boolean m_intakeRunning = false;
+  private boolean m_magazineRunning = false;
+  private boolean m_queueRunning = false;
   private boolean m_autoRefillQueueEnabled = false;
   private boolean m_autoFeedShooterEnabled = false;
 
@@ -85,12 +96,36 @@ public class RobotContainer {
   private double m_magazineSpeed = 0.5;
   private double m_queueSpeed = 0.5;
 
+  private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
+  private final Map<JoystickCommand, DoubleSupplier> m_joystickMap = new HashMap<>();
+
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
+    m_buttonMap.put(ButtonCommand.INVERT_DRIVING, m_controlBoard.xbox.leftTrigger);
+    m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightTrigger);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.xbox.aButton);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickBottomRight);
+
+    m_joystickMap.put(JoystickCommand.MOVE, () -> {
+      double move = -m_controlBoard.xbox.getLeftStickY();
+      move = JoystickUtil.deadband(move, 0.05);
+      move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
+      return move / 2;
+    });
+    m_joystickMap.put(JoystickCommand.TURN, () -> {
+      double turn = -m_controlBoard.xbox.getRightStickX();
+      turn = JoystickUtil.deadband(turn, 0.05);
+      turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
+      return turn / 2;
+    });
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.extreme.getSlider());
+    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
 
     properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
@@ -106,7 +141,6 @@ public class RobotContainer {
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
-
 
     limelightLog.setLevel(Level.OFF);
     drivetrainLog.setLevel(Level.OFF);
@@ -131,23 +165,24 @@ public class RobotContainer {
     if (drivetrainEnabled) {
       drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel")));
       m_drivetrain = new Drivetrain();
-      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
       intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel")));
       m_intake = new Intake();
-      m_intake.setDefaultCommand(new RunCommand(() -> {
-        m_intake.runIntake(getIntakeSpeed());
-        m_intake.runExtender(getIntakeExtenderSpeed());
-      }, m_intake));
+      m_manualIntakeCommand = new RunCommand(() -> {
+        m_intake.runExtender(m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER).getAsDouble());
+        m_intake.runIntake(m_intakeRunning ? 0.5 : 0);
+      }, m_intake);
+      m_intake.setDefaultCommand(m_manualIntakeCommand);
     }
 
     if (shooterEnabled) {
       shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
-      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
+      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
     }
 
     if (spinnerEnabled) {
@@ -157,18 +192,23 @@ public class RobotContainer {
     if (magazineEnabled) {
       magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
       m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+      m_manualMagazineCommand = new RunCommand(() -> m_magazine.setSpeed(m_magazineRunning ? m_magazineSpeed : 0), m_magazine);
+      m_magazine.setDefaultCommand(m_manualMagazineCommand);
     }
 
     if (queueEnabled) {
       queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
       m_queue = new Queue();
-      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+      m_manualQueueCommand = new RunCommand(() -> m_queue.run(m_queueRunning ? m_queueSpeed : 0), m_queue);
+      m_queue.setDefaultCommand(m_manualQueueCommand);
     }
 
     if (turretEnabled) {
       turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel")));
       m_turret = new Turret();
+      m_turret.setDefaultCommand(new RunCommand(() -> {
+        m_turret.setSpeed(m_joystickMap.get(JoystickCommand.MANUAL_MOVE_TURRET).getAsDouble());
+      }, m_turret));
     }
 
     if (climberEnabled) {
@@ -204,14 +244,12 @@ public class RobotContainer {
     }
 
     if (intakeEnabled) {
-      // Start/stop intaking
-      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, 0.5));
-    }
-
-    if (intakeEnabled && magazineEnabled) {
       // Toggle intake extender motion magic
-      m_controlBoard.getButton("intakeMotionMagic").whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
-      m_controlBoard.getButton("intakeExtended").whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
+      m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      // Toggle intake extended
+      m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
+      // Start/stop intaking
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whenPressed(() -> m_intakeRunning = !m_intakeRunning);
     }
 
     if (magazineEnabled && queueEnabled) {
@@ -221,7 +259,7 @@ public class RobotContainer {
         if (m_autoRefillQueueEnabled) {
           m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
         } else {
-          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+          m_magazine.setDefaultCommand(m_manualMagazineCommand);
         }
       }));
     }
@@ -232,7 +270,7 @@ public class RobotContainer {
         if (m_autoFeedShooterEnabled) {
           m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
         } else {
-          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+          m_queue.setDefaultCommand(m_manualQueueCommand);
         }
       }));
     }
@@ -257,73 +295,21 @@ public class RobotContainer {
     }
   }
 
-  private double getMove() {
-    double move = -m_controlBoard.xbox.getLeftStickY();
-    move = JoystickUtil.deadband(move, 0.05);
-    move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
-    return move / 2;
-  }
-
-  private double getTurn() {
-    double turn = -m_controlBoard.xbox.getRightStickX();
-    turn = JoystickUtil.deadband(turn, 0.05);
-    turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
-    return turn / 2;
-  }
-
-  private double getIntakeSpeed() {
-    double speed = m_controlBoard.extreme.trigger.get() ? 0.5 : 0;
-    return speed;
-  }
-
-  /**
-   * Temporary function for testing the intake
-   * @return
-   */
-  private double getIntakeExtenderSpeed() {
-    double speed = m_controlBoard.extreme.getStickY();
-    return speed * m_intakeExtenderSpeed;
-  }
-
-  /**
-   * Manual magazine control
-   * @return Scaled magazine speed
-   */
-  private double getMagazineSpeed() {
-    double speed = m_controlBoard.extreme.joystickTopRight.get() ? m_magazineSpeed : 0;
-    return speed;
-  }
-
-  /**
-   * Manual queue control
-   * @return Scaled queue speed
-   */
-  private double getQueueSpeed() {
-    double speed = m_controlBoard.extreme.joystickBottomRight.get() ? m_queueSpeed : 0;
-    return speed;
-  }
-
-  private double getShooterSpeed() {
-    double speed = m_controlBoard.extreme.getSlider();
-    speed = DareMathUtil.mapRange(speed, -1, 1, 0, 1);
-    return speed;
-  }
-
   public void setDriveType(DriveType driveType) {
     if (drivetrainEnabled) {
       Command driveCommand;
       switch (driveType) {
         case SIMPLE_ARCADE_DRIVE:
-          driveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+          driveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
           break;
         case VELOCITY_ARCADE_DRIVE:
-          driveCommand = Commands.velocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+          driveCommand = Commands.velocityArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
           break;
         case ACCELERATION_LIMITED_SIMPLE_ARCADE_DRIVE:
-          driveCommand = Commands.accelerationLimitedSimpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
+          driveCommand = Commands.accelerationLimitedSimpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN), 2, 3);
           break;
         case ACCELERATION_LIMITED_VELOCITY_ARCADE_DRIVE:
-          driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn(), 2, 3);
+          driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN), 2, 3);
           break;
         default:
           driveCommand = m_defaultDriveCommand;
