@@ -20,8 +20,16 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.sensors.LimitSwitch;
+import frc.robot.subsystems.interfaces.IIntake;
 
-public class Intake extends PropertySubsystem {
+public class Intake extends PropertySubsystem implements IIntake {
+  public static class IntakeMap {
+    public int runMotorID = -1;
+    public int extendMotorID = -1;
+    public int retractedLimitSwitchChannel = -1;
+    public int extendedLimitSwitchChannel = -1;
+  }
+
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;
@@ -37,17 +45,11 @@ public class Intake extends PropertySubsystem {
   private final NetworkTableEntry m_extendMotorOutputEntry;
   private final NetworkTableEntry m_resetEncoderEntry;
 
-  private final int m_runMotorID;
   private final WPI_TalonSRX m_runMotor;
-
-  private final int m_extendMotorID;
   private final WPI_TalonSRX m_extendMotor;
 
   private boolean m_retractedLimitSwitchEnabled;
   private boolean m_extendedLimitSwitchEnabled;
-
-  private final int m_retractedLimitSwitchPort;
-  private final int m_extendedLimitSwitchPort;
   private final LimitSwitch m_retractedLimitSwitch;
   private final LimitSwitch m_extendedLimitSwitch;
 
@@ -73,9 +75,7 @@ public class Intake extends PropertySubsystem {
   /**
    * Creates a new power cell intake
    */
-  public Intake() {
-    super(Intake.class.getSimpleName());
-    
+  public Intake(IntakeMap intakeMap) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
     m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
@@ -91,35 +91,27 @@ public class Intake extends PropertySubsystem {
     m_extendMotorOutputEntry = m_networkTable.getEntry("Extend motor output");
     m_resetEncoderEntry = m_networkTable.getEntry("Reset encoder");
 
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-    m_extendMotorID = Integer.parseInt(properties.getProperty("extendMotorID"));
+    m_retractedLimitSwitchEnabled = Boolean.parseBoolean(m_properties.getProperty("retractedLimitSwitchEnabled"));
+    m_extendedLimitSwitchEnabled = Boolean.parseBoolean(m_properties.getProperty("extendedLimitSwitchEnabled"));
 
-    m_retractedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("retractedLimitSwitchEnabled"));
-    m_extendedLimitSwitchEnabled = Boolean.parseBoolean(properties.getProperty("extendedLimitSwitchEnabled"));
+    m_extenderEncoderResolution = Integer.parseInt(m_properties.getProperty("extenderEncoderResolution"));
+    m_extenderGearRatio = Double.parseDouble(m_properties.getProperty("extenderGearRatio"));
+    m_extendedAngle = Double.parseDouble(m_properties.getProperty("extendedAngle"));
+    m_retractedAngle = Double.parseDouble(m_properties.getProperty("retractedAngle"));
 
-    m_retractedLimitSwitchPort = Integer.parseInt(properties.getProperty("retractedLimitSwitchPort"));
-    m_extendedLimitSwitchPort = Integer.parseInt(properties.getProperty("extendedLimitSwitchPort"));
+    m_motionMagicSlot = Integer.parseInt(m_properties.getProperty("motionMagicSlot"));
+    m_pGain = Double.parseDouble(m_properties.getProperty("pGain"));
+    m_iGain = Double.parseDouble(m_properties.getProperty("iGain"));
+    m_dGain = Double.parseDouble(m_properties.getProperty("dGain"));
+    m_arbitraryFeedforward = Double.parseDouble(m_properties.getProperty("arbitraryFeedforward"));
 
-    m_extenderEncoderResolution = Integer.parseInt(properties.getProperty("extenderEncoderResolution"));
-    m_extenderGearRatio = Double.parseDouble(properties.getProperty("extenderGearRatio"));
-    m_extendedAngle = Double.parseDouble(properties.getProperty("extendedAngle"));
-    m_retractedAngle = Double.parseDouble(properties.getProperty("retractedAngle"));
-
-    m_motionMagicSlot = Integer.parseInt(properties.getProperty("motionMagicSlot"));
-    m_pGain = Double.parseDouble(properties.getProperty("pGain"));
-    m_iGain = Double.parseDouble(properties.getProperty("iGain"));
-    m_dGain = Double.parseDouble(properties.getProperty("dGain"));
-    m_arbitraryFeedforward = Double.parseDouble(properties.getProperty("arbitraryFeedforward"));
-    m_cruiseVelocity = Double.parseDouble(properties.getProperty("cruiseVelocity"));
-    m_acceleration = Double.parseDouble(properties.getProperty("acceleration"));
-
-    m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor = new WPI_TalonSRX(intakeMap.runMotorID);
     m_runMotor.configFactoryDefault();
     
-    m_runMotor.setInverted(InvertType.None);
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
     m_runMotor.setNeutralMode(NeutralMode.Brake);
 
-    m_extendMotor = new WPI_TalonSRX(m_extendMotorID);
+    m_extendMotor = new WPI_TalonSRX(intakeMap.extendMotorID);
     m_extendMotor.configFactoryDefault();
 
     // Config PID for extender
@@ -130,20 +122,12 @@ public class Intake extends PropertySubsystem {
     m_extendMotor.configMotionAcceleration(toEncoderTicksPer100MillisecondsPerSecond(m_acceleration));
 
     m_extendMotor.setInverted(InvertType.InvertMotorOutput);
-    m_extendMotor.setNeutralMode(NeutralMode.Coast);
+    m_extendMotor.setNeutralMode(NeutralMode.Brake);
     m_extendMotor.setSensorPhase(false);
     m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_retractedAngle));
 
-    if (m_retractedLimitSwitchEnabled) {
-      m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
-    } else {
-      m_retractedLimitSwitch = null;
-    }
-    if (m_extendedLimitSwitchEnabled) {
-      m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
-    } else {
-      m_extendedLimitSwitch = null;
-    }
+    m_retractedLimitSwitch = m_retractedLimitSwitchEnabled ? new LimitSwitch(intakeMap.retractedLimitSwitchChannel) : null;
+    m_extendedLimitSwitch = m_extendedLimitSwitchEnabled ? new LimitSwitch(intakeMap.extendedLimitSwitchChannel) : null;
   }
 
   @Override
@@ -176,7 +160,7 @@ public class Intake extends PropertySubsystem {
       }
     }
     if (m_motionMagicEnabled) {
-      double targetAngle = m_extended ? m_extendedAngle : 0;
+      double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
       double targetPosition = toEncoderTicks(targetAngle);
       // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar
       // is 1)
@@ -200,14 +184,12 @@ public class Intake extends PropertySubsystem {
     m_resetEncoderEntry.setBoolean(false);
   }
 
+  @Override
   public void runIntake(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
-  public boolean getMotionMagicEnabled() {
-    return m_motionMagicEnabled;
-  }
-
+  @Override
   public void setMotionMagicEnabled(boolean wantsEnabled) {
     if (!wantsEnabled) {
       m_extendMotor.set(ControlMode.PercentOutput, 0);
@@ -215,6 +197,12 @@ public class Intake extends PropertySubsystem {
     m_motionMagicEnabled = wantsEnabled;
   }
 
+  @Override
+  public boolean getMotionMagicEnabled() {
+    return m_motionMagicEnabled;
+  }
+
+  @Override
   public void toggleMotionMagicEnabled() {
     setMotionMagicEnabled(!getMotionMagicEnabled());
   }
@@ -223,12 +211,14 @@ public class Intake extends PropertySubsystem {
     m_extendMotor.setSelectedSensorPosition(0);
   }
 
+  @Override
   public boolean getExtended() {
     if (m_extended)
-      logger.fine("intake extended");
+      m_logger.fine("intake extended");
     return m_extended;
   }
 
+  @Override
   public void setExtended(boolean wantsExtended) {
     m_extended = wantsExtended;
   }
@@ -240,6 +230,7 @@ public class Intake extends PropertySubsystem {
   /**
    * Temporary function for testing/tuning the extender
    */
+  @Override
   public void runExtender(double output) {
     if (m_motionMagicEnabled) {
       return;
@@ -294,7 +285,7 @@ public class Intake extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("pGain", m_pGain);
     values.put("iGain", m_iGain);

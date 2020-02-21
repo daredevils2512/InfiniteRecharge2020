@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import java.util.logging.Logger;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,6 +24,7 @@ import frc.robot.utils.DriveType;
  * project.
  */
 public class Robot extends TimedRobot {
+  private static Logger logger = Logger.getLogger(Robot.class.getName());
   private final SendableChooser<DriveType> m_driveTypeChooser = new SendableChooser<>();
   private DriveType m_currentDriveType = null;
 
@@ -44,6 +47,7 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    logger.config("initialized robot");
   }
 
   /**
@@ -77,7 +81,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
+    logger.config("robot disabled");
     m_robotContainer.saveAllProperties();
+    logger.config("finished saving properties");
   }
 
   @Override
@@ -94,6 +100,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    logger.config("initialized auton");
   }
 
   /**
@@ -105,6 +112,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    logger.config("starting teleop");
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
