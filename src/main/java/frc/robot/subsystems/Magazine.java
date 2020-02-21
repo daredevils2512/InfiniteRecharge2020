@@ -23,65 +23,66 @@ import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IMagazine;
 
 public class Magazine extends PropertySubsystem implements IMagazine {
+  public static class MagazineMap {
+    public int runMotorID = -1;
+    public int photoEyeChannel = -1;
+  }
+  
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
+  
+  private boolean m_photoEyeEnabled;
+  private final IDigitalInput m_photoEye;
 
-  private boolean m_frontPhotoEyeEnabled;
-  private final int m_frontPhotoEyeChannel;
-  private final IDigitalInput m_frontPhotoEye;
-  private boolean m_powerCellPreviouslyDetectedFront;
-
-  private final Runnable m_incrementPowerCellCount;
-  private final Runnable m_decrementPowerCellCount;
-
-  private final int m_runMotorID;
   private final WPI_TalonSRX m_runMotor;
   
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
 
+  private boolean m_powerCellPreviouslyDetected;
+
+  private final Runnable m_incrementPowerCellCount;
+  private final Runnable m_decrementPowerCellCount;
+
   /**
    * Creates a new magazine
    */
-  public Magazine(Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
-    super(Magazine.class.getName());
-
+  public Magazine(MagazineMap magazineMap, Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
 
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-    m_frontPhotoEyeEnabled = Boolean.parseBoolean(properties.getProperty("frontPhotoEyeEnabled"));
-    m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
-
-    m_runMotor = new WPI_TalonSRX(m_runMotorID);
-    m_runMotor.configFactoryDefault();
+    m_runMotor = new WPI_TalonSRX(magazineMap.runMotorID);
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    m_frontPhotoEye = m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : new DummyDigitalInput();
-    
+    m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
+
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(magazineMap.photoEyeChannel) : new DummyDigitalInput();
+
     m_incrementPowerCellCount = incrementPowerCellCount;
     m_decrementPowerCellCount = decrementPowerCellCount;
   }
 
   @Override
   public void periodic() {
-    updatePowerCellCount();
-    m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
-    
+    if (m_photoEyeEnabled) {
+      updatePowerCellCount();
+      m_powerCellPreviouslyDetected = getPowerCellDetected();
+    }
+
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
 
   @Override
-  public boolean getPowerCellDetectedFront() {
-    if (m_frontPhotoEye.get())
-      logger.fine("power cell detected front");
-    return m_frontPhotoEye.get();
+  public boolean getPowerCellDetected() {
+    if (m_photoEye.get())
+      m_logger.fine("power cell detected");
+    return m_photoEye.get();
   }
 
   // might be temporary
   @Override
   public void updatePowerCellCount() {
-    if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront) {
+    if (!getPowerCellDetected() && m_powerCellPreviouslyDetected) {
       if (getDirectionReversed())
         m_decrementPowerCellCount.run();
       else

@@ -8,7 +8,7 @@ import frc.robot.subsystems.interfaces.IPropertySubsystem;
 public class DummyMagazine implements IMagazine, IPropertySubsystem {
 
   @Override
-  public boolean getPowerCellDetectedFront() {
+  public boolean getPowerCellDetected() {
     return false;
   }
 

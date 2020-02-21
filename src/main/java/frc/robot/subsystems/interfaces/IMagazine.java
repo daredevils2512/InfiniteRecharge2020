@@ -5,7 +5,7 @@ import java.util.Map;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public interface IMagazine extends Subsystem, IPropertySubsystem {
-  public boolean getPowerCellDetectedFront();
+  public boolean getPowerCellDetected();
   public void updatePowerCellCount();
   public boolean getDirectionReversed();
 

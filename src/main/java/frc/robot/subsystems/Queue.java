@@ -23,14 +23,17 @@ import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IQueue;
 
 public class Queue extends PropertySubsystem implements IQueue {
-  private final int m_photoEyeChannel;
+  public static class QueueMap {
+    public int queueRunID = -1;
+    public int photoEyeChannel = -1;
+  }
+
+  private boolean m_photoEyeEnabled;
   private final IDigitalInput m_photoEye;
 
   public final NetworkTable m_networkTable;
-  public final NetworkTableEntry m_isClosedEntry;
   private final NetworkTableEntry m_runSpeedEntry;
 
-  private final int m_runMotorID;
   private final TalonSRX m_runMotor;
 
   private final Runnable m_incrementMagazinePowerCellCount;
@@ -41,24 +44,15 @@ public class Queue extends PropertySubsystem implements IQueue {
   /**
    * Creates a new Queue.
    */
-  public Queue(Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
-    super(Queue.class.getName());
-
+  public Queue(QueueMap queueMap, Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
-    m_isClosedEntry = m_networkTable.getEntry("Is closed");
 
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-    m_photoEyeChannel = Integer.parseInt(properties.getProperty("photoEyeChannel"));
-
-    m_runMotor = new TalonSRX(m_runMotorID);
+    m_runMotor = new TalonSRX(queueMap.queueRunID);
     m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    if (Boolean.parseBoolean(properties.getProperty("photoEyeEnabled")))
-      m_photoEye = new PhotoEye(m_photoEyeChannel);
-    else
-      m_photoEye = new DummyDigitalInput();
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
 
     m_incrementMagazinePowerCellCount = incrementMagazinePowerCellCount;
     m_decrementMagazinePowerCellCount = decrementMagazinePowerCellCount;
@@ -67,6 +61,7 @@ public class Queue extends PropertySubsystem implements IQueue {
   @Override
   public void periodic() {
     updateMagazinePowerCellCount();
+
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
   }
 
@@ -90,8 +85,8 @@ public class Queue extends PropertySubsystem implements IQueue {
 
   @Override
   public boolean hasPowerCell() {
-      if (m_photoEye.get()) logger.fine("queue has power cell");
-      return m_photoEye.get();
+    if (m_photoEye.get()) m_logger.fine("queue has power cell");
+    return m_photoEye.get();
   }
 
   @Override

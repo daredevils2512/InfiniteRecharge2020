@@ -13,10 +13,6 @@ public class DummyClimber implements IClimber, IPropertySubsystem {
   }
 
   @Override
-  public void climberMoveHorizontal(double speed) {
-  }
-
-  @Override
   public void climbLeft(Drivetrain drivetrain, double speed) {
   }
 

@@ -7,61 +7,23 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import frc.robot.subsystems.interfaces.IClimber;
 
 public class Climber extends PropertySubsystem implements IClimber {
-  // dont have numbers for these
-  private final int m_leftClimberMasterID;
-  private final int m_rightClimberMasterID;
-  private final int m_leftHorizontalMasterID;
-  private final int m_rightHorizontalMasterID;
+  public static class ClimberMap {
+    public int climberLeftID = -1;
+    public int climberRightID = -1;
+  }
 
-  private final WPI_TalonSRX m_leftClimberMaster;
-  private final WPI_TalonSRX m_rightClimberMaster;
-  private final boolean m_useVerticalClimb;
+  private final WPI_TalonSRX m_leftClimbMotor;
+  private final WPI_TalonSRX m_rightClimbMotor;
 
-  private final WPI_TalonSRX m_leftHorizontalMaster;
-  private final WPI_TalonSRX m_rightHorizontalMaster;
-  private final boolean m_useHorizontalClimb;
-
-  public Climber() {
-    super(Climber.class.getName());
-
-    m_leftClimberMasterID = Integer.parseInt(properties.getProperty("leftClimberMasterID"));
-    m_rightClimberMasterID = Integer.parseInt(properties.getProperty("rightClimberMasterID"));
-    m_leftHorizontalMasterID = Integer.parseInt(properties.getProperty("leftHorizontalMasterID"));
-    m_rightHorizontalMasterID = Integer.parseInt(properties.getProperty("rightHorizontalMasterID"));
-    m_useVerticalClimb = Boolean.parseBoolean(properties.getProperty("useVerticalClimb"));
-    m_useHorizontalClimb = Boolean.parseBoolean(properties.getProperty("useHorizontalClimb"));
-
-    if (m_useVerticalClimb) {
-      m_leftClimberMaster = new WPI_TalonSRX(m_leftClimberMasterID);
-      m_rightClimberMaster = new WPI_TalonSRX(m_rightClimberMasterID);
-    } else {
-      m_leftClimberMaster = null;
-      m_rightClimberMaster = null;
-    }
-
-    if (m_useHorizontalClimb) {
-      m_leftHorizontalMaster = new WPI_TalonSRX(m_leftHorizontalMasterID);
-      m_rightHorizontalMaster = new WPI_TalonSRX(m_rightHorizontalMasterID);
-    } else {
-      m_leftHorizontalMaster = null;
-      m_rightHorizontalMaster = null;
-    }
+  public Climber(ClimberMap climberMap) {
+    m_leftClimbMotor = new WPI_TalonSRX(climberMap.climberLeftID);
+    m_rightClimbMotor = new WPI_TalonSRX(climberMap.climberRightID);
   }
 
   @Override
   public void climb(double leftSpeed, double rightSpeed) {
-    if (m_useVerticalClimb) {
-      m_leftClimberMaster.set(leftSpeed);
-      m_rightClimberMaster.set(rightSpeed);
-    }
-  }
-
-  @Override
-  public void climberMoveHorizontal(double speed) {
-    if (m_useHorizontalClimb) {
-      m_leftHorizontalMaster.set(speed);
-      m_rightHorizontalMaster.set(speed);
-    }
+    m_leftClimbMotor.set(leftSpeed);
+    m_rightClimbMotor.set(rightSpeed);
   }
 
   // TODO: Implement climbing

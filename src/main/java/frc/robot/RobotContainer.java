@@ -6,11 +6,13 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
+import java.io.File;
 
 import java.util.Properties;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +40,13 @@ import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Climber.ClimberMap;
+import frc.robot.subsystems.Drivetrain.DrivetrainMap;
+import frc.robot.subsystems.Intake.IntakeMap;
+import frc.robot.subsystems.Magazine.MagazineMap;
+import frc.robot.subsystems.Queue.QueueMap;
+import frc.robot.subsystems.Shooter.ShooterMap;
+import frc.robot.subsystems.Turret.TurretMap;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
 import frc.robot.utils.MagazinePowerCellCounter;
@@ -112,8 +121,12 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
-
+    // This should probably be extracted from here and from PropertySubsystem at some point
     properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
+    String robotMapPropertiesFilename = RobotContainer.class.getSimpleName() + ".properties";
+    File robotMapDefaultPropertiesFile = new File(Filesystem.getOperatingDirectory() + "/" + robotMapPropertiesFilename);
+    File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/" + robotMapPropertiesFilename);
+    Properties robotMapProperties = PropertyFiles.loadProperties(robotMapDefaultPropertiesFile, robotMapPropertiesFile);
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
@@ -147,15 +160,53 @@ public class RobotContainer {
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     }
 
+    DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
+    drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
+    drivetrainMap.driveLeft2ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft2ID"));
+    drivetrainMap.driveRight1ID = Integer.parseInt(robotMapProperties.getProperty("driveRight1ID"));
+    drivetrainMap.driveRight2ID = Integer.parseInt(robotMapProperties.getProperty("driveRight2ID"));
+    drivetrainMap.pigeonID = Integer.parseInt(robotMapProperties.getProperty("pigeonID"));
+    drivetrainMap.driveLeftEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelA"));
+    drivetrainMap.driveLeftEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelB"));
+    drivetrainMap.driveRightEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelA"));
+    drivetrainMap.driveRightEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelB"));
+    drivetrainMap.shiftForwardChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftForwardChannel"));
+    drivetrainMap.shiftReverseChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftReverseChannel"));
 
-    m_drivetrain = drivetrainEnabled ? new Drivetrain() : new DummyDrivetrain();
-    m_intake = intakeEnabled ? new Intake() : new DummyIntake();
-    m_shooter = shooterEnabled ? new Shooter() : new DummyShooter();
+    IntakeMap intakeMap = new IntakeMap();
+    intakeMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeRunID"));
+    intakeMap.extendMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeExtenderID"));
+    intakeMap.retractedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeRetractedLimitSwitchChannel"));
+    intakeMap.extendedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeExtendedLimitSwitchChannel"));
+
+    ShooterMap shooterMap = new ShooterMap();
+    shooterMap.shooter1ID = Integer.parseInt(robotMapProperties.getProperty("shooter1ID"));
+    shooterMap.shooter2ID = Integer.parseInt(robotMapProperties.getProperty("shooter2ID"));
+    shooterMap.shooterHoodID = Integer.parseInt(robotMapProperties.getProperty("shooterHoodID"));
+    
+    MagazineMap magazineMap = new MagazineMap();
+    magazineMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("magazineRunID"));
+    magazineMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("magazinePhotoEyeChannel"));
+
+    QueueMap queueMap = new QueueMap();
+    queueMap.queueRunID = Integer.parseInt(robotMapProperties.getProperty("queueRunID"));
+    queueMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("queuePhotoEyeChannel"));
+
+    TurretMap turretMap = new TurretMap();
+    turretMap.turretID = Integer.parseInt(robotMapProperties.getProperty("turretID"));
+
+    ClimberMap climberMap = new ClimberMap();
+    climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty("climberLeftID"));
+    climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty("climberRightID"));
+
+    m_drivetrain = drivetrainEnabled ? new Drivetrain(drivetrainMap) : new DummyDrivetrain();
+    m_intake = intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
+    m_shooter = shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
     m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
-    m_magazine = magazineEnabled ? new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyMagazine();
-    m_queue = queueEnabled ? new Queue(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyQueue();
-    m_turret = turretEnabled ? new Turret() : new DummyTurret();
-    m_climber = climberEnabled ? new Climber() : new DummyClimber();
+    m_magazine = magazineEnabled ? new Magazine(magazineMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyMagazine();
+    m_queue = queueEnabled ? new Queue(queueMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyQueue();
+    m_turret = turretEnabled ? new Turret(turretMap) : new DummyTurret();
+    m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
     m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
