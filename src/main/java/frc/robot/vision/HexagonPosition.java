@@ -21,6 +21,7 @@ public class HexagonPosition {
     private final ITurret m_turret;
     private final Limelight m_limelight;
     private final NetworkTable m_networkTable;
+    private final double m_tolerance = 5; //probabl shouldnt be here but idk seems fine for now
 
     private double m_turretPosition;
     private double m_robotPosition;
