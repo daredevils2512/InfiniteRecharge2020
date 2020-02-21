@@ -95,6 +95,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
   private final boolean m_shiftersEnabled;
 
+  private final boolean m_encodersEnabled;
   private final int m_encoderResolution;
   private final double m_gearRatio; // Encoder rotations to wheel rotations
   private final double m_wheelDiameter; // Wheel diameter is changed from inches to meters in the getter
@@ -135,9 +136,9 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
    */
   public Drivetrain(DrivetrainMap drivetrainMap) {
     m_pigeonEnabled = Boolean.parseBoolean(m_properties.getProperty("pigeonEnabled"));
-
+    m_encodersEnabled = Boolean.parseBoolean(m_properties.getProperty("encodersEnabled"));
     m_shiftersEnabled = Boolean.parseBoolean(m_properties.getProperty("shiftersEnabled"));
-
+    
     m_encoderResolution = Integer.parseInt(m_properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(m_properties.getProperty("gearRatio"));
     m_wheelDiameter = Units.inchesToMeters(Double.parseDouble(m_properties.getProperty("wheelDiameter")));
@@ -200,10 +201,15 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightDriveMaster.setInverted(InvertType.None);
     m_rightDriveFollower.setInverted(InvertType.FollowMaster);
 
-    m_leftEncoder = new Encoder(drivetrainMap.driveLeftEncoderChannelA, drivetrainMap.driveLeftEncoderChannelB);
-    m_rightEncoder = new Encoder(drivetrainMap.driveRightEncoderChannelA, drivetrainMap.driveRightEncoderChannelB);
-    m_leftEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
-    m_rightEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
+    if (m_encodersEnabled) {
+      m_leftEncoder = new Encoder(drivetrainMap.driveLeftEncoderChannelA, drivetrainMap.driveLeftEncoderChannelB);
+      m_rightEncoder = new Encoder(drivetrainMap.driveRightEncoderChannelA, drivetrainMap.driveRightEncoderChannelB);
+      m_leftEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
+      m_rightEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
+    } else {
+      m_leftEncoder = null;
+      m_rightEncoder = null;
+    }
 
     if (m_pigeonEnabled) {
       m_pigeon = new PigeonIMU(drivetrainMap.pigeonID);
@@ -279,8 +285,10 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private void resetEncoders() {
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
+    if (m_encodersEnabled) {
+      m_leftEncoder.reset();
+      m_rightEncoder.reset();
+    }
   }
 
   @Override
@@ -295,22 +303,22 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   @Override
   public double getLeftDistance() {
-    return m_leftEncoder.getDistance();
+    return m_encodersEnabled ? m_leftEncoder.getDistance() : 0;
   }
 
   @Override
   public double getRightDistance() {
-    return m_rightEncoder.getDistance();
+    return m_encodersEnabled ? m_rightEncoder.getDistance() : 0;
   }
 
   @Override
   public double getLeftVelocity() {
-    return m_leftEncoder.getRate();
+    return m_encodersEnabled ? m_leftEncoder.getRate() : 0;
   }
 
   @Override
   public double getRightVelocity() {
-    return m_rightEncoder.getRate();
+    return m_encodersEnabled ? m_rightEncoder.getRate() : 0;
   }
 
   @Override
@@ -407,8 +415,10 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
    * Must be called periodically to maintain an accurate position and heading
    */
   private void updateOdometry() {
-    m_odometry.update(Rotation2d.fromDegrees(getFusedHeading()), m_leftEncoder.getDistance(),
-        m_rightEncoder.getDistance());
+    m_odometry.update(
+      Rotation2d.fromDegrees(getFusedHeading()),
+      getLeftDistance(),
+      getRightDistance());
   }
 
   @Override
@@ -443,8 +453,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private void setSpeeds(DifferentialDriveWheelSpeeds wheelSpeeds) {
     double leftFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
     double rightFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
-    double leftPIDOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
-    double rightPIDOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
+    double leftPIDOutput = m_leftPIDController.calculate(getLeftVelocity(), wheelSpeeds.leftMetersPerSecond);
+    double rightPIDOutput = m_rightPIDController.calculate(getRightVelocity(), wheelSpeeds.rightMetersPerSecond);
 
     m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
     m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
