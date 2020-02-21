@@ -8,8 +8,6 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -20,11 +18,13 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
 import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.subsystems.interfaces.IQueue;
 
-public class Queue extends PropertySubsystem {
+public class Queue extends PropertySubsystem implements IQueue {
   private final int m_photoEyeChannel;
   private final IDigitalInput m_photoEye;
 
@@ -107,7 +107,7 @@ public class Queue extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     return null;
   }
 }

@@ -7,9 +7,10 @@ import java.util.logging.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.interfaces.IClimber;
 import frc.robot.utils.PropertyFiles;
 
-public class Climber extends PropertySubsystem {
+public class Climber extends PropertySubsystem implements IClimber {
   // dont have numbers for these
   private final int m_leftClimberMasterID;
   private final int m_rightClimberMasterID;
@@ -57,7 +58,7 @@ public class Climber extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     return null;
   }
 }

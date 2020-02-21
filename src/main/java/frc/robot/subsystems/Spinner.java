@@ -14,8 +14,9 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.ColorSensor;
 import frc.robot.sensors.ColorSensor.ColorDetect;
+import frc.robot.subsystems.interfaces.ISpinner;
 
-public class Spinner extends SubsystemBase {
+public class Spinner extends SubsystemBase implements ISpinner{
   private ColorSensor m_colorSensor = new ColorSensor();
   private static Logger logger = Logger.getLogger(Spinner.class.getName());
 

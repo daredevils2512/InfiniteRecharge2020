@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.interfaces.IDrivetrain;
 import frc.robot.utils.PropertyFiles;
 
 /**
@@ -50,7 +51,7 @@ import frc.robot.utils.PropertyFiles;
  * optical encoders (one per side) mounted to the output of the gearbox for
  * distance calculation, and a {@link PigeonIMU} for heading calculation.
  */
-public class Drivetrain extends PropertySubsystem {
+public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   /**
    * All network table enties are stored as variables so they can be referenced
    * more reliably (instead of by name via string)
@@ -450,7 +451,7 @@ public class Drivetrain extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("leftPGain", m_leftPGain);
     values.put("leftIGain", m_leftIGain);

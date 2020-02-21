@@ -19,10 +19,10 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
+import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
 
-public class Turret extends PropertySubsystem {
+public class Turret extends PropertySubsystem implements ITurret {
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_angleEntry;
@@ -160,7 +160,7 @@ public class Turret extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("P", m_P);
     values.put("I", m_I);

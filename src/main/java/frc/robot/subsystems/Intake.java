@@ -22,8 +22,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.LimitSwitch;
+import frc.robot.subsystems.interfaces.IIntake;
 
-public class Intake extends PropertySubsystem {
+public class Intake extends PropertySubsystem implements IIntake {
 
   private final NetworkTable m_networkTable;
 
@@ -233,7 +234,7 @@ public class Intake extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("pGain", m_pGain);
     values.put("iGain", m_iGain);

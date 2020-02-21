@@ -23,8 +23,9 @@ import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.subsystems.interfaces.IMagazine;
 
-public class Magazine extends PropertySubsystem {
+public class Magazine extends PropertySubsystem implements IMagazine {
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   private final NetworkTableEntry m_powerCellCountEntry;
@@ -140,7 +141,7 @@ public class Magazine extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     return null;
   }
 }

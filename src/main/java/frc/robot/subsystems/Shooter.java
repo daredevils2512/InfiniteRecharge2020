@@ -20,9 +20,10 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.utils.PropertyFiles;
 
-public class Shooter extends PropertySubsystem {
+public class Shooter extends PropertySubsystem implements IShooter {
   private final NetworkTable m_networkTable;
 
   private final int m_shooter1ID;
@@ -194,7 +195,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("shooterVelocityPGain", m_shooterVelocityPGain);
     values.put("shooterVelocityIGain", m_shooterVelocityIGain);
