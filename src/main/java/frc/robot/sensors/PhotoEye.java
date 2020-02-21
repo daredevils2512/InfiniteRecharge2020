@@ -2,7 +2,7 @@ package frc.robot.sensors;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public class PhotoEye {
+public class PhotoEye implements IDigitalInput {
   private final DigitalInput m_photoEye;
 
   public PhotoEye(int channel) {

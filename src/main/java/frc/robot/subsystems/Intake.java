@@ -19,6 +19,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.sensors.DummyDigitalInput;
+import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.LimitSwitch;
 
 public class Intake extends PropertySubsystem {
@@ -48,8 +50,8 @@ public class Intake extends PropertySubsystem {
 
   private final int m_retractedLimitSwitchPort;
   private final int m_extendedLimitSwitchPort;
-  private final LimitSwitch m_retractedLimitSwitch;
-  private final LimitSwitch m_extendedLimitSwitch;
+  private final IDigitalInput m_retractedLimitSwitch;
+  private final IDigitalInput m_extendedLimitSwitch;
 
   private final int m_extenderEncoderResolution;
   private final double m_extenderGearRatio; // TODO: Find intake extender gear ratio
@@ -74,7 +76,7 @@ public class Intake extends PropertySubsystem {
    * Creates a new power cell intake
    */
   public Intake() {
-    super(Intake.class.getSimpleName());
+    super(Intake.class.getName());
     
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
@@ -137,12 +139,13 @@ public class Intake extends PropertySubsystem {
     if (m_retractedLimitSwitchEnabled) {
       m_retractedLimitSwitch = new LimitSwitch(m_retractedLimitSwitchPort);
     } else {
-      m_retractedLimitSwitch = null;
+      m_retractedLimitSwitch = new DummyDigitalInput();
     }
+
     if (m_extendedLimitSwitchEnabled) {
       m_extendedLimitSwitch = new LimitSwitch(m_extendedLimitSwitchPort);
     } else {
-      m_extendedLimitSwitch = null;
+      m_extendedLimitSwitch = new DummyDigitalInput();
     }
   }
 
