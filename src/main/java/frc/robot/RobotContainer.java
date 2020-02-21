@@ -19,12 +19,6 @@ import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
 import frc.robot.sensors.ColorSensor.ColorDetect;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Queue;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.dummy.DummyClimber;
 import frc.robot.subsystems.dummy.DummyCompressor;
 import frc.robot.subsystems.dummy.DummyDrivetrain;
@@ -151,65 +145,22 @@ public class RobotContainer {
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     }
 
-    if (drivetrainEnabled) {
-      m_drivetrain = new Drivetrain();
-      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
-      m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
-    } else {
-      m_drivetrain = new DummyDrivetrain();
-    }
 
-    if (intakeEnabled) {
-      m_intake = new Intake();
-      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
-    } else {
-      m_intake = new DummyIntake();
-    }
+    m_drivetrain = drivetrainEnabled ? new Drivetrain() : new DummyDrivetrain();
+    m_intake = intakeEnabled ? new Intake() : new DummyIntake();
+    m_shooter = shooterEnabled ? new Shooter() : new DummyShooter();
+    m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
+    m_magazine = magazineEnabled ? new Magazine() : new DummyMagazine();
+    m_queue = queueEnabled ? new Queue() : new DummyQueue();
+    m_turret = turretEnabled ? new Turret() : new DummyTurret();
+    m_climber = climberEnabled ? new Climber() : new DummyClimber();
+    m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
-    if (shooterEnabled) {
-      m_shooter = new Shooter();
-      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
-    } else {
-      m_shooter = new DummyShooter();
-    }
-
-    if (spinnerEnabled) {
-      m_spinner = new Spinner();
-    } else {
-      m_spinner = new DummySpinner();
-    }
-
-    if (magazineEnabled) {
-      m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
-    } else {
-      m_magazine = new DummyMagazine();
-    }
-
-    if (queueEnabled) {
-      m_queue = new Queue();
-      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
-    } else {
-      m_queue = new DummyQueue();
-    }
-
-    if (turretEnabled) {
-      m_turret = new Turret();
-    } else {
-      m_turret = new DummyTurret();
-    }
-
-    if (climberEnabled) {
-      m_climber = new Climber();
-    } else {
-      m_climber = new DummyClimber();
-    }
-
-    if (compressorEnabled) {
-      m_compressor = new CompressorManager();
-    } else {
-      m_compressor = new DummyCompressor();
-    }
+    m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+    m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
+    m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn()));
+    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
 
     configureButtonBindings();
 
