@@ -136,7 +136,7 @@ public class RobotContainer {
       return turn / 2;
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.extreme.getSlider());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger());
     m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
 
     // This should probably be extracted from here and from PropertySubsystem at

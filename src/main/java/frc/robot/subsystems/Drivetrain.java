@@ -334,7 +334,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private double getFusedHeading() {
-    m_logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
+    if (m_pigeonEnabled) m_logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
