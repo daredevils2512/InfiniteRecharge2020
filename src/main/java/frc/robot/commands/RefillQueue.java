@@ -4,15 +4,15 @@ import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Magazine;
+import frc.robot.subsystems.interfaces.IMagazine;
 
 public class RefillQueue extends CommandBase {
-  private final Magazine m_magazine;
+  private final IMagazine m_magazine;
   private final double m_magazineSpeed;
   private final IntSupplier m_magazinePowerCellCountSupplier;
   private final BooleanSupplier m_queueHasPowerCellSupplier;
 
-  public RefillQueue(Magazine magazine, double magazineSpeed, IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
+  public RefillQueue(IMagazine magazine, double magazineSpeed, IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
     m_magazine = magazine;
     m_magazineSpeed = magazineSpeed;
     m_magazinePowerCellCountSupplier = magazinePowerCellCountSupplier;

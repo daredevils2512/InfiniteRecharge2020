@@ -19,16 +19,18 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
+import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
 
-public class Turret extends PropertySubsystem {
+public class Turret extends PropertySubsystem implements ITurret {
+  public static class TurretMap {
+    public int turretID = -1;
+  }
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_angleEntry;
   private final NetworkTableEntry m_wrappedAngleEntry;
 
-  private final int m_turretMasterID; // TODO: Configure CAN on turret
   private final TalonSRX m_turretMaster;
 
   // TODO: Find encoder and gearing details for turret
@@ -51,27 +53,24 @@ public class Turret extends PropertySubsystem {
   /**
    * Creates a new turret
    */
-  public Turret() {
-    super(Turret.class.getName());
-    m_turretMasterID = Integer.parseInt(properties.getProperty("turretMasterID"));
+  public Turret(TurretMap turretMap) {
+    m_encoderResolution = Integer.parseInt(m_properties.getProperty("encoderResolution"));
+    m_gearRatio = Double.parseDouble(m_properties.getProperty("gearRatio"));
+    m_maxTurnDegrees = Double.parseDouble(m_properties.getProperty("maxTurnDegrees"));
+    m_tolerance = Double.parseDouble(m_properties.getProperty("tolerance"));
+    m_maxAngle = Double.parseDouble(m_properties.getProperty("maxAngle"));
+    m_minAngle = Double.parseDouble(m_properties.getProperty("minAngle"));
 
-    m_encoderResolution = Integer.parseInt(properties.getProperty("encoderResolution"));
-    m_gearRatio = Double.parseDouble(properties.getProperty("gearRatio"));
-    m_maxTurnDegrees = Double.parseDouble(properties.getProperty("maxTurnDegrees"));
-    m_tolerance = Double.parseDouble(properties.getProperty("tolerance"));
-    m_maxAngle = Double.parseDouble(properties.getProperty("maxAngle"));
-    m_minAngle = Double.parseDouble(properties.getProperty("minAngle"));
-
-    m_positionSlot = Integer.parseInt(properties.getProperty("positionSlot"));
-    m_P = Double.parseDouble(properties.getProperty("P"));
-    m_I = Double.parseDouble(properties.getProperty("I"));
-    m_D = Double.parseDouble(properties.getProperty("D"));
+    m_positionSlot = Integer.parseInt(m_properties.getProperty("positionSlot"));
+    m_P = Double.parseDouble(m_properties.getProperty("P"));
+    m_I = Double.parseDouble(m_properties.getProperty("I"));
+    m_D = Double.parseDouble(m_properties.getProperty("D"));
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_angleEntry = m_networkTable.getEntry("Angle");
     m_wrappedAngleEntry = m_networkTable.getEntry("Wrapped angle");
 
-    m_turretMaster = new TalonSRX(m_turretMasterID);
+    m_turretMaster = new TalonSRX(turretMap.turretID);
     m_turretMaster.configFactoryDefault();
 
     m_turretMaster.config_IntegralZone(m_positionSlot, 0);
@@ -117,20 +116,24 @@ public class Turret extends PropertySubsystem {
    * Get the current angle of the turret (CCW positive)
    * @return Angle in degrees
    */
+  @Override
   public double getAngle() {
     // Convert from encoder pulses to degrees
-    logger.log(Level.FINE, "turret position = ", toDegrees(getPosition()));
+    m_logger.log(Level.FINE, "turret position = ", toDegrees(getPosition()));
     return toDegrees(getPosition());
   }
 
+  @Override
   public void resetEncoder() {
     m_turretMaster.setSelectedSensorPosition(0);
   }
 
+  @Override
   public void setSpeed(double speed) {
     m_turretMaster.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void runPosition(double degrees) {
     if (Math.abs(getAngle() - degrees) >= m_tolerance) {
       m_turretMaster.set(ControlMode.MotionMagic, 
@@ -138,6 +141,7 @@ public class Turret extends PropertySubsystem {
     }
   }
 
+  @Override
   public double wrapDegrees(double degrees) {
     return ((degrees + Math.signum(degrees) * m_maxTurnDegrees) % 360) - Math.signum(degrees) * m_maxTurnDegrees;
   }
@@ -146,6 +150,7 @@ public class Turret extends PropertySubsystem {
    * Set a target angle for position PID
    * @param angle Angle in degrees
    */
+  @Override
   public void setTargetAngle(double angle) {
     m_turretMaster.set(ControlMode.Position, toEncoderPulses(angle));
   }
@@ -160,7 +165,7 @@ public class Turret extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("P", m_P);
     values.put("I", m_I);
