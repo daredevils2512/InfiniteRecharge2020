@@ -9,7 +9,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -171,6 +171,7 @@ public class Shooter extends PropertySubsystem {
    * @param targetVelocity Target velocity in revolutions per minute
    */
   public void setTargetVelocity(double velocity) {
+    logger.log(Level.FINER, "setting velocity to = ", velocity);
     m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
     m_shooter.set(ControlMode.Velocity,
     toEncoderPulsesPer100Milliseconds(velocity));

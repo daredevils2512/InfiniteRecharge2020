@@ -69,8 +69,7 @@ public class Magazine extends PropertySubsystem {
 
   public boolean getPowerCellDetectedFront() {
     if (m_frontPhotoEyeEnabled) {
-      if (m_frontPhotoEye.get()) {
-        logger.fine("power cell detected front");}
+      if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
       return m_frontPhotoEye.get();
     } else {
       return false;
