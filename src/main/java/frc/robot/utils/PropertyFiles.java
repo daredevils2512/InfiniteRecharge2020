@@ -1,6 +1,8 @@
 package frc.robot.utils;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,25 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 public class PropertyFiles {
   private static Logger logger = Logger.getLogger(PropertyFiles.class.getName());
+
+  public static void loadProperties(Properties properties, File propertiesFile) {
+    try {
+      InputStream inputStream = new FileInputStream(propertiesFile);
+      properties.load(inputStream);
+    } catch (FileNotFoundException e) {
+      logger.log(Level.SEVERE, "Properties file " + propertiesFile.getPath() + " not found!", e);
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Failed to load properties from " + propertiesFile.getPath() + "!", e);
+    }
+  }
+
+  public static Properties loadProperties(File defaultPropertiesFile, File propertiesFile) {
+    Properties defaultProperties = new Properties();
+    loadProperties(defaultProperties, defaultPropertiesFile);
+    Properties properties = new Properties(defaultProperties);
+    loadProperties(properties, propertiesFile);
+    return properties;
+  }
 
   public static Properties loadProperties(String name, boolean loadDefault) {
     String location = "/" + name + ".properties";
@@ -37,6 +58,17 @@ public class PropertyFiles {
 
   public static Properties loadProperties(String name) {
     return PropertyFiles.loadProperties(name, false);
+  }
+
+  public static void saveProperties(Properties properties, File propertiesFile) {
+    try {
+      OutputStream outputStream = new FileOutputStream(propertiesFile);
+      properties.store(outputStream, "Saved properties");
+    } catch (FileNotFoundException e) {
+      logger.log(Level.SEVERE, "Properties file " + propertiesFile.getPath() + " not found!", e);
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Failed to save properties to " + propertiesFile.getPath() + "!", e);
+    }
   }
 
   public static void saveProperties(Properties properties, Map<String, Object> values, String name) {

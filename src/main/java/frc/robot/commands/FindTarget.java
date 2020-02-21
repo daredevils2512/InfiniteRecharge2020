@@ -10,11 +10,11 @@ package frc.robot.commands;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.vision.Limelight;
 
 public class FindTarget extends CommandBase {
-  private Turret m_turret;
+  private ITurret m_turret;
   private Limelight m_limelight;
   private NetworkTable m_networkTable;
 
@@ -24,7 +24,7 @@ public class FindTarget extends CommandBase {
   /**
    * Creates a new FindTarget.
    */
-  public FindTarget(Turret turret, Limelight limelight, double tolerance) {
+  public FindTarget(ITurret turret, Limelight limelight, double tolerance) {
     m_turret = turret;
     m_limelight = limelight;
     m_tolerance = tolerance;

@@ -20,9 +20,15 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystems.interfaces.IShooter;
 
-public class Shooter extends PropertySubsystem {
+public class Shooter extends PropertySubsystem implements IShooter {
+  public static class ShooterMap {
+    public int shooter1ID = -1;
+    public int shooter2ID = -1;
+    public int shooterHoodID = -1;
+  }
+
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
   private final NetworkTableEntry m_shooterVelocityEntry;
@@ -33,9 +39,6 @@ public class Shooter extends PropertySubsystem {
   private final NetworkTableEntry m_hoodIGainEntry;
   private final NetworkTableEntry m_hoodDGainEntry;
 
-  private final int m_shooter1ID;
-  private final int m_shooter2ID;
-  private final int m_hoodID;
   private final TalonSRX m_shooter;
   private final TalonSRX m_shooterFollower;
   private final TalonSRX m_hood;
@@ -61,48 +64,42 @@ public class Shooter extends PropertySubsystem {
   /**
    * Creates a new power cell shooter
    */
-  public Shooter() {
-    super(Shooter.class.getName());
-
+  public Shooter(ShooterMap shooterMap) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
-    m_shooterVelocityEntry = m_networkTable.getEntry("Shooter velocity (RPM)");
-    m_shooterPGainEntry = m_networkTable.getEntry("P gain");
-    m_shooterIGainEntry = m_networkTable.getEntry("I gain");
-    m_shooterDGainEntry = m_networkTable.getEntry("D gain");
-    m_hoodPGainEntry = m_networkTable.getEntry("P gain");
-    m_hoodIGainEntry = m_networkTable.getEntry("I gain");
-    m_hoodDGainEntry = m_networkTable.getEntry("D gain");
+    m_shooterVelocityEntry = m_networkTable.getEntry("Shooter RPM");
+    m_shooterPGainEntry = m_networkTable.getEntry("Shooter P gain");
+    m_shooterIGainEntry = m_networkTable.getEntry("Shooter I gain");
+    m_shooterDGainEntry = m_networkTable.getEntry("Shooter D gain");
+    m_hoodPGainEntry = m_networkTable.getEntry("Hood P gain");
+    m_hoodIGainEntry = m_networkTable.getEntry("Hood I gain");
+    m_hoodDGainEntry = m_networkTable.getEntry("Hood D gain");
 
-    m_shooter1ID = Integer.parseInt(properties.getProperty("shooter1ID"));
-    m_shooter2ID = Integer.parseInt(properties.getProperty("shooter2ID"));
-    m_hoodID = Integer.parseInt(properties.getProperty("hoodID"));
-    m_hoodEnabled = Boolean.parseBoolean(properties.getProperty("hoodEnabled"));
+    m_hoodEnabled = Boolean.parseBoolean(m_properties.getProperty("hoodEnabled"));
+    m_shooterEncoderResolution = Integer.parseInt(m_properties.getProperty("shooterEncoderResolution"));
+    m_hoodEncoderResolution = Integer.parseInt(m_properties.getProperty("hoodEncoderResolution"));
+    m_shooterGearRatio = Double.parseDouble(m_properties.getProperty("shooterGearRatio"));
+    m_hoodGearRatio = Double.parseDouble(m_properties.getProperty("hoodGearRatio"));
 
-    m_shooterEncoderResolution = Integer.parseInt(properties.getProperty("shooterEncoderResolution"));
-    m_hoodEncoderResolution = Integer.parseInt(properties.getProperty("hoodEncoderResolution"));
-    m_shooterGearRatio = Double.parseDouble(properties.getProperty("shooterGearRatio"));
-    m_hoodGearRatio = Double.parseDouble(properties.getProperty("hoodGearRatio"));
+    m_shooterVelocityPIDSlot = Integer.parseInt(m_properties.getProperty("shooterVelocityPIDSlot"));
+    m_shooterVelocityPGain = Double.parseDouble(m_properties.getProperty("shooterVelocityPGain"));
+    m_shooterVelocityIGain = Double.parseDouble(m_properties.getProperty("shooterVelocityIGain"));
+    m_shooterVelocityDGain = Double.parseDouble(m_properties.getProperty("shooterVelocityDGain"));
 
-    m_shooterVelocityPIDSlot = Integer.parseInt(properties.getProperty("shooterVelocityPIDSlot"));
-    m_shooterVelocityPGain = Double.parseDouble(properties.getProperty("shooterVelocityPGain"));
-    m_shooterVelocityIGain = Double.parseDouble(properties.getProperty("shooterVelocityIGain"));
-    m_shooterVelocityDGain = Double.parseDouble(properties.getProperty("shooterVelocityDGain"));
+    m_hoodPositionPIDSlot = Integer.parseInt(m_properties.getProperty("hoodPositionPIDSlot"));
+    m_hoodPositionPGain = Double.parseDouble(m_properties.getProperty("hoodPositionPGain"));
+    m_hoodPositionIGain = Double.parseDouble(m_properties.getProperty("hoodPositionIGain"));
+    m_hoodPositionDGain = Double.parseDouble(m_properties.getProperty("hoodPositionDGain"));
 
-    m_hoodPositionPIDSlot = Integer.parseInt(properties.getProperty("hoodPositionPIDSlot"));
-    m_hoodPositionPGain = Double.parseDouble(properties.getProperty("hoodPositionPGain"));
-    m_hoodPositionIGain = Double.parseDouble(properties.getProperty("hoodPositionIGain"));
-    m_hoodPositionDGain = Double.parseDouble(properties.getProperty("hoodPositionDGain"));
-
-    m_shooter = new TalonSRX(m_shooter1ID);
-    m_shooterFollower = new TalonSRX(m_shooter2ID);
-    m_shooterFollower.follow(m_shooter);
-    m_shooterFollower.setInverted(InvertType.InvertMotorOutput);
-    m_shooter.setNeutralMode(NeutralMode.Coast);
-    m_shooterFollower.setNeutralMode(NeutralMode.Coast);
-
+    m_shooter = new TalonSRX(shooterMap.shooter1ID);
+    m_shooterFollower = new TalonSRX(shooterMap.shooter2ID);
     m_shooter.configFactoryDefault();
     m_shooterFollower.configFactoryDefault();
+
+    m_shooterFollower.follow(m_shooter);
+
+    m_shooter.setInverted(InvertType.None);
+    m_shooterFollower.setInverted(InvertType.FollowMaster);
 
     m_shooter.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
@@ -111,7 +108,7 @@ public class Shooter extends PropertySubsystem {
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
 
     if (m_hoodEnabled) {
-      m_hood = new TalonSRX(m_hoodID);
+      m_hood = new TalonSRX(shooterMap.shooterHoodID);
       m_hood.configFactoryDefault();
       m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
       m_hood.setNeutralMode(NeutralMode.Brake);
@@ -139,10 +136,6 @@ public class Shooter extends PropertySubsystem {
     m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
 
     if (m_hoodEnabled) {
-      m_hoodPositionPGain = m_networkTable.getEntry("Hood position P gain").getDouble(m_shooterVelocityPGain);
-      m_hoodPositionIGain = m_networkTable.getEntry("Hood position I gain").getDouble(m_shooterVelocityIGain);
-      m_hoodPositionDGain = m_networkTable.getEntry("Hood position D gain").getDouble(m_shooterVelocityDGain);
-
       m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
       m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
       m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
@@ -155,14 +148,14 @@ public class Shooter extends PropertySubsystem {
     m_shooterDGainEntry.setDouble(m_shooterVelocityDGain);
   }
 
+  @Override
   public void resetHoodAngle(double angle) {
     if (m_hoodEnabled) m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
+  @Override
   public void setPercentOutput(double speed) {
-    SmartDashboard.putNumber("set Shooter speed", speed);
     m_shooter.set(ControlMode.PercentOutput, speed);
-    SmartDashboard.putNumber("actual set shooter speed", m_shooter.getMotorOutputPercent());
   }
 
   /**
@@ -170,13 +163,15 @@ public class Shooter extends PropertySubsystem {
    * 
    * @param targetVelocity Target velocity in revolutions per minute
    */
+  @Override
   public void setTargetVelocity(double velocity) {
-    logger.log(Level.FINER, "setting velocity to = ", velocity);
+    m_logger.log(Level.FINER, "setting velocity to = ", velocity);
     m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
     m_shooter.set(ControlMode.Velocity,
     toEncoderPulsesPer100Milliseconds(velocity));
   }
 
+  @Override
   public void stop() {
     m_shooter.set(ControlMode.PercentOutput, 0);
   }
@@ -186,6 +181,7 @@ public class Shooter extends PropertySubsystem {
    * 
    * @param angle Angle in degrees
    */
+  @Override
   public void setTargetAngle(double angle) {
     if (m_hoodEnabled) m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
   }
@@ -195,6 +191,7 @@ public class Shooter extends PropertySubsystem {
    * 
    * @return Velocity in revolutions per minute
    */
+  @Override
   public double getVelocity() {
     return toRPM(m_shooter.getSelectedSensorVelocity());
   }
@@ -204,6 +201,7 @@ public class Shooter extends PropertySubsystem {
    * 
    * @return Angle in degrees
    */
+  @Override
   public double getAngle() {
     return m_hoodEnabled ? toAngleHood(m_hood.getSelectedSensorPosition()) : 0.0;
   }
@@ -226,7 +224,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("shooterVelocityPGain", m_shooterVelocityPGain);
     values.put("shooterVelocityIGain", m_shooterVelocityIGain);

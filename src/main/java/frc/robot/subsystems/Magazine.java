@@ -17,45 +17,47 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.sensors.DummyDigitalInput;
+import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.subsystems.interfaces.IMagazine;
 
-public class Magazine extends PropertySubsystem {
+public class Magazine extends PropertySubsystem implements IMagazine {
+  public static class MagazineMap {
+    public int runMotorID = -1;
+    public int photoEyeChannel = -1;
+  }
+  
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
+  
+  private boolean m_photoEyeEnabled;
+  private final IDigitalInput m_photoEye;
 
-  private boolean m_frontPhotoEyeEnabled;
-  private final int m_frontPhotoEyeChannel;
-  private final PhotoEye m_frontPhotoEye;
-  private boolean m_powerCellPreviouslyDetectedFront = false;
-
-  private final Runnable m_incrementPowerCellCount;
-  private final Runnable m_decrementPowerCellCount;
-
-  private final int m_runMotorID;
   private final WPI_TalonSRX m_runMotor;
   
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
 
+  private boolean m_powerCellPreviouslyDetected;
+
+  private final Runnable m_incrementPowerCellCount;
+  private final Runnable m_decrementPowerCellCount;
+
   /**
    * Creates a new magazine
    */
-  public Magazine(Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
-    super(Magazine.class.getName());
-
+  public Magazine(MagazineMap magazineMap, Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
 
-    m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-    m_frontPhotoEyeEnabled = Boolean.parseBoolean(properties.getProperty("frontPhotoEyeEnabled"));
-    m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
-
-    m_runMotor = new WPI_TalonSRX(m_runMotorID);
-    m_runMotor.configFactoryDefault();
+    m_runMotor = new WPI_TalonSRX(magazineMap.runMotorID);
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    m_frontPhotoEye = (m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : null);
-    
+    m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
+
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(magazineMap.photoEyeChannel) : new DummyDigitalInput();
+
     m_incrementPowerCellCount = incrementPowerCellCount;
     m_decrementPowerCellCount = decrementPowerCellCount;
   }
@@ -63,50 +65,48 @@ public class Magazine extends PropertySubsystem {
   @Override
   public void periodic() {
     updatePowerCellCount();
-    
+    m_powerCellPreviouslyDetected = getPowerCellDetected();
+
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
 
-  public boolean getPowerCellDetectedFront() {
-    if (m_frontPhotoEyeEnabled) {
-      if (m_frontPhotoEye.get()) logger.fine("power cell detected front");
-      return m_frontPhotoEye.get();
-    } else {
-      return false;
-    }
+  @Override
+  public boolean getPowerCellDetected() {
+    if (m_photoEye.get())
+      m_logger.fine("power cell detected");
+    return m_photoEye.get();
   }
 
   // might be temporary
+  @Override
   public void updatePowerCellCount() {
-    logger.fine("update power cell count");
-    if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront) {
+    if (!getPowerCellDetected() && m_powerCellPreviouslyDetected) {
       if (getDirectionReversed()) {
         m_decrementPowerCellCount.run();
-        m_powerCellPreviouslyDetectedFront = false;
       } else {
         m_incrementPowerCellCount.run();
-        m_powerCellPreviouslyDetectedFront = false;
       }
-    } else if (getPowerCellDetectedFront() && !m_powerCellPreviouslyDetectedFront) {
-      m_powerCellPreviouslyDetectedFront = true;
     }
   }
 
+  @Override
   public boolean getDirectionReversed() {
     return m_runMotor.getMotorOutputPercent() < 0;
   }
 
+  @Override
   public void setSpeed(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void feedBalls(int amount) {
     m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
         arbitraryFeedForward);
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     return null;
   }
 }

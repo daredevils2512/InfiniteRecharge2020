@@ -4,13 +4,13 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.interfaces.IDrivetrain;
 
 public final class AccelerationLimitedSimpleArcadeDrive extends CommandBase {
   private final double m_maxAcceleration;
   private final double m_maxAngularAcceleration; 
 
-  private final Drivetrain m_drivetrain;
+  private final IDrivetrain m_drivetrain;
   private final DoubleSupplier m_moveSupplier;
   private final DoubleSupplier m_turnSupplier;
   private final SlewRateLimiter m_accelerationLimiter;
@@ -24,7 +24,7 @@ public final class AccelerationLimitedSimpleArcadeDrive extends CommandBase {
    * @param maxAcceleration Units per second of move supplier
    * @param maxAngularAcceleration Units per second of turn supplier
    */
-  public AccelerationLimitedSimpleArcadeDrive(Drivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier, double maxAcceleration, double maxAngularAcceleration) {
+  public AccelerationLimitedSimpleArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier, double maxAcceleration, double maxAngularAcceleration) {
     m_maxAcceleration = maxAcceleration;
     m_maxAngularAcceleration = maxAngularAcceleration;
     m_drivetrain = drivetrain;
