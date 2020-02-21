@@ -45,5 +45,4 @@ public class DummyShooter implements IShooter, IPropertySubsystem {
   @Override
   public void saveProperties() {
   }
-  
 }

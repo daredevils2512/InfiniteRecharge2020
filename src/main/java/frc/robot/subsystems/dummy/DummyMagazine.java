@@ -37,5 +37,4 @@ public class DummyMagazine implements IMagazine, IPropertySubsystem {
   @Override
   public void saveProperties() {
   }
-  
 }

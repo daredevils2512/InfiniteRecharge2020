@@ -58,42 +58,29 @@ public class RobotContainer {
   private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
-  private IDrivetrain m_drivetrain;
-  private IIntake m_intake;
-  private IShooter m_shooter;
-  private ISpinner m_spinner;
-  private IQueue m_queue;
-  private ITurret m_turret;
-  private IMagazine m_magazine;
-  private IClimber m_climber;
-  private ICompressorManager m_compressor;
+  private IDrivetrain m_drivetrain = new DummyDrivetrain();
+  private IIntake m_intake = new DummyIntake();
+  private IShooter m_shooter = new DummyShooter();
+  private ISpinner m_spinner = new DummySpinner();
+  private IQueue m_queue = new DummyQueue();
+  private ITurret m_turret = new DummyTurret();
+  private IMagazine m_magazine = new DummyMagazine();
+  private IClimber m_climber = new DummyClimber();
+  private ICompressorManager m_compressor = new DummyCompressor();
   private final Properties properties;
 
   private String m_pathPath = "paths/auto1.wpilib.json";
 
-  private static Logger logger = Logger.getLogger(RobotContainer.class.getName());
-
-  private static Logger climberLog = Logger.getLogger(Climber.class.getName());
-  private static Logger compressorLog = Logger.getLogger(Compressor.class.getName());
-  private static Logger drivetrainLog = Logger.getLogger(Drivetrain.class.getName());
-  private static Logger intakeLog = Logger.getLogger(Intake.class.getName());
-  private static Logger magazineLog = Logger.getLogger(Magazine.class.getName());
-  private static Logger queueLog = Logger.getLogger(Queue.class.getName());
-  private static Logger shooterLog = Logger.getLogger(Shooter.class.getName());
-  private static Logger spinnerLog = Logger.getLogger(Spinner.class.getName());
-  private static Logger turretLog = Logger.getLogger(Turret.class.getName());
-  private static Logger limelightLog = Logger.getLogger(Limelight.class.getName());
-
   private final boolean limelightEnabled;
-  private final boolean drivetrainEnabled = false;
-  private final boolean intakeEnabled = false;
-  private final boolean shooterEnabled = false;
-  private final boolean spinnerEnabled = false;
-  private final boolean queueEnabled = false;
-  private final boolean turretEnabled = false;
-  private final boolean magazineEnabled = false;
-  private final boolean climberEnabled = false;
-  private final boolean compressorEnabled;
+  private boolean drivetrainEnabled = false;
+  private boolean intakeEnabled = false;
+  private boolean shooterEnabled = false;
+  private boolean spinnerEnabled = false;
+  private boolean queueEnabled = false;
+  private boolean turretEnabled = false;
+  private boolean magazineEnabled = false;
+  private boolean climberEnabled = false;
+  private boolean compressorEnabled = false;
 
   private Command m_defaultDriveCommand;
   private Command m_manualIntakeCommand;
@@ -112,7 +99,7 @@ public class RobotContainer {
   private double m_magazineSpeed = 0.5;
   private double m_queueSpeed = 0.5;
 
-  private Subsystem[] subsystemArray;
+  private ILogging[] subsystemArray;
 
   private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
   private final Map<JoystickCommand, DoubleSupplier> m_joystickMap = new HashMap<>();
@@ -123,13 +110,18 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
-    subsystemArray = new Subsystem[] { m_drivetrain, m_intake, m_turret, m_magazine, m_queue, m_shooter, m_spinner, m_climber};
+    subsystemArray = new ILogging[] {m_drivetrain, m_intake, m_turret, m_magazine, m_queue, m_shooter, m_spinner, m_climber, m_compressor};
 
-    m_buttonMap.put(ButtonCommand.INVERT_DRIVING, m_controlBoard.xbox.leftTrigger);
-    m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightTrigger);
+    m_buttonMap.put(ButtonCommand.INVERT_DRIVING, m_controlBoard.xbox.leftBumper);
+    m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickBottomRight);
+    m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
+    m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
+    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
+    m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.trigger);
 
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -151,56 +143,36 @@ public class RobotContainer {
     // some point
     properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
-    String robotMapPropertiesFilename = RobotContainer.class.getSimpleName() + ".properties";
-    File robotMapDefaultPropertiesFile = new File(
-        Filesystem.getOperatingDirectory() + "/" + robotMapPropertiesFilename);
-    File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/" + robotMapPropertiesFilename);
-    Properties robotMapProperties = PropertyFiles.loadProperties(robotMapDefaultPropertiesFile, robotMapPropertiesFile);
+    // String robotMapPropertiesFilename = RobotContainer.class.getSimpleName() + ".properties";
+    // File robotMapDefaultPropertiesFile = new File(
+    //     Filesystem.getOperatingDirectory() + "/" + robotMapPropertiesFilename);
+    // File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/" + robotMapPropertiesFilename);
+    Properties robotMapProperties = PropertyFiles.loadProperties("RobotMap");
 
-    for (Subsystem subsystem : subsystemArray) {
-      Class<? extends RobotContainer> cls = this.getClass();
-      String name = subsystem.getClass().getSimpleName().toLowerCase();
+    for (ILogging subsystem : subsystemArray) {
+      String name = subsystem.getClass().getSimpleName().toLowerCase().split("y")[1];
+      System.out.println("initializing " + name);
       try {
-        Field isEnabled = cls.getDeclaredField(name + "Enabled");
+        Field isEnabled = this.getClass().getDeclaredField(name + "Enabled");
         isEnabled.setAccessible(true);
         isEnabled.set(this, Boolean.parseBoolean(properties.getProperty(name + ".isEnabled")));
-        SmartDashboard.putBoolean(name + "enabled", isEnabled.getBoolean(this));
+        SmartDashboard.putBoolean(name + " enabled", isEnabled.getBoolean(this));
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
         e.printStackTrace();
       }
     }
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
-    compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
-    limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel").toUpperCase()));
-    drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel").toUpperCase()));
-    intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel").toUpperCase()));
-    shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel").toUpperCase()));
-    spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel").toUpperCase()));
-    magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel").toUpperCase()));
-    queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel").toUpperCase()));
-    turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel").toUpperCase()));
-    climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel").toUpperCase()));
-    compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel").toUpperCase()));
-
     SmartDashboard.putBoolean("limelight enabled", limelightEnabled);
-    SmartDashboard.putBoolean("drivetrain enabled", drivetrainEnabled);
-    SmartDashboard.putBoolean("intake enabled", intakeEnabled);
-    SmartDashboard.putBoolean("shooter enabled", shooterEnabled);
-    SmartDashboard.putBoolean("spinner enabled", spinnerEnabled);
-    SmartDashboard.putBoolean("queue enabled", queueEnabled);
-    SmartDashboard.putBoolean("turret enabled", turretEnabled);
-    SmartDashboard.putBoolean("magazine enabled", magazineEnabled);
-    SmartDashboard.putBoolean("climber enabled", climberEnabled);
-    SmartDashboard.putBoolean("compressor enabled", compressorEnabled);
 
     if (limelightEnabled) {
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
 
+    //not dead code
     if (turretEnabled && drivetrainEnabled && limelightEnabled) {
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     }
@@ -255,9 +227,9 @@ public class RobotContainer {
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
-    m_intake.setDefaultCommand(m_manualIntakeCommand);
-    m_magazine.setDefaultCommand(m_manualMagazineCommand);
-    m_queue.setDefaultCommand(m_manualQueueCommand);
+    // m_intake.setDefaultCommand(m_manualIntakeCommand);
+    // m_magazine.setDefaultCommand(m_manualMagazineCommand);
+    // m_queue.setDefaultCommand(m_manualQueueCommand);
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
 
     configureButtonBindings();
@@ -369,7 +341,7 @@ public class RobotContainer {
   //beacuse
   public void robotContainerPeriodic() {
     SmartDashboard.putNumber("power cell count", m_magazinePowerCellCounter.getCount());
-    SmartDashboard.putBoolean("can shoot", m_hexagonPosition.canShoot());
+    if (m_hexagonPosition != null) SmartDashboard.putBoolean("can shoot", m_hexagonPosition.canShoot());
   }
 
   /**

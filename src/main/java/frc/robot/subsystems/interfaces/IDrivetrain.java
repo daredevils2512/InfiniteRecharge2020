@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 /**
  * The drivetrain is a 6 wheel west coast differential drivetrain with two-gear
  * transmission. It consists of four {@link TalonFX} motor controllers for
@@ -25,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  * optical encoders (one per side) mounted to the output of the gearbox for
  * distance calculation, and a {@link PigeonIMU} for heading calculation.
  */
-public interface IDrivetrain extends Subsystem, IPropertySubsystem {
+public interface IDrivetrain extends IPropertySubsystem {
   public double getMaxSpeed();
   public double getMaxAngularSpeed();
   public double getMaxAcceleration();
