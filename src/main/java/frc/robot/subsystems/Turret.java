@@ -52,7 +52,7 @@ public class Turret extends PropertySubsystem {
    * Creates a new turret
    */
   public Turret() {
-    super(Turret.class.getSimpleName());
+    super(Turret.class.getName());
     m_turretMasterID = Integer.parseInt(properties.getProperty("turretMasterID"));
 
     m_encoderResolution = Integer.parseInt(properties.getProperty("encoderResolution"));

@@ -9,6 +9,7 @@ package frc.robot;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
+import frc.robot.controlboard.Xbox;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -89,7 +91,6 @@ public class RobotContainer {
   private final boolean magazineEnabled;
   private final boolean climberEnabled;
   private final boolean compressorEnabled;
-  private Map<Consumer<Command>, Command> buttonBinds = new HashMap<>();
 
   private Command m_defaultDriveCommand;
 
@@ -107,6 +108,8 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
+
+
     properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
@@ -122,20 +125,18 @@ public class RobotContainer {
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
-
-    limelightLog.setLevel(Level.OFF);
-    drivetrainLog.setLevel(Level.OFF);
-    intakeLog.setLevel(Level.OFF);
-    shooterLog.setLevel(Level.OFF);
-    spinnerLog.setLevel(Level.OFF);
-    queueLog.setLevel(Level.OFF);
-    turretLog.setLevel(Level.OFF);
-    magazineLog.setLevel(Level.OFF);
-    climberLog.setLevel(Level.OFF);
-    compressorLog.setLevel(Level.OFF);
+    limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel").toUpperCase()));
+    drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel").toUpperCase()));
+    intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel").toUpperCase()));
+    shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel").toUpperCase()));
+    spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel").toUpperCase()));
+    magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel").toUpperCase()));
+    queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel").toUpperCase()));
+    turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel").toUpperCase()));
+    climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel").toUpperCase()));
+    compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel").toUpperCase()));
 
     if (limelightEnabled) {
-      limelightLog.setLevel(Level.parse(properties.getProperty("limelight.logLevel")));
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
 
@@ -144,26 +145,22 @@ public class RobotContainer {
     }
 
     if (drivetrainEnabled) {
-      drivetrainLog.setLevel(Level.parse(properties.getProperty("drivetrain.logLevel")));
       m_drivetrain = new Drivetrain();
       m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, this::getMove, this::getTurn);
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
-      intakeLog.setLevel(Level.parse(properties.getProperty("intake.logLevel")));
       m_intake = new Intake();
       m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, this::getIntakeExtenderSpeed));
     }
 
     if (shooterEnabled) {
-      shooterLog.setLevel(Level.parse(properties.getProperty("shooter.logLevel")));
       m_shooter = new Shooter();
       m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
     }
 
     if (spinnerEnabled) {
-      spinnerLog.setLevel(Level.parse(properties.getProperty("spinner.logLevel")));
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
@@ -179,17 +176,14 @@ public class RobotContainer {
     }
 
     if (turretEnabled) {
-      turretLog.setLevel(Level.parse(properties.getProperty("turret.logLevel")));
       m_turret = new Turret();
     }
 
     if (climberEnabled) {
-      climberLog.setLevel(Level.parse(properties.getProperty("climber.logLevel")));
       m_climber = new Climber();
     }
 
     if (compressorEnabled) {
-      compressorLog.setLevel(Level.parse(properties.getProperty("compressor.logLevel")));
       m_compressor = new CompressorManager();
     }
 
@@ -207,22 +201,22 @@ public class RobotContainer {
   private void configureButtonBindings() {
     if (drivetrainEnabled) {
       // Toggle low gear
-      m_controlBoard.xbox.rightBumper
+      m_controlBoard.getButton("shiftDown")
         .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
         .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
-      m_controlBoard.xbox.leftBumper
+      m_controlBoard.getButton("invertDriving")
         .whenPressed(Commands.setDrivingInverted(m_drivetrain, true))
         .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
     }
 
     if (intakeEnabled && magazineEnabled) {
       // Start/stop intaking
-      m_controlBoard.xbox.yButton.toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
+      m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
     }
 
     if (magazineEnabled && queueEnabled) {
       // Toggle auto queue refilling
-      m_controlBoard.extreme.joystickTopLeft.whenPressed(new InstantCommand(() -> {
+      m_controlBoard.getButton("autoRefillQueue").whenPressed(new InstantCommand(() -> {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
         if (m_autoRefillQueueEnabled) {
           m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
@@ -233,7 +227,7 @@ public class RobotContainer {
     }
 
     if (queueEnabled && shooterEnabled) {
-      m_controlBoard.extreme.joystickBottomLeft.whenPressed(new InstantCommand(() -> {
+      m_controlBoard.getButton("autoFeedShooter").whenPressed(new InstantCommand(() -> {
         m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
         if (m_autoFeedShooterEnabled) {
           m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
@@ -244,23 +238,22 @@ public class RobotContainer {
     }
 
     if (turretEnabled && limelightEnabled) {
-      m_controlBoard.extreme.trigger.toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
+      m_controlBoard.getButton("toggleFindTarget").toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
     }
 
     if (shooterEnabled) {
       // Run shooter at a set motor output
       // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
-      
     }
     
     
     if (spinnerEnabled) {
       // Extend/retract spinner
-      m_controlBoard.extreme.baseFrontLeft.whenPressed(Commands.setSpinnerExtended(m_spinner, true));
-      m_controlBoard.extreme.baseFrontRight.whenPressed(Commands.setSpinnerExtended(m_spinner, false));
+      m_controlBoard.getButton("extendSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, true));
+      m_controlBoard.getButton("retractSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, false));
 
-      m_controlBoard.extreme.baseMiddleLeft.whenPressed(Commands.rotationControl(m_spinner, 3));
-      m_controlBoard.extreme.baseMiddleRight.whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
+      m_controlBoard.getButton("spinnerRotationControl").whenPressed(Commands.rotationControl(m_spinner, 3));
+      m_controlBoard.getButton("spinnerColorControl").whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
     }
   }
 

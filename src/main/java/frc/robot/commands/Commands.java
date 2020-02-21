@@ -49,7 +49,6 @@ import frc.robot.sensors.ColorSensor.ColorDetect;
  */
 public final class Commands {
   private Commands() {
-
   }
 
   /**

@@ -18,12 +18,13 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import frc.robot.sensors.DummyDigitalInput;
+import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
 
 public class Queue extends PropertySubsystem {
-  private boolean m_photoEyeEnabled;
   private final int m_photoEyeChannel;
-  private final PhotoEye m_photoEye;
+  private final IDigitalInput m_photoEye;
 
   public final NetworkTable m_networkTable;
   public final NetworkTableEntry m_isClosedEntry;
@@ -49,7 +50,7 @@ public class Queue extends PropertySubsystem {
    * Creates a new Queue.
    */
   public Queue(Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
-    super(Queue.class.getSimpleName());
+    super(Queue.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
@@ -62,10 +63,10 @@ public class Queue extends PropertySubsystem {
     m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    if (m_photoEyeEnabled)
+    if (Boolean.parseBoolean(properties.getProperty("photoEyeEnabled")))
       m_photoEye = new PhotoEye(m_photoEyeChannel);
     else
-      m_photoEye = null;
+      m_photoEye = new DummyDigitalInput();
 
     m_gateEnabled = Boolean.parseBoolean(properties.getProperty("gateEnabled"));
     m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
@@ -106,6 +107,7 @@ public class Queue extends PropertySubsystem {
 
   public boolean getClosed() {
     if (m_gateEnabled) {
+      if (m_gate.get() == m_closedValue) logger.fine("gate closed"); 
       return m_gate.get() == m_closedValue;
     } else {
       return false;
@@ -119,11 +121,8 @@ public class Queue extends PropertySubsystem {
   }
 
   public boolean hasPowerCell() {
-    if (m_photoEyeEnabled) {
+      if (m_photoEye.get()) logger.fine("queue has power cell");
       return m_photoEye.get();
-    } else {
-      return false;
-    }
   }
 
   @Override

@@ -17,6 +17,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.sensors.DummyDigitalInput;
+import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
 
 public class Magazine extends PropertySubsystem {
@@ -25,7 +27,7 @@ public class Magazine extends PropertySubsystem {
 
   private boolean m_frontPhotoEyeEnabled;
   private final int m_frontPhotoEyeChannel;
-  private final PhotoEye m_frontPhotoEye;
+  private final IDigitalInput m_frontPhotoEye;
   private boolean m_powerCellPreviouslyDetectedFront;
 
   private final Runnable m_incrementPowerCellCount;
@@ -41,7 +43,7 @@ public class Magazine extends PropertySubsystem {
    * Creates a new magazine
    */
   public Magazine(Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
-    super(Magazine.class.getSimpleName());
+    super(Magazine.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
@@ -54,7 +56,7 @@ public class Magazine extends PropertySubsystem {
     m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    m_frontPhotoEye = m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : null;
+    m_frontPhotoEye = m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : new DummyDigitalInput();
     
     m_incrementPowerCellCount = incrementPowerCellCount;
     m_decrementPowerCellCount = decrementPowerCellCount;
@@ -69,13 +71,9 @@ public class Magazine extends PropertySubsystem {
   }
 
   public boolean getPowerCellDetectedFront() {
-    if (m_frontPhotoEyeEnabled) {
-      if (m_frontPhotoEye.get())
-        logger.fine("power cell detected front");
-      return m_frontPhotoEye.get();
-    } else {
-      return false;
-    }
+    if (m_frontPhotoEye.get())
+      logger.fine("power cell detected front");
+    return m_frontPhotoEye.get();
   }
 
   // might be temporary
