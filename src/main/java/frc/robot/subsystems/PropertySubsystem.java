@@ -13,7 +13,7 @@ public abstract class PropertySubsystem extends LoggingSubsystem implements IPro
     protected final Properties m_properties;
 
     public PropertySubsystem() {
-        m_filename = getClass().getName();
+        m_filename = getClass().getSimpleName().toLowerCase() + ".properties";
         File defaultPropertiesFile = new File(Filesystem.getOperatingDirectory() + "/" + m_filename);
         File propertiesFile = new File(Filesystem.getDeployDirectory() + "/" + m_filename);
         m_properties = PropertyFiles.loadProperties(defaultPropertiesFile, propertiesFile);
