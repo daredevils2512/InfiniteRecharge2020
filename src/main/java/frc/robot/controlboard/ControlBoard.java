@@ -11,7 +11,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.utils.PropertyFiles;
@@ -28,9 +31,9 @@ public class ControlBoard {
     properties = PropertyFiles.loadProperties(this.getClass().getSimpleName().toLowerCase());
   }
 
-
   /**
    * mainly for testing
+   * 
    * @param propertiesstring a string that pretends to be a file for testing
    */
   ControlBoard(String propertiesstring) {
@@ -38,10 +41,10 @@ public class ControlBoard {
     try {
       InputStream deployStream = new ByteArrayInputStream(propertiesstring.getBytes());
       properties.load(deployStream);
-    } catch(IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
-}
+  }
 
   public JoystickButton getButton(String propertiesKey) {
     String propertiesValue = properties.getProperty(propertiesKey);
@@ -55,13 +58,38 @@ public class ControlBoard {
       Object obj = cls.getDeclaredField(joystick).get(this);
       Field field = obj.getClass().getDeclaredField(value);
       button = (JoystickButton) field.get(obj);
-    } catch(IllegalAccessException e) {
+    } catch (IllegalAccessException e) {
       button = null;
       e.printStackTrace();
-    } catch(NoSuchFieldException e) {
+    } catch (NoSuchFieldException e) {
       button = null;
       e.printStackTrace();
     }
     return button;
+  }
+
+  public Supplier<Double> getAxis(String propertiesKey) {
+    String propertiesValue = properties.getProperty(propertiesKey);
+    propertiesValue = propertiesValue.trim();
+    String[] splitValue = propertiesValue.split("\\.");
+    String joystick = splitValue[0];
+    String stick = splitValue[1];
+    Class<? extends ControlBoard> cls = this.getClass();
+    Supplier<Double> axis = () -> 0.0;
+    try {
+      Object obj = cls.getDeclaredField(joystick).get(this);
+      Method method = obj.getClass().getDeclaredMethod(stick);
+      axis = () -> {
+        try {
+          return (Double) method.invoke(obj);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+          e.printStackTrace();
+          return null;
+        }
+      };
+    } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException e) {
+      e.printStackTrace();
+    }
+    return axis;
   }
 }
