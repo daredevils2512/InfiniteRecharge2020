@@ -6,12 +6,13 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.DoubleSupplier;
 import java.io.File;
-
+import java.lang.reflect.Field;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
@@ -21,39 +22,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ButtonCommand;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickCommand;
 import frc.robot.controlboard.JoystickUtil;
-import frc.robot.subsystems.dummy.DummyClimber;
-import frc.robot.subsystems.dummy.DummyCompressor;
-import frc.robot.subsystems.dummy.DummyDrivetrain;
-import frc.robot.subsystems.dummy.DummyIntake;
-import frc.robot.subsystems.dummy.DummyMagazine;
-import frc.robot.subsystems.dummy.DummyQueue;
-import frc.robot.subsystems.dummy.DummyShooter;
-import frc.robot.subsystems.dummy.DummySpinner;
-import frc.robot.subsystems.dummy.DummyTurret;
-import frc.robot.subsystems.interfaces.IClimber;
-import frc.robot.subsystems.interfaces.ICompressorManager;
-import frc.robot.subsystems.interfaces.IDrivetrain;
-import frc.robot.subsystems.interfaces.IIntake;
-import frc.robot.subsystems.interfaces.IMagazine;
-import frc.robot.subsystems.interfaces.IQueue;
-import frc.robot.subsystems.interfaces.IShooter;
-import frc.robot.subsystems.interfaces.ISpinner;
-import frc.robot.subsystems.interfaces.ITurret;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.CompressorManager;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Queue;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Spinner;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.Climber.ClimberMap;
 import frc.robot.subsystems.Drivetrain.DrivetrainMap;
 import frc.robot.subsystems.Intake.IntakeMap;
@@ -61,6 +37,8 @@ import frc.robot.subsystems.Magazine.MagazineMap;
 import frc.robot.subsystems.Queue.QueueMap;
 import frc.robot.subsystems.Shooter.ShooterMap;
 import frc.robot.subsystems.Turret.TurretMap;
+import frc.robot.subsystems.dummy.*;
+import frc.robot.subsystems.interfaces.*;
 import frc.robot.utils.DriveType;
 import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
@@ -69,10 +47,11 @@ import frc.robot.vision.Limelight;
 import frc.robot.vision.Limelight.Pipeline;
 
 /**
- * This class is where the bulk of the robot should be declared.  Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
- * (including subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a "declarative" paradigm, very little robot logic should
+ * actually be handled in the {@link Robot} periodic methods (other than the
+ * scheduler calls). Instead, the structure of the robot (including subsystems,
+ * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
@@ -106,14 +85,14 @@ public class RobotContainer {
   private static Logger limelightLog = Logger.getLogger(Limelight.class.getName());
 
   private final boolean limelightEnabled;
-  private final boolean drivetrainEnabled;
-  private final boolean intakeEnabled;
-  private final boolean shooterEnabled;
-  private final boolean spinnerEnabled;
-  private final boolean queueEnabled;
-  private final boolean turretEnabled;
-  private final boolean magazineEnabled;
-  private final boolean climberEnabled;
+  private final boolean drivetrainEnabled = false;
+  private final boolean intakeEnabled = false;
+  private final boolean shooterEnabled = false;
+  private final boolean spinnerEnabled = false;
+  private final boolean queueEnabled = false;
+  private final boolean turretEnabled = false;
+  private final boolean magazineEnabled = false;
+  private final boolean climberEnabled = false;
   private final boolean compressorEnabled;
 
   private Command m_defaultDriveCommand;
@@ -133,14 +112,18 @@ public class RobotContainer {
   private double m_magazineSpeed = 0.5;
   private double m_queueSpeed = 0.5;
 
+  private Subsystem[] subsystemArray;
+
   private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
   private final Map<JoystickCommand, DoubleSupplier> m_joystickMap = new HashMap<>();
 
   /**
-   * The container for the robot.  Contains subsystems, OI devices, and commands.
+   * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
+
+    subsystemArray = new Subsystem[] { m_drivetrain, m_intake, m_turret, m_magazine, m_queue, m_shooter, m_spinner, m_climber};
 
     m_buttonMap.put(ButtonCommand.INVERT_DRIVING, m_controlBoard.xbox.leftTrigger);
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightTrigger);
@@ -164,23 +147,29 @@ public class RobotContainer {
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.extreme.getSlider());
     m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
 
-    // This should probably be extracted from here and from PropertySubsystem at some point
+    // This should probably be extracted from here and from PropertySubsystem at
+    // some point
     properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     String robotMapPropertiesFilename = RobotContainer.class.getSimpleName() + ".properties";
-    File robotMapDefaultPropertiesFile = new File(Filesystem.getOperatingDirectory() + "/" + robotMapPropertiesFilename);
+    File robotMapDefaultPropertiesFile = new File(
+        Filesystem.getOperatingDirectory() + "/" + robotMapPropertiesFilename);
     File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/" + robotMapPropertiesFilename);
     Properties robotMapProperties = PropertyFiles.loadProperties(robotMapDefaultPropertiesFile, robotMapPropertiesFile);
 
+    for (Subsystem subsystem : subsystemArray) {
+      Class<? extends RobotContainer> cls = this.getClass();
+      String name = subsystem.getClass().getSimpleName().toLowerCase();
+      try {
+        Field isEnabled = cls.getDeclaredField(name + "Enabled");
+        isEnabled.setAccessible(true);
+        isEnabled.set(this, Boolean.parseBoolean(properties.getProperty(name + ".isEnabled")));
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
-    drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
-    intakeEnabled = Boolean.parseBoolean(properties.getProperty("intake.isEnabled"));
-    shooterEnabled = Boolean.parseBoolean(properties.getProperty("shooter.isEnabled"));
-    spinnerEnabled = Boolean.parseBoolean(properties.getProperty("spinner.isEnabled"));
-    queueEnabled = Boolean.parseBoolean(properties.getProperty("queue.isEnabled"));
-    turretEnabled = Boolean.parseBoolean(properties.getProperty("turret.isEnabled"));
-    magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
-    climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
