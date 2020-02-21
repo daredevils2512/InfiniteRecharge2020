@@ -7,16 +7,17 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.utils.PropertyFiles;
 
-public abstract class PropertySubsystem extends SubsystemBase {
+public abstract class PropertySubsystem extends SubsystemBase implements IPropertySubsystem {
     protected final Logger m_logger;
     protected final String m_filename;
     protected final Properties m_properties;
 
-    public PropertySubsystem(Class<? extends PropertySubsystem> clazz) {
-        m_logger = Logger.getLogger(clazz.getName());
-        m_filename = clazz.getSimpleName() + ".properties";
+    public PropertySubsystem() {
+        m_logger = Logger.getLogger(getClass().getName());
+        m_filename = getClass().getName();
         File defaultPropertiesFile = new File(Filesystem.getOperatingDirectory() + "/" + m_filename);
         File propertiesFile = new File(Filesystem.getDeployDirectory() + "/" + m_filename);
         m_properties = PropertyFiles.loadProperties(defaultPropertiesFile, propertiesFile);

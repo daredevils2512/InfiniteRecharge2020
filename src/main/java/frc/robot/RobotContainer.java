@@ -7,6 +7,7 @@
 
 package frc.robot;
 import java.io.File;
+
 import java.util.Properties;
 import java.util.logging.*;
 
@@ -20,12 +21,25 @@ import frc.robot.commands.Commands;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickUtil;
 import frc.robot.sensors.ColorSensor.ColorDetect;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Queue;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Spinner;
+import frc.robot.subsystems.dummy.DummyClimber;
+import frc.robot.subsystems.dummy.DummyCompressor;
+import frc.robot.subsystems.dummy.DummyDrivetrain;
+import frc.robot.subsystems.dummy.DummyIntake;
+import frc.robot.subsystems.dummy.DummyMagazine;
+import frc.robot.subsystems.dummy.DummyQueue;
+import frc.robot.subsystems.dummy.DummyShooter;
+import frc.robot.subsystems.dummy.DummySpinner;
+import frc.robot.subsystems.dummy.DummyTurret;
+import frc.robot.subsystems.interfaces.IClimber;
+import frc.robot.subsystems.interfaces.ICompressorManager;
+import frc.robot.subsystems.interfaces.IDrivetrain;
+import frc.robot.subsystems.interfaces.IIntake;
+import frc.robot.subsystems.interfaces.IMagazine;
+import frc.robot.subsystems.interfaces.IQueue;
+import frc.robot.subsystems.interfaces.IShooter;
+import frc.robot.subsystems.interfaces.ISpinner;
+import frc.robot.subsystems.interfaces.ITurret;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.Climber.ClimberMap;
 import frc.robot.subsystems.Drivetrain.DrivetrainMap;
 import frc.robot.subsystems.Intake.IntakeMap;
@@ -33,9 +47,9 @@ import frc.robot.subsystems.Magazine.MagazineMap;
 import frc.robot.subsystems.Queue.QueueMap;
 import frc.robot.subsystems.Shooter.ShooterMap;
 import frc.robot.subsystems.Turret.TurretMap;
-import frc.robot.subsystems.*;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
+import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
@@ -49,17 +63,18 @@ import frc.robot.vision.Limelight.Pipeline;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
+  private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
-  private Drivetrain m_drivetrain;
-  private Intake m_intake;
-  private Shooter m_shooter;
-  private Spinner m_spinner;
-  private Queue m_queue;
-  private Turret m_turret;
-  private Magazine m_magazine;
-  private Climber m_climber;
-  private CompressorManager m_compressor;
+  private IDrivetrain m_drivetrain;
+  private IIntake m_intake;
+  private IShooter m_shooter;
+  private ISpinner m_spinner;
+  private IQueue m_queue;
+  private ITurret m_turret;
+  private IMagazine m_magazine;
+  private IClimber m_climber;
+  private ICompressorManager m_compressor;
   private final Properties properties;
 
   private static final String PROPERTIES_NAME = "/robotContainer.properties";
@@ -145,78 +160,60 @@ public class RobotContainer {
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     }
 
-    if (drivetrainEnabled) {
-      DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
-      drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
-      drivetrainMap.driveLeft2ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft2ID"));
-      drivetrainMap.driveRight1ID = Integer.parseInt(robotMapProperties.getProperty("driveRight1ID"));
-      drivetrainMap.driveRight2ID = Integer.parseInt(robotMapProperties.getProperty("driveRight2ID"));
-      drivetrainMap.pigeonID = Integer.parseInt(robotMapProperties.getProperty("pigeonID"));
-      drivetrainMap.driveLeftEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelA"));
-      drivetrainMap.driveLeftEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelB"));
-      drivetrainMap.driveRightEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelA"));
-      drivetrainMap.driveRightEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelB"));
-      drivetrainMap.shiftForwardChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftForwardChannel"));
-      drivetrainMap.shiftReverseChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftReverseChannel"));
-      m_drivetrain = new Drivetrain(drivetrainMap);
-      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
-      m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
-    }
+    DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
+    drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
+    drivetrainMap.driveLeft2ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft2ID"));
+    drivetrainMap.driveRight1ID = Integer.parseInt(robotMapProperties.getProperty("driveRight1ID"));
+    drivetrainMap.driveRight2ID = Integer.parseInt(robotMapProperties.getProperty("driveRight2ID"));
+    drivetrainMap.pigeonID = Integer.parseInt(robotMapProperties.getProperty("pigeonID"));
+    drivetrainMap.driveLeftEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelA"));
+    drivetrainMap.driveLeftEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelB"));
+    drivetrainMap.driveRightEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelA"));
+    drivetrainMap.driveRightEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelB"));
+    drivetrainMap.shiftForwardChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftForwardChannel"));
+    drivetrainMap.shiftReverseChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftReverseChannel"));
 
-    if (intakeEnabled) {
-      IntakeMap intakeMap = new IntakeMap();
-      intakeMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeRunID"));
-      intakeMap.extendMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeExtenderID"));
-      intakeMap.retractedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeRetractedLimitSwitchChannel"));
-      intakeMap.extendedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeExtendedLimitSwitchChannel"));
-      m_intake = new Intake(intakeMap);
-      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
-    }
+    IntakeMap intakeMap = new IntakeMap();
+    intakeMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeRunID"));
+    intakeMap.extendMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeExtenderID"));
+    intakeMap.retractedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeRetractedLimitSwitchChannel"));
+    intakeMap.extendedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeExtendedLimitSwitchChannel"));
 
-    if (shooterEnabled) {
-      ShooterMap shooterMap = new ShooterMap();
-      shooterMap.shooter1ID = Integer.parseInt(robotMapProperties.getProperty("shooter1ID"));
-      shooterMap.shooter2ID = Integer.parseInt(robotMapProperties.getProperty("shooter2ID"));
-      shooterMap.shooterHoodID = Integer.parseInt(robotMapProperties.getProperty("shooterHoodID"));
-      m_shooter = new Shooter(shooterMap);
-      m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
-    }
+    ShooterMap shooterMap = new ShooterMap();
+    shooterMap.shooter1ID = Integer.parseInt(robotMapProperties.getProperty("shooter1ID"));
+    shooterMap.shooter2ID = Integer.parseInt(robotMapProperties.getProperty("shooter2ID"));
+    shooterMap.shooterHoodID = Integer.parseInt(robotMapProperties.getProperty("shooterHoodID"));
+    
+    MagazineMap magazineMap = new MagazineMap();
+    magazineMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("magazineRunID"));
+    magazineMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("magazinePhotoEyeChannel"));
 
-    if (spinnerEnabled) {
-      m_spinner = new Spinner();
-    }
-    if (magazineEnabled) {
-      MagazineMap magazineMap = new MagazineMap();
-      magazineMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("magazineRunID"));
-      magazineMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("magazinePhotoEyeChannel"));
-      m_magazine = new Magazine(magazineMap);
-      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
-    }
+    QueueMap queueMap = new QueueMap();
+    queueMap.queueRunID = Integer.parseInt(robotMapProperties.getProperty("queueRunID"));
+    queueMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("queuePhotoEyeChannel"));
 
-    if (queueEnabled) {
-      QueueMap queueMap = new QueueMap();
-      queueMap.queueRunID = Integer.parseInt(robotMapProperties.getProperty("queueRunID"));
-      queueMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("queuePhotoEyeChannel"));
-      m_queue = new Queue(queueMap);
-      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
-    }
+    TurretMap turretMap = new TurretMap();
+    turretMap.turretID = Integer.parseInt(robotMapProperties.getProperty("turretID"));
 
-    if (turretEnabled) {
-      TurretMap turretMap = new TurretMap();
-      turretMap.turretID = Integer.parseInt(robotMapProperties.getProperty("turretID"));
-      m_turret = new Turret(turretMap);
-    }
+    ClimberMap climberMap = new ClimberMap();
+    climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty("climberLeftID"));
+    climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty("climberRightID"));
 
-    if (climberEnabled) {
-      ClimberMap climberMap = new ClimberMap();
-      climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty("climberLeftID"));
-      climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty("climberRightID"));
-      m_climber = new Climber(climberMap);
-    }
+    m_drivetrain = drivetrainEnabled ? new Drivetrain(drivetrainMap) : new DummyDrivetrain();
+    m_intake = intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
+    m_shooter = shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
+    m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
+    m_magazine = magazineEnabled ? new Magazine(magazineMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyMagazine();
+    m_queue = queueEnabled ? new Queue(queueMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyQueue();
+    m_turret = turretEnabled ? new Turret(turretMap) : new DummyTurret();
+    m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
+    m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
-    if (compressorEnabled) {
-      m_compressor = new CompressorManager();
-    }
+    m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+    m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, () -> getShooterSpeed()));
+    m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn()));
+    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
 
     configureButtonBindings();
 
@@ -230,62 +227,40 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    if (drivetrainEnabled) {
-      // Toggle low gear
       m_controlBoard.getButton("shiftDown")
         .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
         .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
       m_controlBoard.getButton("invertDriving")
         .whenPressed(Commands.setDrivingInverted(m_drivetrain, true))
         .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
-    }
 
-    if (intakeEnabled && magazineEnabled) {
-      // Start/stop intaking
       m_controlBoard.getButton("runIntake").toggleWhenPressed(Commands.runIntake(m_intake, m_magazine, 1));
-    }
 
-    if (magazineEnabled && queueEnabled) {
-      // Toggle auto queue refilling
       m_controlBoard.getButton("autoRefillQueue").whenPressed(new InstantCommand(() -> {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
         if (m_autoRefillQueueEnabled) {
-          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
+          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
         } else {
-          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
         }
       }));
-    }
 
-    if (queueEnabled && shooterEnabled) {
       m_controlBoard.getButton("autoFeedShooter").whenPressed(new InstantCommand(() -> {
         m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
         if (m_autoFeedShooterEnabled) {
-          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
+          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
         } else {
-          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+          m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
         }
       }));
-    }
 
-    if (turretEnabled && limelightEnabled) {
       m_controlBoard.getButton("toggleFindTarget").toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
-    }
 
-    if (shooterEnabled) {
-      // Run shooter at a set motor output
-      // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
-    }
-    
-    
-    if (spinnerEnabled) {
-      // Extend/retract spinner
       m_controlBoard.getButton("extendSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, true));
       m_controlBoard.getButton("retractSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, false));
 
       m_controlBoard.getButton("spinnerRotationControl").whenPressed(Commands.rotationControl(m_spinner, 3));
       m_controlBoard.getButton("spinnerColorControl").whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
-    }
   }
 
   private double getMove() {

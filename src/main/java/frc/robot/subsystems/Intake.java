@@ -20,8 +20,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.sensors.LimitSwitch;
+import frc.robot.subsystems.interfaces.IIntake;
 
-public class Intake extends PropertySubsystem {
+public class Intake extends PropertySubsystem implements IIntake {
   public static class IntakeMap {
     public int runMotorID = -1;
     public int extendMotorID = -1;
@@ -68,8 +69,6 @@ public class Intake extends PropertySubsystem {
    * Creates a new power cell intake
    */
   public Intake(IntakeMap intakeMap) {
-    super(Intake.class);
-    
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
     m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
@@ -151,10 +150,12 @@ public class Intake extends PropertySubsystem {
     m_arbitraryFeedforwardEntry.setNumber(m_arbitraryFeedForward);
   }
 
+  @Override
   public void runIntake(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void setMotionMagicEnabled(boolean wantsEnabled) {
     if (!wantsEnabled) {
       m_extendMotor.set(ControlMode.PercentOutput, 0);
@@ -162,16 +163,19 @@ public class Intake extends PropertySubsystem {
     m_motionMagicEnabled = wantsEnabled;
   }
 
+  @Override
   public void resetIntakeExtenderAngle() {
     m_extendMotor.setSelectedSensorPosition(0);
   }
 
+  @Override
   public boolean getExtended() {
     if (m_extended)
       m_logger.fine("intake extended");
     return m_extended;
   }
 
+  @Override
   public void setExtended(boolean wantsExtended) {
     m_extended = wantsExtended;
   }
@@ -179,6 +183,7 @@ public class Intake extends PropertySubsystem {
   /**
    * Temporary function for testing/tuning the extender
    */
+  @Override
   public void runExtender(double output) {
     // Stop running motion magic so it doesn't interfere
     m_motionMagicEnabled = false;
@@ -216,7 +221,7 @@ public class Intake extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("pGain", m_pGain);
     values.put("iGain", m_iGain);

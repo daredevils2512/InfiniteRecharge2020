@@ -17,8 +17,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.subsystems.interfaces.IShooter;
 
-public class Shooter extends PropertySubsystem {
+public class Shooter extends PropertySubsystem implements IShooter {
   public static class ShooterMap {
     public int shooter1ID = -1;
     public int shooter2ID = -1;
@@ -52,8 +53,6 @@ public class Shooter extends PropertySubsystem {
    * Creates a new power cell shooter
    */
   public Shooter(ShooterMap shooterMap) {
-    super(Shooter.class);
-
     m_shooterEncoderResolution = Integer.parseInt(m_properties.getProperty("shooterEncoderResolution"));
     m_hoodEncoderResolution = Integer.parseInt(m_properties.getProperty("hoodEncoderResolution"));
     m_shooterGearRatio = Double.parseDouble(m_properties.getProperty("shooterGearRatio"));
@@ -119,10 +118,12 @@ public class Shooter extends PropertySubsystem {
     m_networkTable.getEntry("Shooter velocity D gain").setDouble(m_shooterVelocityDGain);
   }
 
+  @Override
   public void resetHoodAngle(double angle) {
     // m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
+  @Override
   public void setPercentOutput(double speed) {
     m_shooter.set(ControlMode.PercentOutput, speed);
   }
@@ -132,12 +133,14 @@ public class Shooter extends PropertySubsystem {
    * 
    * @param targetVelocity Target velocity in revolutions per minute
    */
+  @Override
   public void setTargetVelocity(double velocity) {
     // m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
     // m_shooter.set(ControlMode.Velocity,
     // toEncoderPulsesPer100Milliseconds(velocity));
   }
 
+  @Override
   public void stop() {
     m_shooter.set(ControlMode.PercentOutput, 0);
   }
@@ -147,6 +150,7 @@ public class Shooter extends PropertySubsystem {
    * 
    * @param angle Angle in degrees
    */
+  @Override
   public void setTargetAngle(double angle) {
     // m_hood.set(ControlMode.Position, toEncoderPulsesHood(angle));
   }
@@ -156,6 +160,7 @@ public class Shooter extends PropertySubsystem {
    * 
    * @return Velocity in revolutions per minute
    */
+  @Override
   public double getVelocity() {
     // return toRPM(m_shooter.getSelectedSensorVelocity());
     return 0;
@@ -166,6 +171,7 @@ public class Shooter extends PropertySubsystem {
    * 
    * @return Angle in degrees
    */
+  @Override
   public double getAngle() {
     // return toAngleHood(m_hood.getSelectedSensorPosition());
     return 0.0;
@@ -189,7 +195,7 @@ public class Shooter extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("shooterVelocityPGain", m_shooterVelocityPGain);
     values.put("shooterVelocityIGain", m_shooterVelocityIGain);
