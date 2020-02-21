@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.Commands;
@@ -94,6 +95,7 @@ public class RobotContainer {
   private boolean m_autoFeedShooterEnabled = false;
 
   private double m_intakeExtenderSpeed = 0.3;
+  private double m_intakeSpeed = 0.5;
   private double m_magazineSpeed = 0.5;
   private double m_queueSpeed = 0.5;
 
@@ -133,7 +135,7 @@ public class RobotContainer {
       turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
       return turn / 2;
     });
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.extreme.getSlider());
     m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
 
@@ -224,10 +226,21 @@ public class RobotContainer {
     m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
+    m_manualIntakeCommand = new RunCommand(() -> {
+      m_intake.runExtender(m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER).getAsDouble());
+      m_intake.runIntake(m_intakeRunning ? m_intakeSpeed : 0);
+    }, m_intake);
+    m_manualMagazineCommand = new RunCommand(() -> {
+      m_magazine.setSpeed(m_magazineRunning ? m_magazineSpeed : 0);
+    }, m_magazine);
+    m_manualQueueCommand = new RunCommand(() -> {
+      m_queue.run(m_queueRunning ? m_queueSpeed : 0);
+    }, m_queue);
+
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
-    // m_intake.setDefaultCommand(m_manualIntakeCommand);
-    // m_magazine.setDefaultCommand(m_manualMagazineCommand);
-    // m_queue.setDefaultCommand(m_manualQueueCommand);
+    m_intake.setDefaultCommand(m_manualIntakeCommand);
+    m_magazine.setDefaultCommand(m_manualMagazineCommand);
+    m_queue.setDefaultCommand(m_manualQueueCommand);
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
 
     configureButtonBindings();
