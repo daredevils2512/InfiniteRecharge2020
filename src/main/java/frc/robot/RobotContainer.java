@@ -379,6 +379,7 @@ public class RobotContainer {
   //beacuse
   public void robotContainerPeriodic() {
     SmartDashboard.putNumber("power cell count", m_magazinePowerCellCounter.getCount());
+    SmartDashboard.putBoolean("can shoot", m_hexagonPosition.canShoot());
   }
 
   /**
