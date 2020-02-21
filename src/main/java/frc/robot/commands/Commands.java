@@ -148,8 +148,8 @@ public final class Commands {
     return new RunCommand(() -> magazine.setSpeed(speedSupplier.getAsDouble()), magazine);
   }
 
-  public static Command refillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
-    return new RefillQueue(magazine, magazineSpeed, powerCellQueued);
+  public static Command refillQueue(Magazine magazine, double magazineSpeed, IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
+    return new RefillQueue(magazine, magazineSpeed, magazinePowerCellCountSupplier, queueHasPowerCellSupplier);
   }
 
   public static Command autoRefillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
@@ -158,6 +158,10 @@ public final class Commands {
 
   public static Command runQueue(Queue queue, DoubleSupplier speedSupplier) {
     return new RunCommand(() -> queue.run(speedSupplier.getAsDouble()), queue);
+  }
+
+  public static Command acceptFromMagazine(Queue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+    return new AcceptFromMagazine(queue, queueSpeed, magazinePowerCellCountSupplier);
   }
 
   public static Command feedShooter(Queue queue, DoubleSupplier queueSpeedSupplier) {

@@ -8,8 +8,6 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -43,10 +41,15 @@ public class Queue extends PropertySubsystem {
   private final DoubleSolenoid.Value m_closedValue = Value.kReverse;
   private final DoubleSolenoid m_gate;
 
+  private final Runnable m_incrementMagazinePowerCellCount;
+  private final Runnable m_decrementMagazinePowerCellCount;
+
+  private boolean m_powerCellPreviouslyDetected = false;
+
   /**
    * Creates a new Queue.
    */
-  public Queue() {
+  public Queue(Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
     super(Queue.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
@@ -69,12 +72,24 @@ public class Queue extends PropertySubsystem {
     m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
     m_gateReverseChannel = Integer.parseInt(properties.getProperty("gateReverseChannel"));
     m_gate = m_gateEnabled ? new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel) : null;
+
+    m_incrementMagazinePowerCellCount = incrementMagazinePowerCellCount;
+    m_decrementMagazinePowerCellCount = decrementMagazinePowerCellCount;
   }
 
   @Override
   public void periodic() {
+    updateMagazinePowerCellCount();
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
     m_isClosedEntry.setBoolean(getClosed());
+  }
+
+  private void updateMagazinePowerCellCount() {
+    if (m_photoEye.get() && !m_powerCellPreviouslyDetected && !getDirectionReversed()) {
+      m_decrementMagazinePowerCellCount.run();
+    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected && getDirectionReversed()) {
+      m_incrementMagazinePowerCellCount.run();
+    }
   }
 
   public void run(double speed) {
@@ -84,6 +99,10 @@ public class Queue extends PropertySubsystem {
   public void run(double speed, boolean wantsClosed) {
     setClosed(wantsClosed);
     run(speed);
+  }
+
+  public boolean getDirectionReversed() {
+    return m_runMotor.getMotorOutputPercent() < 0;
   }
 
   public boolean getClosed() {

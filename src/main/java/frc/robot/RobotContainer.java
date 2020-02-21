@@ -37,6 +37,7 @@ import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
+import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
@@ -50,6 +51,7 @@ import frc.robot.vision.Limelight.Pipeline;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
+  private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
   private Drivetrain m_drivetrain;
@@ -144,13 +146,13 @@ public class RobotContainer {
 
     if (drivetrainEnabled) {
       m_drivetrain = new Drivetrain();
-      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, () -> getMove(), () -> getTurn());
+      m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, this::getMove, this::getTurn);
       m_drivetrain.setDefaultCommand(m_defaultDriveCommand);
     }
 
     if (intakeEnabled) {
       m_intake = new Intake();
-      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, () -> getIntakeExtenderSpeed()));
+      m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, this::getIntakeExtenderSpeed));
     }
 
     if (shooterEnabled) {
@@ -162,13 +164,15 @@ public class RobotContainer {
       m_spinner = new Spinner();
     }
     if (magazineEnabled) {
-      m_magazine = new Magazine();
-      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+      magazineLog.setLevel(Level.parse(properties.getProperty("magazine.logLevel")));
+      m_magazine = new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
+      m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
     }
 
     if (queueEnabled) {
-      m_queue = new Queue();
-      m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+      queueLog.setLevel(Level.parse(properties.getProperty("queue.logLevel")));
+      m_queue = new Queue(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
+      m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
     }
 
     if (turretEnabled) {
@@ -215,9 +219,9 @@ public class RobotContainer {
       m_controlBoard.getButton("autoRefillQueue").whenPressed(new InstantCommand(() -> {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
         if (m_autoRefillQueueEnabled) {
-          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
+          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
         } else {
-          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
         }
       }));
     }
@@ -226,9 +230,9 @@ public class RobotContainer {
       m_controlBoard.getButton("autoFeedShooter").whenPressed(new InstantCommand(() -> {
         m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
         if (m_autoFeedShooterEnabled) {
-          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
+          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
         } else {
-          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+          m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
         }
       }));
     }

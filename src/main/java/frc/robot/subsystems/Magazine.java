@@ -7,7 +7,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.logging.*;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -18,21 +17,21 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.DummyDigitalInput;
-import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
 
 public class Magazine extends PropertySubsystem {
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
-  private final NetworkTableEntry m_powerCellCountEntry;
-  
+
+  private boolean m_frontPhotoEyeEnabled;
   private final int m_frontPhotoEyeChannel;
-  private final int m_backPhotoEyeChannel;
-  private final IDigitalInput m_frontPhotoEye; // Photo eye closest to the intake
-  private final IDigitalInput m_backPhotoEye; // Photo eye closest to the queue
+  private final IDigitalInput m_frontPhotoEye;
+  private boolean m_powerCellPreviouslyDetectedFront;
+
+  private final Runnable m_incrementPowerCellCount;
+  private final Runnable m_decrementPowerCellCount;
 
   private final int m_runMotorID;
   private final WPI_TalonSRX m_runMotor;
@@ -40,45 +39,35 @@ public class Magazine extends PropertySubsystem {
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
 
-  private int m_powerCellCount;
-  private boolean m_powerCellPreviouslyDetectedFront;
-  private boolean m_powerCellPreviouslyDetectedBack;
-
   /**
    * Creates a new magazine
    */
-  public Magazine() {
+  public Magazine(Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
     super(Magazine.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
-    m_powerCellCountEntry = m_networkTable.getEntry("Power cell count");
 
     m_runMotorID = Integer.parseInt(properties.getProperty("runMotorID"));
-
+    m_frontPhotoEyeEnabled = Boolean.parseBoolean(properties.getProperty("frontPhotoEyeEnabled"));
     m_frontPhotoEyeChannel = Integer.parseInt(properties.getProperty("frontPhotoEyeChannel"));
-    m_backPhotoEyeChannel = Integer.parseInt(properties.getProperty("backPhotoEyeChannel"));
 
     m_runMotor = new WPI_TalonSRX(m_runMotorID);
+    m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
-    if (Boolean.parseBoolean(properties.getProperty("photoEyeEnabled"))) {
-      m_frontPhotoEye = new PhotoEye(m_frontPhotoEyeChannel);
-      m_backPhotoEye = new PhotoEye(m_backPhotoEyeChannel);
-    } else {
-      m_frontPhotoEye = new DummyDigitalInput();
-      m_backPhotoEye = new DummyDigitalInput();
-    }
+    m_frontPhotoEye = m_frontPhotoEyeEnabled ? new PhotoEye(m_frontPhotoEyeChannel) : new DummyDigitalInput();
+    
+    m_incrementPowerCellCount = incrementPowerCellCount;
+    m_decrementPowerCellCount = decrementPowerCellCount;
   }
 
   @Override
   public void periodic() {
     updatePowerCellCount();
     m_powerCellPreviouslyDetectedFront = getPowerCellDetectedFront();
-    m_powerCellPreviouslyDetectedBack = getPowerCellDetectedBack();
-
+    
     m_directionReversedEntry.setBoolean(getDirectionReversed());
-    m_powerCellCountEntry.setNumber(getPowerCellCount());
   }
 
   public boolean getPowerCellDetectedFront() {
@@ -87,43 +76,14 @@ public class Magazine extends PropertySubsystem {
     return m_frontPhotoEye.get();
   }
 
-  public boolean getPowerCellDetectedBack() {
-    if (m_backPhotoEye.get())
-      logger.fine("power cell detected back");
-    return m_backPhotoEye.get();
-  }
-
-  public int getPowerCellCount() {
-    return m_powerCellCount;
-  }
-
-  public void setBallsInMag(int set) {
-    m_powerCellCount = set;
-  }
-
-  public void resetBallCount() {
-    setBallsInMag(0);
-  }
-
   // might be temporary
   public void updatePowerCellCount() {
-    int deltaCount = 0;
-    if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront)
-      deltaCount++;
-    if (!getPowerCellDetectedBack() && m_powerCellPreviouslyDetectedBack)
-      deltaCount--;
-    if (getDirectionReversed())
-      deltaCount = -deltaCount; // Counting direction is reversed if the magazine is being run backwards
-
-    int newCount = m_powerCellCount + deltaCount;
-    if (newCount < 0)
-      logger.warning("Power cell count exceeded lower bounds");
-    else if (newCount > 3)
-      logger.warning("Power cell count exceeded upper bounds");
-
-    m_powerCellCount = MathUtil.clamp(newCount, 0, 3);
-    if (deltaCount != 0)
-      logger.log(Level.FINER, "power cell count", m_powerCellCount);
+    if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront) {
+      if (getDirectionReversed())
+        m_decrementPowerCellCount.run();
+      else
+        m_incrementPowerCellCount.run();
+    }
   }
 
   public boolean getDirectionReversed() {
