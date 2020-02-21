@@ -169,10 +169,12 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_arbitraryFeedforwardEntry.setNumber(m_arbitraryFeedForward);
   }
 
+  @Override
   public void runIntake(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void setMotionMagicEnabled(boolean wantsEnabled) {
     if (!wantsEnabled) {
       m_extendMotor.set(ControlMode.PercentOutput, 0);
@@ -180,16 +182,19 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_motionMagicEnabled = wantsEnabled;
   }
 
+  @Override
   public void resetIntakeExtenderAngle() {
     m_extendMotor.setSelectedSensorPosition(0);
   }
 
+  @Override
   public boolean getExtended() {
     if (m_extended)
       logger.fine("intake extended");
     return m_extended;
   }
 
+  @Override
   public void setExtended(boolean wantsExtended) {
     m_extended = wantsExtended;
   }
@@ -197,6 +202,7 @@ public class Intake extends PropertySubsystem implements IIntake {
   /**
    * Temporary function for testing/tuning the extender
    */
+  @Override
   public void runExtender(double output) {
     // Stop running motion magic so it doesn't interfere
     m_motionMagicEnabled = false;

@@ -77,15 +77,18 @@ public class Queue extends PropertySubsystem implements IQueue {
     m_isClosedEntry.setBoolean(getClosed());
   }
 
+  @Override
   public void run(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void run(double speed, boolean wantsClosed) {
     setClosed(wantsClosed);
     run(speed);
   }
 
+  @Override
   public boolean getClosed() {
     if (m_gateEnabled) {
       if (m_gate.get() == m_closedValue) logger.fine("gate closed"); 
@@ -95,12 +98,14 @@ public class Queue extends PropertySubsystem implements IQueue {
     }
   }
 
+  @Override
   public void setClosed(boolean wantsClosed) {
     if (m_gateEnabled) {
       m_gate.set(wantsClosed ? m_closedValue : m_openValue);
     }
   }
 
+  @Override
   public boolean hasPowerCell() {
       if (m_photoEye.get()) logger.fine("queue has power cell");
       return m_photoEye.get();

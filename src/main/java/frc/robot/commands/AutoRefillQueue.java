@@ -4,13 +4,14 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Magazine;
+import frc.robot.subsystems.interfaces.IMagazine;
 
 public class AutoRefillQueue extends CommandBase {
-  private final Magazine m_magazine;
+  private final IMagazine m_magazine;
   private final double m_magazineSpeed;
   private final BooleanSupplier m_powerCellQueued;
 
-  public AutoRefillQueue(Magazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
+  public AutoRefillQueue(IMagazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
     m_magazine = magazine;
     m_magazineSpeed = magazineSpeed;
     m_powerCellQueued = powerCellQueued;

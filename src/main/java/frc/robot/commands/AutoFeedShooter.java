@@ -4,13 +4,14 @@ import java.util.function.IntSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Queue;
+import frc.robot.subsystems.interfaces.IQueue;
 
 public class AutoFeedShooter extends CommandBase {
-  private final Queue m_queue;
+  private final IQueue m_queue;
   private final double m_queueSpeed;
   private final IntSupplier m_magazinePowerCellCountSupplier;
 
-  public AutoFeedShooter(Queue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+  public AutoFeedShooter(IQueue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
     m_queue = queue;
     m_queueSpeed = queueSpeed;
     m_magazinePowerCellCountSupplier = magazinePowerCellCountSupplier;

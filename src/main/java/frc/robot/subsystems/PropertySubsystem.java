@@ -5,9 +5,10 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.utils.PropertyFiles;
 
-public abstract class PropertySubsystem extends SubsystemBase {
+public abstract class PropertySubsystem extends SubsystemBase implements IPropertySubsystem {
     protected final Logger logger;
     protected final Properties properties;
     private final String className;

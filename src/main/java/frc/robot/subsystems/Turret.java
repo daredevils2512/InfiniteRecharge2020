@@ -117,20 +117,24 @@ public class Turret extends PropertySubsystem implements ITurret {
    * Get the current angle of the turret (CCW positive)
    * @return Angle in degrees
    */
+  @Override
   public double getAngle() {
     // Convert from encoder pulses to degrees
     logger.log(Level.FINE, "turret position = ", toDegrees(getPosition()));
     return toDegrees(getPosition());
   }
 
+  @Override
   public void resetEncoder() {
     m_turretMaster.setSelectedSensorPosition(0);
   }
 
+  @Override
   public void setSpeed(double speed) {
     m_turretMaster.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void runPosition(double degrees) {
     if (Math.abs(getAngle() - degrees) >= m_tolerance) {
       m_turretMaster.set(ControlMode.MotionMagic, 
@@ -138,6 +142,7 @@ public class Turret extends PropertySubsystem implements ITurret {
     }
   }
 
+  @Override
   public double wrapDegrees(double degrees) {
     return ((degrees + Math.signum(degrees) * m_maxTurnDegrees) % 360) - Math.signum(degrees) * m_maxTurnDegrees;
   }
@@ -146,6 +151,7 @@ public class Turret extends PropertySubsystem implements ITurret {
    * Set a target angle for position PID
    * @param angle Angle in degrees
    */
+  @Override
   public void setTargetAngle(double angle) {
     m_turretMaster.set(ControlMode.Position, toEncoderPulses(angle));
   }

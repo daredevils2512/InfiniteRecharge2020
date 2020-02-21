@@ -38,21 +38,25 @@ public class Climber extends PropertySubsystem implements IClimber {
     m_rightHorizontalMaster = new WPI_TalonSRX(m_rightHorizontalMasterID);
   }
 
+  @Override
   public void climb(double leftSpeed, double rightSpeed) {
     m_leftClimberMaster.set(leftSpeed);
     m_rightClimberMaster.set(rightSpeed);
   }
 
+  @Override
   public void climberMoveHorizontal(double speed) {
     m_leftHorizontalMaster.set(speed);
     m_rightHorizontalMaster.set(speed);
   }
 
   // TODO: Implement climbing
+  @Override
   public void climbLeft(Drivetrain drivetrain, double speed) {
 
   }
 
+  @Override
   public void climbRight(Drivetrain drivetrain, double speed) {
 
   }

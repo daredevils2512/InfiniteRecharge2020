@@ -2,7 +2,9 @@ package frc.robot.subsystems.interfaces;
 
 import java.util.Map;
 
-public interface IIntake {
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
+public interface IIntake extends Subsystem, IPropertySubsystem {
   public void runIntake(double speed);
 
   public void setMotionMagicEnabled(boolean wantsEnabled);

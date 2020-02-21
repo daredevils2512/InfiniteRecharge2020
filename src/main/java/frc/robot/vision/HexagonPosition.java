@@ -11,21 +11,23 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.interfaces.IDrivetrain;
+import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.vision.Limelight;
 
 /**
  * Add your docs here.
  */
 public class HexagonPosition {
-    private final Drivetrain m_drivetrain;
-    private final Turret m_turret;
+    private final IDrivetrain m_drivetrain;
+    private final ITurret m_turret;
     private final Limelight m_limelight;
     private final NetworkTable m_networkTable;
 
     private double m_turretPosition;
     private double m_robotPosition;
 
-    public HexagonPosition(Drivetrain drivetrain, Turret turret, Limelight limelight) {
+    public HexagonPosition(IDrivetrain drivetrain, ITurret turret, Limelight limelight) {
         m_drivetrain = drivetrain;
         m_turret = turret;
         m_limelight = limelight;

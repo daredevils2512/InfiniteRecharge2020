@@ -20,6 +20,7 @@ public class CompressorManager implements ICompressorManager {
   private Compressor compressor = new Compressor();
   private boolean m_compressorEnabled; 
   
+  @Override
   public void toggleCompressor(){
     m_compressorEnabled = !m_compressorEnabled;
     logger.log(Level.FINE, "compressor = ", m_compressorEnabled);

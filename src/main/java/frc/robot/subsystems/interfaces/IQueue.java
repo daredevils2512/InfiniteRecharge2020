@@ -2,7 +2,9 @@ package frc.robot.subsystems.interfaces;
 
 import java.util.Map;
 
-public interface IQueue {
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
+public interface IQueue extends Subsystem, IPropertySubsystem {
   public void run(double speed);
   public void run(double speed, boolean wantsClosed);
   public boolean getClosed();

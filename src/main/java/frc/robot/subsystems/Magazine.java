@@ -82,31 +82,37 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     m_powerCellCountEntry.setNumber(getPowerCellCount());
   }
 
+  @Override
   public boolean getPowerCellDetectedFront() {
     if (m_frontPhotoEye.get())
       logger.fine("power cell detected front");
     return m_frontPhotoEye.get();
   }
 
+  @Override
   public boolean getPowerCellDetectedBack() {
     if (m_backPhotoEye.get())
       logger.fine("power cell detected back");
     return m_backPhotoEye.get();
   }
 
+  @Override
   public int getPowerCellCount() {
     return m_powerCellCount;
   }
 
+  @Override
   public void setBallsInMag(int set) {
     m_powerCellCount = set;
   }
 
+  @Override
   public void resetBallCount() {
     setBallsInMag(0);
   }
 
   // might be temporary
+  @Override
   public void updatePowerCellCount() {
     int deltaCount = 0;
     if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront)
@@ -127,14 +133,17 @@ public class Magazine extends PropertySubsystem implements IMagazine {
       logger.log(Level.FINER, "power cell count", m_powerCellCount);
   }
 
+  @Override
   public boolean getDirectionReversed() {
     return m_runMotor.getMotorOutputPercent() < 0;
   }
 
+  @Override
   public void setSpeed(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void feedBalls(int amount) {
     m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
         arbitraryFeedForward);

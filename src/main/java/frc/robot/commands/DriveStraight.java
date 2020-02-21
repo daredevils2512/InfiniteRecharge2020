@@ -3,9 +3,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.interfaces.IDrivetrain;
 
 public class DriveStraight extends CommandBase {
-  private final Drivetrain m_drivetrain;
+  private final IDrivetrain m_drivetrain;
   private final double m_distance;
   private double m_startPosition;
   private double m_targetPosition;
@@ -14,7 +15,7 @@ public class DriveStraight extends CommandBase {
   private final double m_iGain = 0;
   private final double m_dGain = 0;
 
-  public DriveStraight(Drivetrain drivetrain, double distance) {
+  public DriveStraight(IDrivetrain drivetrain, double distance) {
     m_drivetrain = drivetrain;
     m_distance = distance;
     m_distanceController = new PIDController(m_pGain, m_iGain, m_dGain);
