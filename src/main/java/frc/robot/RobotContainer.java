@@ -149,13 +149,13 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickBottomRight);
 
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
-      double move = -m_controlBoard.xbox.getLeftStickY();
+      double move = -m_controlBoard.getAxis("move").get();
       move = JoystickUtil.deadband(move, 0.05);
       move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
       return move / 2;
     });
     m_joystickMap.put(JoystickCommand.TURN, () -> {
-      double turn = -m_controlBoard.xbox.getRightStickX();
+      double turn = -m_controlBoard.getAxis("turn").get();
       turn = JoystickUtil.deadband(turn, 0.05);
       turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
       return turn / 2;
