@@ -50,12 +50,12 @@ public class DummyDrivetrain implements IDrivetrain, IPropertySubsystem {
   public double getLeftVelocity() {
     return 0;
   }
-  
+
   @Override
   public double getRightVelocity() {
     return 0;
   }
-  
+
   @Override
   public DifferentialDriveKinematics getKinematics() {
     return null;
@@ -120,5 +120,4 @@ public class DummyDrivetrain implements IDrivetrain, IPropertySubsystem {
   @Override
   public void saveProperties() {
   }
-  
 }

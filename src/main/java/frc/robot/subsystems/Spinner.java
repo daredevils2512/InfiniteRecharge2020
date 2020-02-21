@@ -11,14 +11,12 @@ import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.sensors.ColorSensor;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.interfaces.ISpinner;
 
-public class Spinner extends SubsystemBase implements ISpinner{
+public class Spinner extends LoggingSubsystem implements ISpinner {
   private ColorSensor m_colorSensor = new ColorSensor();
-  private static Logger logger = Logger.getLogger(Spinner.class.getName());
 
   /**
    * Creates a new Spinner.
@@ -41,7 +39,7 @@ public class Spinner extends SubsystemBase implements ISpinner{
 
   @Override
   public ColorDetect getCurrentColor() {
-    logger.log(Level.FINE, "current color =", m_colorSensor.getColorMatch());
+    m_logger.log(Level.FINE, "current color =", m_colorSensor.getColorMatch());
     return m_colorSensor.getColorMatchDetect();
   }
 

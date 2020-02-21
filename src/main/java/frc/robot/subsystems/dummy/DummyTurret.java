@@ -40,6 +40,5 @@ public class DummyTurret implements ITurret, IPropertySubsystem {
 
   @Override
   public void saveProperties() {
-  }
-  
+  } 
 }

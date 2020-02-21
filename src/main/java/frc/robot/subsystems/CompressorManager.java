@@ -15,15 +15,14 @@ import frc.robot.subsystems.interfaces.ICompressorManager;
 /**
  * Add your docs here.
  */
-public class CompressorManager implements ICompressorManager {
-  private static Logger logger = Logger.getLogger(CompressorManager.class.getName());
+public class CompressorManager extends LoggingSubsystem implements ICompressorManager {
   private Compressor compressor = new Compressor();
   private boolean m_compressorEnabled; 
   
   @Override
-  public void toggleCompressor(){
+  public void toggleCompressor() {
     m_compressorEnabled = !m_compressorEnabled;
-    logger.log(Level.FINE, "compressor = ", m_compressorEnabled);
+    m_logger.log(Level.FINE, "compressor = ", m_compressorEnabled);
     compressor.setClosedLoopControl(m_compressorEnabled);
   } 
 }
