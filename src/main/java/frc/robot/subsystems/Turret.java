@@ -19,10 +19,10 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
+import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
 
-public class Turret extends PropertySubsystem {
+public class Turret extends PropertySubsystem implements ITurret {
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_angleEntry;
@@ -117,20 +117,24 @@ public class Turret extends PropertySubsystem {
    * Get the current angle of the turret (CCW positive)
    * @return Angle in degrees
    */
+  @Override
   public double getAngle() {
     // Convert from encoder pulses to degrees
     logger.log(Level.FINE, "turret position = ", toDegrees(getPosition()));
     return toDegrees(getPosition());
   }
 
+  @Override
   public void resetEncoder() {
     m_turretMaster.setSelectedSensorPosition(0);
   }
 
+  @Override
   public void setSpeed(double speed) {
     m_turretMaster.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void runPosition(double degrees) {
     if (Math.abs(getAngle() - degrees) >= m_tolerance) {
       m_turretMaster.set(ControlMode.MotionMagic, 
@@ -138,6 +142,7 @@ public class Turret extends PropertySubsystem {
     }
   }
 
+  @Override
   public double wrapDegrees(double degrees) {
     return ((degrees + Math.signum(degrees) * m_maxTurnDegrees) % 360) - Math.signum(degrees) * m_maxTurnDegrees;
   }
@@ -146,6 +151,7 @@ public class Turret extends PropertySubsystem {
    * Set a target angle for position PID
    * @param angle Angle in degrees
    */
+  @Override
   public void setTargetAngle(double angle) {
     m_turretMaster.set(ControlMode.Position, toEncoderPulses(angle));
   }
@@ -160,7 +166,7 @@ public class Turret extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("P", m_P);
     values.put("I", m_I);

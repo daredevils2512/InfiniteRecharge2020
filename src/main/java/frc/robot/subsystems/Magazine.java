@@ -20,8 +20,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
+import frc.robot.subsystems.interfaces.IMagazine;
 
-public class Magazine extends PropertySubsystem {
+public class Magazine extends PropertySubsystem implements IMagazine {
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
 
@@ -70,6 +71,7 @@ public class Magazine extends PropertySubsystem {
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
 
+  @Override
   public boolean getPowerCellDetectedFront() {
     if (m_frontPhotoEye.get())
       logger.fine("power cell detected front");
@@ -77,6 +79,7 @@ public class Magazine extends PropertySubsystem {
   }
 
   // might be temporary
+  @Override
   public void updatePowerCellCount() {
     if (!getPowerCellDetectedFront() && m_powerCellPreviouslyDetectedFront) {
       if (getDirectionReversed())
@@ -86,21 +89,24 @@ public class Magazine extends PropertySubsystem {
     }
   }
 
+  @Override
   public boolean getDirectionReversed() {
     return m_runMotor.getMotorOutputPercent() < 0;
   }
 
+  @Override
   public void setSpeed(double speed) {
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  @Override
   public void feedBalls(int amount) {
     m_runMotor.set(ControlMode.MotionMagic, amount * ticksPerBall, DemandType.ArbitraryFeedForward,
         arbitraryFeedForward);
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     return null;
   }
 }

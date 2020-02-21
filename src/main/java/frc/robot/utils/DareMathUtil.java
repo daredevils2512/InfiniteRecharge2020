@@ -1,7 +1,5 @@
 package frc.robot.utils;
 
-import edu.wpi.first.wpiutil.math.MathUtil;
-
 public final class DareMathUtil {
   private DareMathUtil() {
   }

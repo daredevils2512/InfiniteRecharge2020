@@ -8,14 +8,8 @@
 package frc.robot.subsystems;
 
 import java.util.logging.*;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -28,7 +22,6 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -40,8 +33,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.PropertyFiles;
+import frc.robot.subsystems.interfaces.IDrivetrain;
 
 /**
  * The drivetrain is a 6 wheel west coast differential drivetrain with two-gear
@@ -50,7 +42,7 @@ import frc.robot.utils.PropertyFiles;
  * optical encoders (one per side) mounted to the output of the gearbox for
  * distance calculation, and a {@link PigeonIMU} for heading calculation.
  */
-public class Drivetrain extends PropertySubsystem {
+public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   /**
    * All network table enties are stored as variables so they can be referenced
    * more reliably (instead of by name via string)
@@ -279,10 +271,12 @@ public class Drivetrain extends PropertySubsystem {
    * 
    * @return Speed in meters per second
    */
+  @Override
   public double getMaxSpeed() {
     return getLowGear() ? m_maxSpeedLowGear : m_maxSpeedHighGear;
   }
 
+  @Override
   public double getMaxAngularSpeed() {
     return getLowGear() ? m_maxAngularSpeedLowGear : m_maxAngularSpeedHighGear;
   }
@@ -292,6 +286,7 @@ public class Drivetrain extends PropertySubsystem {
    * 
    * @return m/s^2
    */
+  @Override
   public double getMaxAcceleration() {
     return m_maxAcceleration;
   }
@@ -301,30 +296,37 @@ public class Drivetrain extends PropertySubsystem {
     m_rightEncoder.reset();
   }
 
+  @Override
   public boolean getDrivingInverted() {
     return m_isDrivingInverted;
   }
 
+  @Override
   public void setDrivingInverted(boolean wantsInverted) {
     m_isDrivingInverted = wantsInverted;
   }
 
+  @Override
   public double getLeftDistance() {
     return m_leftEncoder.getDistance();
   }
 
+  @Override
   public double getRightDistance() {
     return m_rightEncoder.getDistance();
   }
 
+  @Override
   public double getLeftVelocity() {
     return m_leftEncoder.getRate();
   }
 
+  @Override
   public double getRightVelocity() {
     return m_rightEncoder.getRate();
   }
 
+  @Override
   public DifferentialDriveKinematics getKinematics() {
     return m_kinematics;
   }
@@ -349,6 +351,7 @@ public class Drivetrain extends PropertySubsystem {
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
+  @Override
   public double getHeading() {
     return m_pigeonEnabled ? getFusedHeading() : 0.0;
   }
@@ -362,6 +365,7 @@ public class Drivetrain extends PropertySubsystem {
     }
   }
 
+  @Override
   public void setLowGear(boolean wantsLowGear) {
     if (m_shiftersEnabled) {
       m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
@@ -370,6 +374,7 @@ public class Drivetrain extends PropertySubsystem {
     }
   }
 
+  @Override
   public boolean getLowGear() {
     return m_shiftersEnabled ? m_shifter.get() == m_lowGearValue : false;
   }
@@ -379,28 +384,33 @@ public class Drivetrain extends PropertySubsystem {
    * 
    * @return Pose with translation in meters
    */
+  @Override
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
 
+  @Override
   public void resetPose() {
     resetEncoders();
     Pose2d newPose = new Pose2d();
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
   }
 
+  @Override
   public void resetPose(Translation2d translation) {
     resetEncoders();
     Pose2d newPose = new Pose2d(translation, getPose().getRotation());
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
   }
 
+  @Override
   public void resetPose(Rotation2d rotation) {
     resetEncoders();
     Pose2d newPose = new Pose2d(getPose().getTranslation(), rotation);
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
   }
 
+  @Override
   public void resetPose(Pose2d pose) {
     resetEncoders();
     m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getFusedHeading()));
@@ -414,11 +424,13 @@ public class Drivetrain extends PropertySubsystem {
         m_rightEncoder.getDistance());
   }
 
+  @Override
   public void simpleArcadeDrive(double move, double turn) {
     m_leftDriveMaster.set(ControlMode.PercentOutput, move - turn);
     m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
   }
 
+  @Override
   public void voltageTank(double left, double right) {
     m_leftDriveMaster.setVoltage(left);
     m_rightDriveMaster.setVoltage(right);
@@ -430,11 +442,13 @@ public class Drivetrain extends PropertySubsystem {
    * @param velocity        Velocity in meters per second
    * @param angularVelocity Angular velocity in radians per second
    */
+  @Override
   public void velocityArcadeDrive(double velocity, double angularVelocity) {
     velocity = m_isDrivingInverted ? -velocity : velocity;
     setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
   }
 
+  @Override
   public void setWheelSpeeds(double left, double right) {
     setSpeeds(new DifferentialDriveWheelSpeeds(left, right));
   }
@@ -450,7 +464,7 @@ public class Drivetrain extends PropertySubsystem {
   }
 
   @Override
-  protected Map<String, Object> getValues() {
+  public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
     values.put("leftPGain", m_leftPGain);
     values.put("leftIGain", m_leftIGain);
