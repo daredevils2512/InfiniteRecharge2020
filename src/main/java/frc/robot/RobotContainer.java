@@ -164,6 +164,7 @@ public class RobotContainer {
         Field isEnabled = cls.getDeclaredField(name + "Enabled");
         isEnabled.setAccessible(true);
         isEnabled.set(this, Boolean.parseBoolean(properties.getProperty(name + ".isEnabled")));
+        SmartDashboard.putBoolean(name + "enabled", isEnabled.getBoolean(this));
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
         e.printStackTrace();
       }
