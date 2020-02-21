@@ -176,6 +176,7 @@ public class RobotContainer {
     if (spinnerEnabled) {
       m_spinner = new Spinner();
     }
+    
     if (magazineEnabled) {
       m_magazine = new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount);
       m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
