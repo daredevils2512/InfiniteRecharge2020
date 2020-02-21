@@ -64,10 +64,8 @@ public class Magazine extends PropertySubsystem implements IMagazine {
 
   @Override
   public void periodic() {
-    if (m_photoEyeEnabled) {
-      updatePowerCellCount();
-      m_powerCellPreviouslyDetected = getPowerCellDetected();
-    }
+    updatePowerCellCount();
+    m_powerCellPreviouslyDetected = getPowerCellDetected();
 
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
