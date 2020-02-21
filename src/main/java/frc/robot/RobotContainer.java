@@ -13,9 +13,7 @@ import java.util.Properties;
 import java.util.function.DoubleSupplier;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.logging.*;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
