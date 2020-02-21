@@ -9,10 +9,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.ColorSensor.ColorDetect;
-import frc.robot.subsystems.Spinner;
+import frc.robot.subsystems.interfaces.ISpinner;
 
 public class RotationControl extends CommandBase {
-  private final Spinner m_spinner;
+  private final ISpinner m_spinner;
   private final double m_rotations;
   private ColorDetect pastColor;
   private int segmentCounter;
@@ -20,7 +20,7 @@ public class RotationControl extends CommandBase {
   /**
    * Creates a new RotationControl.
    */
-  public RotationControl(Spinner spinner, double rotations) {
+  public RotationControl(ISpinner spinner, double rotations) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_spinner = spinner;
     m_rotations = rotations;
