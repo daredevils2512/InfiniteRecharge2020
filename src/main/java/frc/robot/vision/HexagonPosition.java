@@ -21,6 +21,7 @@ public class HexagonPosition {
     private final Turret m_turret;
     private final Limelight m_limelight;
     private final NetworkTable m_networkTable;
+    private final double m_tolerance = 5.0; //in degrees probaly shouldnt be here but idk whatever
 
     private double m_turretPosition;
     private double m_robotPosition;
@@ -47,6 +48,12 @@ public class HexagonPosition {
         return m_robotPosition;
     }
 
+    public boolean canShoot() {
+        boolean canShoot = Math.abs(m_turretPosition - m_turret.getAngle()) <= m_tolerance;
+        m_networkTable.getEntry("can shoot").setBoolean(canShoot);
+        return canShoot;
+    }
+    
     private double getTurretRelativePosition() {
         return m_robotPosition - m_drivetrain.getHeading();
     }
