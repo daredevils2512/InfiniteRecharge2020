@@ -40,6 +40,7 @@ import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.subsystems.*;
 import frc.robot.utils.DareMathUtil;
 import frc.robot.utils.DriveType;
+import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
@@ -53,6 +54,7 @@ import frc.robot.vision.Limelight.Pipeline;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
+  private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
   private IDrivetrain m_drivetrain;
@@ -150,8 +152,8 @@ public class RobotContainer {
     m_intake = intakeEnabled ? new Intake() : new DummyIntake();
     m_shooter = shooterEnabled ? new Shooter() : new DummyShooter();
     m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
-    m_magazine = magazineEnabled ? new Magazine() : new DummyMagazine();
-    m_queue = queueEnabled ? new Queue() : new DummyQueue();
+    m_magazine = magazineEnabled ? new Magazine(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyMagazine();
+    m_queue = queueEnabled ? new Queue(m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyQueue();
     m_turret = turretEnabled ? new Turret() : new DummyTurret();
     m_climber = climberEnabled ? new Climber() : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
@@ -186,18 +188,18 @@ public class RobotContainer {
       m_controlBoard.getButton("autoRefillQueue").whenPressed(new InstantCommand(() -> {
         m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
         if (m_autoRefillQueueEnabled) {
-          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, () -> m_queue.hasPowerCell()));
+          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
         } else {
-          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, () -> getMagazineSpeed()));
+          m_magazine.setDefaultCommand(Commands.runMagazine(m_magazine, this::getMagazineSpeed));
         }
       }));
 
       m_controlBoard.getButton("autoFeedShooter").whenPressed(new InstantCommand(() -> {
         m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
         if (m_autoFeedShooterEnabled) {
-          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, () -> m_magazine.getPowerCellCount()));
+          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
         } else {
-          m_queue.setDefaultCommand(Commands.runQueue(m_queue, () -> getQueueSpeed()));
+          m_queue.setDefaultCommand(Commands.runQueue(m_queue, this::getQueueSpeed));
         }
       }));
 

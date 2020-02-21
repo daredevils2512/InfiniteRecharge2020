@@ -9,7 +9,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.ColorSensor.ColorDetect;
-import frc.robot.subsystems.Spinner;
 import frc.robot.subsystems.interfaces.ISpinner;
 
 public class PrecisionControl extends CommandBase {

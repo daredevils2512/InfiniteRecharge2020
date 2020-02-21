@@ -3,7 +3,6 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Queue;
 import frc.robot.subsystems.interfaces.IQueue;
 
 public class FeedShooter extends CommandBase {

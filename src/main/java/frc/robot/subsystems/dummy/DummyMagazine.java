@@ -13,24 +13,6 @@ public class DummyMagazine implements IMagazine, IPropertySubsystem {
   }
 
   @Override
-  public boolean getPowerCellDetectedBack() {
-    return false;
-  }
-
-  @Override
-  public int getPowerCellCount() {
-    return 0;
-  }
-
-  @Override
-  public void setBallsInMag(int set) {
-  }
-
-  @Override
-  public void resetBallCount() {
-  }
-
-  @Override
   public void updatePowerCellCount() {
   }
 

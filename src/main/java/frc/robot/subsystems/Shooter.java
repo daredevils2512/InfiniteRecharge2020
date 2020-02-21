@@ -9,8 +9,6 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -19,9 +17,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.interfaces.IShooter;
-import frc.robot.utils.PropertyFiles;
 
 public class Shooter extends PropertySubsystem implements IShooter {
   private final NetworkTable m_networkTable;

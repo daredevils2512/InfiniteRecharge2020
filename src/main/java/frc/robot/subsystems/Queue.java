@@ -16,8 +16,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
@@ -35,18 +33,15 @@ public class Queue extends PropertySubsystem implements IQueue {
   private final int m_runMotorID;
   private final TalonSRX m_runMotor;
 
-  private final boolean m_gateEnabled;
-  // TODO: Check all the gate wiring and stuff
-  private final int m_gateForwardChannel;
-  private final int m_gateReverseChannel;
-  private final DoubleSolenoid.Value m_openValue = Value.kForward;
-  private final DoubleSolenoid.Value m_closedValue = Value.kReverse;
-  private final DoubleSolenoid m_gate;
+  private final Runnable m_incrementMagazinePowerCellCount;
+  private final Runnable m_decrementMagazinePowerCellCount;
+
+  private boolean m_powerCellPreviouslyDetected = false;
 
   /**
    * Creates a new Queue.
    */
-  public Queue() {
+  public Queue(Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
     super(Queue.class.getName());
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
@@ -65,16 +60,22 @@ public class Queue extends PropertySubsystem implements IQueue {
     else
       m_photoEye = new DummyDigitalInput();
 
-    m_gateEnabled = Boolean.parseBoolean(properties.getProperty("gateEnabled"));
-    m_gateForwardChannel = Integer.parseInt(properties.getProperty("gateForwardChannel"));
-    m_gateReverseChannel = Integer.parseInt(properties.getProperty("gateReverseChannel"));
-    m_gate = m_gateEnabled ? new DoubleSolenoid(m_gateForwardChannel, m_gateReverseChannel) : null;
+    m_incrementMagazinePowerCellCount = incrementMagazinePowerCellCount;
+    m_decrementMagazinePowerCellCount = decrementMagazinePowerCellCount;
   }
 
   @Override
   public void periodic() {
+    updateMagazinePowerCellCount();
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
-    m_isClosedEntry.setBoolean(getClosed());
+  }
+
+  private void updateMagazinePowerCellCount() {
+    if (m_photoEye.get() && !m_powerCellPreviouslyDetected && !getDirectionReversed()) {
+      m_decrementMagazinePowerCellCount.run();
+    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected && getDirectionReversed()) {
+      m_incrementMagazinePowerCellCount.run();
+    }
   }
 
   @Override
@@ -83,26 +84,8 @@ public class Queue extends PropertySubsystem implements IQueue {
   }
 
   @Override
-  public void run(double speed, boolean wantsClosed) {
-    setClosed(wantsClosed);
-    run(speed);
-  }
-
-  @Override
-  public boolean getClosed() {
-    if (m_gateEnabled) {
-      if (m_gate.get() == m_closedValue) logger.fine("gate closed"); 
-      return m_gate.get() == m_closedValue;
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public void setClosed(boolean wantsClosed) {
-    if (m_gateEnabled) {
-      m_gate.set(wantsClosed ? m_closedValue : m_openValue);
-    }
+  public boolean getDirectionReversed() {
+    return m_runMotor.getMotorOutputPercent() < 0;
   }
 
   @Override

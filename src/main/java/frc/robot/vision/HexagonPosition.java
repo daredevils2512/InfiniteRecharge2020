@@ -9,8 +9,6 @@ package frc.robot.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.interfaces.IDrivetrain;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.vision.Limelight;

@@ -12,16 +12,8 @@ public class DummyQueue implements IQueue, IPropertySubsystem {
   }
 
   @Override
-  public void run(double speed, boolean wantsClosed) {
-  }
-
-  @Override
-  public boolean getClosed() {
+  public boolean getDirectionReversed() {
     return false;
-  }
-
-  @Override
-  public void setClosed(boolean wantsClosed) {
   }
 
   @Override

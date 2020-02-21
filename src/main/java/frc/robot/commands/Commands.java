@@ -21,14 +21,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Queue;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Spinner;
-import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.interfaces.IClimber;
 import frc.robot.subsystems.interfaces.IDrivetrain;
 import frc.robot.subsystems.interfaces.IIntake;
@@ -117,18 +109,14 @@ public final class Commands {
   }
 
   public static Command runQueue(IQueue queue, Double speed) {
-    return new RunCommand(() -> queue.run(speed, false), queue);
-  }
-
-  public static Command toggleQueueGate(IQueue queue) {
-    return new InstantCommand(() -> queue.setClosed(!queue.getClosed()), queue);
+    return new RunCommand(() -> queue.run(speed), queue);
   }
 
   /**
    * Extends and starts running the power cell intake
    * @return New {@link Command}
    */
-  public static Command startIntaking(IIntake intake, Magazine magazine) {
+  public static Command startIntaking(IIntake intake, IMagazine magazine) {
     return
       new InstantCommand(() -> intake.setExtended(true), intake).andThen(
       new RunCommand(() -> magazine.setSpeed(1), magazine));
@@ -138,7 +126,7 @@ public final class Commands {
    * Stops running and retracts the power cell intake
    * @return New {@link Command}
    */
-  public static Command stopIntaking(IIntake intake, Magazine magazine) {
+  public static Command stopIntaking(IIntake intake, IMagazine magazine) {
     return
       new InstantCommand(() -> magazine.setSpeed(0), magazine).andThen(
       new InstantCommand(() -> intake.setExtended(false), intake));
@@ -156,8 +144,8 @@ public final class Commands {
     return new RunCommand(() -> magazine.setSpeed(speedSupplier.getAsDouble()), magazine);
   }
 
-  public static Command refillQueue(IMagazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
-    return new RefillQueue(magazine, magazineSpeed, powerCellQueued);
+  public static Command refillQueue(IMagazine magazine, double magazineSpeed, IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
+    return new RefillQueue(magazine, magazineSpeed, magazinePowerCellCountSupplier, queueHasPowerCellSupplier);
   }
 
   public static Command autoRefillQueue(IMagazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
@@ -166,6 +154,10 @@ public final class Commands {
 
   public static Command runQueue(IQueue queue, DoubleSupplier speedSupplier) {
     return new RunCommand(() -> queue.run(speedSupplier.getAsDouble()), queue);
+  }
+
+  public static Command acceptFromMagazine(IQueue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+    return new AcceptFromMagazine(queue, queueSpeed, magazinePowerCellCountSupplier);
   }
 
   public static Command feedShooter(IQueue queue, DoubleSupplier queueSpeedSupplier) {
