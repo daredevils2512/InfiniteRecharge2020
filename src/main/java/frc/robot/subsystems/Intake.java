@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.sensors.LimitSwitch;
 import frc.robot.subsystems.interfaces.IIntake;
+import frc.robot.utils.PIDWrapper;
 
 public class Intake extends PropertySubsystem implements IIntake {
   public static class IntakeMap {
@@ -47,6 +48,8 @@ public class Intake extends PropertySubsystem implements IIntake {
 
   private final WPI_TalonSRX m_runMotor;
   private final WPI_TalonSRX m_extendMotor;
+
+  private final PIDWrapper m_extenderPID;
 
   private boolean m_retractedLimitSwitchEnabled;
   private boolean m_extendedLimitSwitchEnabled;
@@ -114,10 +117,9 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_extendMotor = new WPI_TalonSRX(intakeMap.extendMotorID);
     m_extendMotor.configFactoryDefault();
 
-    // Config PID for extender
-    m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
-    m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
-    m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
+    m_extenderPID = new PIDWrapper(m_pGain, m_iGain, m_dGain);
+    m_extenderPID.configPID(m_extendMotor, m_motionMagicSlot);
+
     m_extendMotor.configMotionCruiseVelocity(toEncoderTicksPer100Milliseconds(m_cruiseVelocity));
     m_extendMotor.configMotionAcceleration(toEncoderTicksPer100MillisecondsPerSecond(m_acceleration));
 
@@ -139,9 +141,9 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_cruiseVelocity = m_cruiseVelocityEntry.getNumber(m_cruiseVelocity).doubleValue();
     m_acceleration = m_accelerationEntry.getNumber(m_acceleration).doubleValue();
 
-    m_extendMotor.config_kP(m_motionMagicSlot, m_pGain);
-    m_extendMotor.config_kI(m_motionMagicSlot, m_iGain);
-    m_extendMotor.config_kD(m_motionMagicSlot, m_dGain);
+    m_extenderPID.setPID(m_pGain, m_iGain, m_dGain);
+    m_extenderPID.configPID(m_extendMotor, m_motionMagicSlot);
+    
     m_extendMotor.configMotionCruiseVelocity(toEncoderTicksPer100Milliseconds(m_cruiseVelocity));
     m_extendMotor.configMotionAcceleration(toEncoderTicksPer100MillisecondsPerSecond(m_acceleration));
 

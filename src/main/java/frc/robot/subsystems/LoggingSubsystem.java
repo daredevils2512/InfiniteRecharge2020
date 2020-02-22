@@ -8,7 +8,7 @@ import frc.robot.subsystems.interfaces.ILogging;
 
 public abstract class LoggingSubsystem extends SubsystemBase implements ILogging {
   protected final Logger m_logger;
-
+  
   public LoggingSubsystem() {
     m_logger = Logger.getLogger(getClass().getName());
   }

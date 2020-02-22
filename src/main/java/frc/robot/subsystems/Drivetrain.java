@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IDrivetrain;
+import frc.robot.utils.PIDWrapper;
 
 /**
  * The drivetrain is a 6 wheel west coast differential drivetrain with two-gear
@@ -122,13 +123,9 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private final SimpleMotorFeedforward m_driveMotorFeedforward;
   private final PIDController m_leftPIDController;
   private final PIDController m_rightPIDController;
-  // TODO: Tune velocity PID
-  private double m_leftPGain = 0;
-  private double m_leftIGain = 0;
-  private double m_leftDGain = 0;
-  private double m_rightPGain = 0;
-  private double m_rightIGain = 0;
-  private double m_rightDGain = 0;
+
+  private PIDWrapper m_leftPID;
+  private PIDWrapper m_rightPID;
 
   /**
    * Creates a new drivetrain
@@ -154,13 +151,15 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_velocityGain = Double.parseDouble(m_properties.getProperty("velocityGain"));
     m_accelerationGain = Double.parseDouble(m_properties.getProperty("accelerationGain"));
 
-    m_leftPGain = Double.parseDouble(m_properties.getProperty("leftPGain"));
-    m_leftIGain = Double.parseDouble(m_properties.getProperty("leftIGain"));
-    m_leftDGain = Double.parseDouble(m_properties.getProperty("leftDGain"));
+    m_leftPID = new PIDWrapper(
+      Double.parseDouble(m_properties.getProperty("leftPGain")),
+      Double.parseDouble(m_properties.getProperty("leftIGain")), 
+      Double.parseDouble(m_properties.getProperty("leftDGain")));
 
-    m_rightPGain = Double.parseDouble(m_properties.getProperty("rightPGain"));
-    m_rightIGain = Double.parseDouble(m_properties.getProperty("rightIGain"));
-    m_rightDGain = Double.parseDouble(m_properties.getProperty("rightDGain"));
+    m_rightPID = new PIDWrapper(
+      Double.parseDouble(m_properties.getProperty("rightPGain")),
+      Double.parseDouble(m_properties.getProperty("rightIGain")),
+      Double.parseDouble(m_properties.getProperty("rightDGain")));
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftPGainEntry = m_networkTable.getEntry("Left P gain");
@@ -215,31 +214,27 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
     m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getYaw()));
-    m_leftPIDController = new PIDController(m_leftPGain, m_leftIGain, m_leftDGain);
-    m_rightPIDController = new PIDController(m_rightPGain, m_rightIGain, m_rightDGain);
+
+    m_leftPIDController = new PIDController(m_leftPID.getP(), m_leftPID.getI(), m_leftPID.getD());
+    m_rightPIDController = new PIDController(m_rightPID.getP(), m_rightPID.getI(), m_rightPID.getD());
   }
 
   @Override
   public void periodic() {
-    m_leftPGain = m_leftPGainEntry.getNumber(m_leftPGain).doubleValue();
-    m_leftIGain = m_leftIGainEntry.getNumber(m_leftIGain).doubleValue();
-    m_leftDGain = m_leftDGainEntry.getNumber(m_leftDGain).doubleValue();
-    m_rightPGain = m_rightPGainEntry.getNumber(m_rightPGain).doubleValue();
-    m_rightIGain = m_rightIGainEntry.getNumber(m_rightIGain).doubleValue();
-    m_rightDGain = m_rightDGainEntry.getNumber(m_rightDGain).doubleValue();
+    m_leftPID.setPID(m_leftPGainEntry.getDouble(0), m_leftIGainEntry.getDouble(0), m_leftDGainEntry.getDouble(0));
+    m_rightPID.setPID(m_rightPGainEntry.getDouble(0), m_rightIGainEntry.getDouble(0), m_rightDGainEntry.getDouble(0));
 
-    m_leftPIDController.setPID(m_leftPGain, m_leftIGain, m_leftDGain);
-    m_rightPIDController.setPID(m_rightPGain, m_rightIGain, m_rightDGain);
+    
 
     updateGyroData();
     updateOdometry();
 
-    m_leftPGainEntry.setNumber(m_leftPGain);
-    m_leftIGainEntry.setNumber(m_leftIGain);
-    m_leftDGainEntry.setNumber(m_leftDGain);
-    m_rightPGainEntry.setNumber(m_leftPGain);
-    m_rightIGainEntry.setNumber(m_leftIGain);
-    m_rightDGainEntry.setNumber(m_leftDGain);
+    m_leftPGainEntry.setNumber(m_leftPGainEntry.getDouble(0));
+    m_leftIGainEntry.setNumber(m_leftIGainEntry.getDouble(0));
+    m_leftDGainEntry.setNumber(m_leftDGainEntry.getDouble(0));
+    m_rightPGainEntry.setNumber(m_rightPGainEntry.getDouble(0));
+    m_rightIGainEntry.setNumber(m_rightIGainEntry.getDouble(0));
+    m_rightDGainEntry.setNumber(m_rightDGainEntry.getDouble(0));
 
     m_invertedDrivingEntry.setBoolean(m_isDrivingInverted);
     m_leftDistanceEntry.setNumber(getLeftDistance());
@@ -453,12 +448,12 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   @Override
   public Map<String, Object> getValues() {
     Map<String, Object> values = new HashMap<>();
-    values.put("leftPGain", m_leftPGain);
-    values.put("leftIGain", m_leftIGain);
-    values.put("leftDGain", m_leftDGain);
-    values.put("rightPGain", m_rightPGain);
-    values.put("rightIGain", m_rightIGain);
-    values.put("rightDGain", m_rightDGain);
+    values.put("leftPGain", m_leftPID.getP());
+    values.put("leftIGain", m_leftPID.getI());
+    values.put("leftDGain", m_leftPID.getD());
+    values.put("rightPGain", m_rightPID.getP());
+    values.put("rightIGain", m_rightPID.getI());
+    values.put("rightDGain", m_rightPID.getD());
     return values;
   }
 

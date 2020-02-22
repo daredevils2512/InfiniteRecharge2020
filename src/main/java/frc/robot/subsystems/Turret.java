@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
+import frc.robot.utils.PIDWrapper;
 
 public class Turret extends PropertySubsystem implements ITurret {
   public static class TurretMap {
@@ -32,6 +33,8 @@ public class Turret extends PropertySubsystem implements ITurret {
   private final NetworkTableEntry m_wrappedAngleEntry;
 
   private final TalonSRX m_turretMaster;
+
+  private final PIDWrapper m_turretPID;
 
   // TODO: Find encoder and gearing details for turret
   private final double m_encoderResolution;
@@ -73,10 +76,10 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_turretMaster = new TalonSRX(turretMap.turretID);
     m_turretMaster.configFactoryDefault();
 
+    m_turretPID = new PIDWrapper(m_P, m_I, m_D);
+    m_turretPID.configPID(m_turretMaster, m_positionSlot);
+
     m_turretMaster.config_IntegralZone(m_positionSlot, 0);
-    m_turretMaster.config_kD(m_positionSlot, m_D);
-    m_turretMaster.config_kI(m_positionSlot, m_I);
-    m_turretMaster.config_kP(m_positionSlot, m_P);
     m_turretMaster.configMotionAcceleration(m_motionAcceleration);
     m_turretMaster.configMotionCruiseVelocity(m_motionCruiseVelocity);
 
@@ -103,6 +106,9 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_P = m_networkTable.getEntry("P gain").getDouble(0.0);
     m_I = m_networkTable.getEntry("I gain").getDouble(0.0);
     m_D = m_networkTable.getEntry("D gain").getDouble(0.0);
+
+    m_turretPID.setPID(m_P, m_I, m_D);
+    m_turretPID.configPID(m_turretMaster, m_positionSlot);
 
     m_angleEntry.setNumber(getAngle());
     m_wrappedAngleEntry.setNumber(DareMathUtil.wrap(getAngle(), m_minAngle, m_maxAngle));

@@ -18,6 +18,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.interfaces.IShooter;
+import frc.robot.utils.PIDWrapper;
 
 public class Shooter extends PropertySubsystem implements IShooter {
   public static class ShooterMap {
@@ -31,6 +32,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final TalonSRX m_shooter;
   private final TalonSRX m_shooterFollower;
   private final TalonSRX m_hood;
+
+  private final PIDWrapper m_shooterPID;
+  private final PIDWrapper m_hoodPID;
 
   private final int m_shooterEncoderResolution;
   private final int m_hoodEncoderResolution; // TODO: Check shooter encoder resolution
@@ -78,16 +82,13 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooter.configFactoryDefault();
     m_shooter.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
-    m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
-    m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
-    m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
+    m_shooterPID = new PIDWrapper(m_shooterVelocityPGain, m_shooterVelocityIGain, m_shooterVelocityDGain);
+    m_shooterPID.configPID(m_shooter, m_shooterVelocityPIDSlot);
 
     m_hood.configFactoryDefault();
-    // m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
-    m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
-    m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
-    m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
+    m_hoodPID = new PIDWrapper(m_hoodPositionPGain, m_hoodPositionIGain, m_hoodPositionDGain);
+    m_hoodPID.configPID(m_hood, m_hoodPositionPIDSlot);
 
     m_shooter.setNeutralMode(NeutralMode.Coast); // Drains less battery >true
 
@@ -104,12 +105,11 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPositionIGain = m_networkTable.getEntry("Hood position I gain").getDouble(m_shooterVelocityIGain);
     m_hoodPositionDGain = m_networkTable.getEntry("Hood position D gain").getDouble(m_shooterVelocityDGain);
 
-    m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
-    m_shooter.config_kI(m_shooterVelocityPIDSlot, m_shooterVelocityIGain);
-    m_shooter.config_kD(m_shooterVelocityPIDSlot, m_shooterVelocityDGain);
-    m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
-    m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
-    m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
+    m_shooterPID.setPID(m_shooterVelocityPGain, m_shooterVelocityIGain, m_shooterVelocityDGain);
+    m_shooterPID.configPID(m_shooter, m_shooterVelocityPIDSlot);
+    
+    m_hoodPID.setPID(m_hoodPositionPGain, m_hoodPositionIGain, m_hoodPositionDGain);
+    m_hoodPID.configPID(m_hood, m_hoodPositionPIDSlot);
 
     m_networkTable.getEntry("Velocity (RPM)").setDouble(getVelocity());
     m_networkTable.getEntry("Percent output").setDouble(m_shooter.getMotorOutputPercent());
