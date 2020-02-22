@@ -160,7 +160,7 @@ public class RobotContainer {
         isEnabled.set(this, Boolean.parseBoolean(properties.getProperty(name + ".isEnabled")));
         SmartDashboard.putBoolean(name + " enabled", isEnabled.getBoolean(this));
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-        logger.log(Level.SEVERE, name + "failed to load; threw : ", e);
+        logger.log(Level.SEVERE, name + " failed to load; threw : ", e);
       }
     }
 
