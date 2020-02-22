@@ -81,10 +81,10 @@ public class RobotContainer {
   private boolean climberEnabled = false;
   private boolean compressorEnabled = false;
 
-  private Command m_defaultDriveCommand;
-  private Command m_manualIntakeCommand;
-  private Command m_manualMagazineCommand;
-  private Command m_manualQueueCommand;
+  private final Command m_defaultDriveCommand;
+  private final Command m_manualIntakeCommand;
+  private final Command m_manualMagazineCommand;
+  private final Command m_manualQueueCommand;
 
   private Command m_autonomousCommand;
 
@@ -226,6 +226,7 @@ public class RobotContainer {
     m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
+    m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
     m_manualIntakeCommand = new RunCommand(() -> {
       m_intake.runExtender(m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER).getAsDouble());
       m_intake.runIntake(m_intakeRunning ? m_intakeSpeed : 0);
