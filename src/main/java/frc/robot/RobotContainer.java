@@ -84,6 +84,7 @@ public class RobotContainer {
   private final Command m_manualIntakeCommand;
   private final Command m_manualMagazineCommand;
   private final Command m_manualQueueCommand;
+  private final Command m_manualShooterCommand;
 
   private Command m_autonomousCommand;
 
@@ -93,10 +94,11 @@ public class RobotContainer {
   private boolean m_autoRefillQueueEnabled = false;
   private boolean m_autoFeedShooterEnabled = false;
 
-  private double m_intakeExtenderSpeed = 0.3;
-  private double m_intakeSpeed = 0.5;
-  private double m_magazineSpeed = 0.5;
-  private double m_queueSpeed = 0.5;
+  private final double m_intakeExtenderSpeed = 0.3;
+  private final double m_intakeSpeed = 0.5;
+  private final double m_magazineSpeed = 0.5;
+  private final double m_queueSpeed = 0.5;
+  private final double m_shooterHoodSpeed = 0.2;
 
   private static Logger logger = Logger.getGlobal();
 
@@ -239,12 +241,16 @@ public class RobotContainer {
     m_manualQueueCommand = new RunCommand(() -> {
       m_queue.run(m_queueRunning ? m_queueSpeed : 0);
     }, m_queue);
+    m_manualShooterCommand = new RunCommand(() -> {
+      m_shooter.setPercentOutput(m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER).getAsDouble());
+      m_shooter.setHoodSpeed(m_shooterHoodSpeed);
+    }, m_shooter);
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
     m_intake.setDefaultCommand(m_manualIntakeCommand);
     m_magazine.setDefaultCommand(m_manualMagazineCommand);
     m_queue.setDefaultCommand(m_manualQueueCommand);
-    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
+    m_shooter.setDefaultCommand(m_manualShooterCommand);
 
     configureButtonBindings();
 

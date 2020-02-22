@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import com.ctre.phoenix.Logger;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -204,6 +203,13 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public void stop() {
     m_shooter.set(ControlMode.PercentOutput, 0);
+  }
+
+  @Override
+  public void setHoodSpeed(double speed) {
+    if (m_hoodEnabled) {
+      m_hood.set(ControlMode.PercentOutput, speed);
+    }
   }
 
   /**

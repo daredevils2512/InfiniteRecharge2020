@@ -24,6 +24,11 @@ public class DummyShooter implements IShooter, IPropertySubsystem {
   }
 
   @Override
+  public void setHoodSpeed(double speed) {
+    
+  }
+
+  @Override
   public void setTargetAngle(double angle) {
   }
 
