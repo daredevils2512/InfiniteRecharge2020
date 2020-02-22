@@ -21,6 +21,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IShooter;
 
 public class Shooter extends PropertySubsystem implements IShooter {
@@ -44,11 +45,17 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final TalonSRX m_shooterFollower;
   private final TalonSRX m_hood;
   private final Boolean m_hoodEnabled;
+  private final double m_hoodForwardSoftLimit;
+  private final double m_hoodReverseSoftLimit;
 
   private final int m_shooterEncoderResolution;
   private final int m_hoodEncoderResolution; // TODO: Check shooter encoder resolution
   private final double m_shooterGearRatio; // TODO: Check shooter gearing
   private final double m_hoodGearRatio; // TODO: Check shooter hood gearing
+  private final double m_hoodRadius;
+  private final double m_hoodStartingPosition;
+  private final double m_hoodCircumfeprence;
+  private final double m_hoodMMPerTooth;
 
   private final int m_shooterVelocityPIDSlot;
   // TODO: Tune shooter velocity PID
@@ -80,7 +87,12 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooterEncoderResolution = Integer.parseInt(m_properties.getProperty("shooterEncoderResolution"));
     m_hoodEncoderResolution = Integer.parseInt(m_properties.getProperty("hoodEncoderResolution"));
     m_shooterGearRatio = Double.parseDouble(m_properties.getProperty("shooterGearRatio"));
-    m_hoodGearRatio = Double.parseDouble(m_properties.getProperty("hoodGearRatio"));
+    m_hoodRadius = Units.inchesToMeters(Double.parseDouble(m_properties.getProperty("hoodRadius")));
+    m_hoodStartingPosition = Double.parseDouble(m_properties.getProperty("hoodStartingPosition")); //should be degrees
+    m_hoodMMPerTooth = Double.parseDouble(m_properties.getProperty("hoodMMPerTooth")) / 1000;
+
+    m_hoodForwardSoftLimit = Double.parseDouble(m_properties.getProperty("hoodForwardSoftLimit"));
+    m_hoodReverseSoftLimit = Double.parseDouble(m_properties.getProperty("hoodReverseSoftLimit"));
 
     m_shooterVelocityPIDSlot = Integer.parseInt(m_properties.getProperty("shooterVelocityPIDSlot"));
     m_shooterVelocityPGain = Double.parseDouble(m_properties.getProperty("shooterVelocityPGain"));
@@ -91,6 +103,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPositionPGain = Double.parseDouble(m_properties.getProperty("hoodPositionPGain"));
     m_hoodPositionIGain = Double.parseDouble(m_properties.getProperty("hoodPositionIGain"));
     m_hoodPositionDGain = Double.parseDouble(m_properties.getProperty("hoodPositionDGain"));
+
+    m_hoodCircumfeprence = m_hoodRadius * 2 * Math.PI;
+    m_hoodGearRatio = 1 / m_hoodCircumfeprence * m_hoodMMPerTooth;
 
     m_shooter = new TalonSRX(shooterMap.shooter1ID);
     m_shooterFollower = new TalonSRX(shooterMap.shooter2ID);
@@ -125,7 +140,10 @@ public class Shooter extends PropertySubsystem implements IShooter {
       m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
       m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
       m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
-    } else {
+
+      m_hood.configForwardSoftLimitThreshold(toEncoderPulsesHood(m_hoodForwardSoftLimit));
+      m_hood.configReverseSoftLimitThreshold(toEncoderPulsesHood(m_hoodReverseSoftLimit));
+   } else {
       m_hood = null;
     }
   }
@@ -232,7 +250,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   }
 
   private double toAngleHood(int encoderPulses) {
-    return (double) encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360;
+    return (double) encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360 + m_hoodStartingPosition;
   }
 
   @Override
