@@ -19,8 +19,6 @@ public abstract class PropertySubsystem extends LoggingSubsystem implements IPro
         m_properties = PropertyFiles.loadProperties(defaultPropertiesFile, propertiesFile);
     }
 
-    protected abstract Map<String, Object> getValues();
-
     public void saveProperties() {
         Map<String, Object> values = getValues();
         for (String key : values.keySet()) {
