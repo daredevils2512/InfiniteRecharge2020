@@ -6,5 +6,5 @@ public interface IQueue extends IPropertySubsystem {
   public void run(double speed);
   public boolean getDirectionReversed();
   public boolean hasPowerCell();
-  public Map<String, Object> getValues();
+
 }

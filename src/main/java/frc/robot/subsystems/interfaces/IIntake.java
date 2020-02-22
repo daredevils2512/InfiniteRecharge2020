@@ -14,5 +14,5 @@ public interface IIntake extends IPropertySubsystem {
   public void toggleExtended();
   public void runExtender(double output);
 
-  public Map<String, Object> getValues();
+
 }

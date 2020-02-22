@@ -10,5 +10,5 @@ public interface IShooter extends IPropertySubsystem {
   public void setTargetAngle(double angle);
   public double getVelocity();
   public double getAngle();
-  public Map<String, Object> getValues();
+
 }

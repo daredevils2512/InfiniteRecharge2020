@@ -54,6 +54,4 @@ public interface IDrivetrain extends IPropertySubsystem {
   public void voltageTank(double left, double right);
   public void velocityArcadeDrive(double velocity, double angularVelocity);
   public void setWheelSpeeds(double left, double right);
-
-  public Map<String, Object> getValues();
 }
