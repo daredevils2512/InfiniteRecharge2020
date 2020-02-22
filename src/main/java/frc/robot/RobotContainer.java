@@ -85,6 +85,7 @@ public class RobotContainer {
   private final Command m_manualMagazineCommand;
   private final Command m_manualQueueCommand;
   private final Command m_manualShooterCommand;
+  private final Command m_manualTurretCommand;
 
   private Command m_autonomousCommand;
 
@@ -99,6 +100,7 @@ public class RobotContainer {
   private final double m_magazineSpeed = 0.5;
   private final double m_queueSpeed = 0.5;
   private final double m_shooterHoodSpeed = 0.2;
+  private final double m_turretSpeed = 0.5;
 
   private static Logger logger = Logger.getGlobal();
 
@@ -140,8 +142,8 @@ public class RobotContainer {
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger());
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY());
-    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
+    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX() * m_turretSpeed);
 
     // This should probably be extracted from here and from PropertySubsystem at
     // some point
@@ -246,6 +248,9 @@ public class RobotContainer {
       m_shooter.setPercentOutput(m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER).getAsDouble());
       m_shooter.setHoodSpeed(m_shooterHoodSpeed);
     }, m_shooter);
+    m_manualTurretCommand = new RunCommand(() -> {
+      m_turret.setSpeed(m_joystickMap.get(JoystickCommand.MANUAL_MOVE_TURRET).getAsDouble());
+    }, m_turret);
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
     m_intake.setDefaultCommand(m_manualIntakeCommand);
