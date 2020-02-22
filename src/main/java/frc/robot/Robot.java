@@ -24,7 +24,7 @@ import frc.robot.utils.DriveType;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static Logger logger = Logger.getLogger(Robot.class.getName());
+  private static Logger logger = Logger.getGlobal();
   private final SendableChooser<DriveType> m_driveTypeChooser = new SendableChooser<>();
   private DriveType m_currentDriveType = null;
 

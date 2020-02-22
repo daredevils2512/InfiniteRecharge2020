@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.DoubleSupplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.lang.reflect.Field;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -96,6 +98,8 @@ public class RobotContainer {
   private double m_magazineSpeed = 0.5;
   private double m_queueSpeed = 0.5;
 
+  private static Logger logger = Logger.getGlobal();
+
   private ILogging[] subsystemArray;
 
   private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
@@ -156,7 +160,7 @@ public class RobotContainer {
         isEnabled.set(this, Boolean.parseBoolean(properties.getProperty(name + ".isEnabled")));
         SmartDashboard.putBoolean(name + " enabled", isEnabled.getBoolean(this));
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-        e.printStackTrace();
+        logger.log(Level.SEVERE, name + "failed to load; threw : ", e);
       }
     }
 
