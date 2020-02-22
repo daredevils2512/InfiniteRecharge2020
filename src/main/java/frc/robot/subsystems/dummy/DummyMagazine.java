@@ -3,9 +3,8 @@ package frc.robot.subsystems.dummy;
 import java.util.Map;
 
 import frc.robot.subsystems.interfaces.IMagazine;
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 
-public class DummyMagazine implements IMagazine, IPropertySubsystem {
+public class DummyMagazine implements IMagazine {
 
   @Override
   public boolean getPowerCellDetected() {

@@ -1,11 +1,9 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
-
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.subsystems.interfaces.IQueue;
 
-public class DummyQueue implements IQueue, IPropertySubsystem {
+public class DummyQueue implements IQueue {
 
   @Override
   public void run(double speed) {
