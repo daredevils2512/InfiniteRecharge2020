@@ -16,6 +16,9 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final double LIMELIGHT_MIN_HORIZONTAL_OFFSET = -29.8;
+    public static final double LIMELIGHT_MAX_HORIZONTAL_OFFSET = 29.8;
+
     private Constants() {
         
     }
