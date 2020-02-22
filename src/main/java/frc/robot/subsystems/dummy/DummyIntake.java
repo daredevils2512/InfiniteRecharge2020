@@ -22,7 +22,7 @@ public class DummyIntake implements IIntake, IPropertySubsystem {
 
   @Override
   public void toggleMotionMagicEnabled() {
-    
+
   }
 
   @Override
@@ -40,7 +40,7 @@ public class DummyIntake implements IIntake, IPropertySubsystem {
 
   @Override
   public void toggleExtended() {
-    
+
   }
 
   @Override
@@ -55,5 +55,4 @@ public class DummyIntake implements IIntake, IPropertySubsystem {
   @Override
   public void saveProperties() {
   }
-  
 }

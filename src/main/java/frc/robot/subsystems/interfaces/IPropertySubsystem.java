@@ -1,7 +1,9 @@
 package frc.robot.subsystems.interfaces;
 
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.Map;
 
-public interface IPropertySubsystem extends Subsystem {
-  public void saveProperties();
+public interface IPropertySubsystem extends ILogging {
+  default void saveProperties() { }
+  public Map<String, Object> getValues();
+
 }

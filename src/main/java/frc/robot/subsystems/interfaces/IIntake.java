@@ -2,9 +2,7 @@ package frc.robot.subsystems.interfaces;
 
 import java.util.Map;
 
-import edu.wpi.first.wpilibj2.command.Subsystem;
-
-public interface IIntake extends Subsystem, IPropertySubsystem {
+public interface IIntake extends IPropertySubsystem {
   public void runIntake(double speed);
 
   public void setMotionMagicEnabled(boolean wantsEnabled);
@@ -16,5 +14,5 @@ public interface IIntake extends Subsystem, IPropertySubsystem {
   public void toggleExtended();
   public void runExtender(double output);
 
-  public Map<String, Object> getValues();
+
 }
