@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import com.ctre.phoenix.Logger;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -104,6 +105,11 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooter.setNeutralMode(NeutralMode.Coast);
     m_shooterFollower.setNeutralMode(NeutralMode.Coast);
 
+    m_shooter.configContinuousCurrentLimit(30);
+    m_shooter.configPeakCurrentDuration(0);
+    m_shooterFollower.configContinuousCurrentLimit(30);
+    m_shooterFollower.configPeakCurrentDuration(0);
+
     m_shooter.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
     m_shooter.config_kP(m_shooterVelocityPIDSlot, m_shooterVelocityPGain);
@@ -126,6 +132,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public void periodic() {
+    m_logger.log(Level.FINE, "master shooter current output " + m_shooter.getStatorCurrent());
+    m_logger.log(Level.FINE, "master shooter current supply " + m_shooter.getSupplyCurrent());
+
     // Remove once PID is tuned
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
     m_shooterVelocityIGain = m_shooterIGainEntry.getDouble(m_shooterVelocityIGain);
@@ -171,7 +180,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_logger.log(Level.FINER, "setting velocity to = ", velocity);
     m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
     m_shooter.set(ControlMode.Velocity,
-    toEncoderPulsesPer100Milliseconds(velocity));
+      toEncoderPulsesPer100Milliseconds(velocity));
   }
 
   @Override
