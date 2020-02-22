@@ -63,9 +63,7 @@ import frc.robot.subsystems.Turret.TurretMap;
 import frc.robot.utils.DriveType;
 import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
-import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
-import frc.robot.vision.Limelight.Pipeline;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -76,8 +74,6 @@ import frc.robot.vision.Limelight.Pipeline;
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
   private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
-  private HexagonPosition m_hexagonPosition;
-  private Limelight m_limelight;
   private IDrivetrain m_drivetrain;
   private IIntake m_intake;
   private IShooter m_shooter;
@@ -171,14 +167,6 @@ public class RobotContainer {
     compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
-
-    if (limelightEnabled) {
-      m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
-    }
-
-    if (turretEnabled && drivetrainEnabled && limelightEnabled) {
-      m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
-    }
 
     DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
     drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
@@ -293,10 +281,6 @@ public class RobotContainer {
           m_queue.setDefaultCommand(m_manualQueueCommand);
         }
       }));
-
-      // Toggle between having the turret automatically track the target
-      // and having the turret be turned manually
-      m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
 
     if (shooterEnabled) {
       // Run shooter at a set motor output
