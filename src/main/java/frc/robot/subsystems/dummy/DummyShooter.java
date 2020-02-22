@@ -1,11 +1,9 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
-
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.subsystems.interfaces.IShooter;
 
-public class DummyShooter implements IShooter, IPropertySubsystem {
+public class DummyShooter implements IShooter {
 
   @Override
   public void resetHoodAngle(double angle) {
