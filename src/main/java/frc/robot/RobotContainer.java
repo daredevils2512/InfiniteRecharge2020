@@ -299,23 +299,7 @@ public class RobotContainer {
       // and having the turret be turned manually
       m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
 
-    if (shooterEnabled) {
-      // Run shooter at a set motor output
-      // m_controlBoard.extreme.sideButton.whileHeld(Commands.runShooter(m_shooter, () -> 0.5));
-    }
-    
-    if (spinnerEnabled) {
-      // Extend/retract spinner
-      // m_controlBoard.getButton("extendSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, true));
-      // m_controlBoard.getButton("retractSpinner").whenPressed(Commands.setSpinnerExtended(m_spinner, false));
-
-      // m_controlBoard.getButton("spinnerRotationControl").whenPressed(Commands.rotationControl(m_spinner, 3));
-      // m_controlBoard.getButton("spinnerColorControl").whenPressed(Commands.precisionControl(m_spinner, ColorDetect.Red));
-    }
-
-    if (turretEnabled) {
       m_turret.setDefaultCommand(Commands.moveTurret(m_turret, m_controlBoard.extreme::getPOVX));
-    }
   }
 
   public void setDriveType(DriveType driveType) {
