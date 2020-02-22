@@ -21,6 +21,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IShooter;
 
@@ -115,7 +116,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooterFollower.follow(m_shooter);
 
     m_shooter.setInverted(InvertType.InvertMotorOutput);
-    m_shooterFollower.setInverted(InvertType.FollowMaster);
+    m_shooterFollower.setInverted(InvertType.None);
 
     m_shooter.setNeutralMode(NeutralMode.Coast);
     m_shooterFollower.setNeutralMode(NeutralMode.Coast);
@@ -150,8 +151,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public void periodic() {
-    m_logger.log(Level.FINE, "master shooter current output " + m_shooter.getStatorCurrent());
-    m_logger.log(Level.FINE, "master shooter current supply " + m_shooter.getSupplyCurrent());
+    SmartDashboard.putNumber("master shooter current output ", m_shooter.getStatorCurrent());
+    SmartDashboard.putNumber("master shooter current supply ", m_shooter.getSupplyCurrent());
 
     // Remove once PID is tuned
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);

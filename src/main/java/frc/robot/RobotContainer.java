@@ -81,9 +81,6 @@ public class RobotContainer {
   private boolean compressorEnabled = false;
 
   private final Command m_defaultDriveCommand;
-  private final Command m_manualIntakeCommand;
-  private final Command m_manualMagazineCommand;
-  private final Command m_manualQueueCommand;
 
   private Command m_autonomousCommand;
 
@@ -119,7 +116,7 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickBottomRight);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
-    m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
+    // m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.trigger);
@@ -229,21 +226,11 @@ public class RobotContainer {
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
-    m_manualIntakeCommand = new RunCommand(() -> {
-      m_intake.runExtender(m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER).getAsDouble());
-      m_intake.runIntake(m_intakeRunning ? m_intakeSpeed : 0);
-    }, m_intake);
-    m_manualMagazineCommand = new RunCommand(() -> {
-      m_magazine.setSpeed(m_magazineRunning ? m_magazineSpeed : 0);
-    }, m_magazine);
-    m_manualQueueCommand = new RunCommand(() -> {
-      m_queue.run(m_queueRunning ? m_queueSpeed : 0);
-    }, m_queue);
+
+
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
-    m_intake.setDefaultCommand(m_manualIntakeCommand);
-    m_magazine.setDefaultCommand(m_manualMagazineCommand);
-    m_queue.setDefaultCommand(m_manualQueueCommand);
+    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, m_controlBoard.extreme::getStickY));
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
 
     configureButtonBindings();
@@ -266,11 +253,13 @@ public class RobotContainer {
         .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
 
       // Toggle intake extender motion magic
-      m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      // m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
       // Toggle intake extended
-      m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed(new InstantCommand(() -> m_intake.toggleExtended(), m_intake));
+      // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed();
       // Start/stop intaking
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whenPressed(() -> m_intakeRunning = !m_intakeRunning);
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.runIntake(m_intake, m_intakeSpeed));
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whileHeld(Commands.runMagazine(m_magazine, () -> m_magazineSpeed));
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whileHeld(Commands.runQueue(m_queue, () -> m_queueSpeed));
 
       // Toggle between having the magazine automatically refilling the queue
       // and having the magazine be run manually
@@ -279,7 +268,7 @@ public class RobotContainer {
         if (m_autoRefillQueueEnabled) {
           m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
         } else {
-          m_magazine.setDefaultCommand(m_manualMagazineCommand);
+          // m_magazine.setDefaultCommand(m_manualMagazineCommand);
         }
       }));
 
@@ -291,7 +280,7 @@ public class RobotContainer {
         if (m_autoFeedShooterEnabled) {
           m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
         } else {
-          m_queue.setDefaultCommand(m_manualQueueCommand);
+          // m_queue.setDefaultCommand(m_manualQueueCommand);
         }
       }));
 
