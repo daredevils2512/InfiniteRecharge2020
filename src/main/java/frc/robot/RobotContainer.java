@@ -153,7 +153,7 @@ public class RobotContainer {
     for (ILogging subsystem : subsystemArray) {
       String dummyName = subsystem.getClass().getSimpleName();
       String name = dummyName.toLowerCase().split("y")[1];
-      System.out.println("initializing " + name);
+      logger.config("initializing" + name);
       try {
         Field isEnabled = this.getClass().getDeclaredField(name + "Enabled");
         isEnabled.setAccessible(true);
