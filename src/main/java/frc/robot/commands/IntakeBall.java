@@ -49,16 +49,11 @@ public class IntakeBall extends CommandBase {
   public void execute() {
     m_runIntake = 0.0;
     m_runMagazine = 0.0;
-    if (m_startingCount == 0) {
-      m_runIntake = m_intakeSpeed;
+    if (m_magazine.getPowerCellDetected()) {
       m_runMagazine = m_magazineSpeed;
+      m_runIntake = m_intakeSpeed;
     } else {
-      if (m_magazine.getPowerCellDetected()) {
-        m_runMagazine = m_magazineSpeed;
-        m_runIntake = m_intakeSpeed;
-      } else {
-        m_runIntake = m_intakeSpeed;
-      }
+      m_runIntake = m_intakeSpeed;
     }
     m_intake.runIntake(m_runIntake);
     m_magazine.setSpeed(m_runMagazine);
