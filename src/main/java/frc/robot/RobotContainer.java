@@ -139,7 +139,7 @@ public class RobotContainer {
       double move = -m_controlBoard.xbox.getLeftStickY();
       move = JoystickUtil.deadband(move, 0.05);
       move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
-      return move / 2;
+      return move;
     });
     m_joystickMap.put(JoystickCommand.TURN, () -> {
       double turn = -m_controlBoard.xbox.getRightStickX();
