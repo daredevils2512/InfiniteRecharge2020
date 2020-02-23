@@ -39,34 +39,24 @@ public class Magazine extends PropertySubsystem implements IMagazine {
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
 
-  private boolean m_powerCellPreviouslyDetected;
-
-  private final Runnable m_incrementPowerCellCount;
-  private final Runnable m_decrementPowerCellCount;
 
   /**
    * Creates a new magazine
    */
-  public Magazine(MagazineMap magazineMap, Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
+  public Magazine(MagazineMap magazineMap) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
 
     m_runMotor = new WPI_TalonSRX(magazineMap.runMotorID);
-    m_runMotor.setInverted(InvertType.InvertMotorOutput);
+    m_runMotor.setInverted(InvertType.None);
 
     m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
     m_photoEye = m_photoEyeEnabled ? new PhotoEye(magazineMap.photoEyeChannel) : new DummyDigitalInput();
-
-    m_incrementPowerCellCount = incrementPowerCellCount;
-    m_decrementPowerCellCount = decrementPowerCellCount;
   }
 
   @Override
   public void periodic() {
-    updatePowerCellCount();
-    m_powerCellPreviouslyDetected = getPowerCellDetected();
-
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
 
@@ -77,17 +67,6 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     return m_photoEye.get();
   }
 
-  // might be temporary
-  @Override
-  public void updatePowerCellCount() {
-    if (!getPowerCellDetected() && m_powerCellPreviouslyDetected) {
-      if (getDirectionReversed()) {
-        m_decrementPowerCellCount.run();
-      } else {
-        m_incrementPowerCellCount.run();
-      }
-    }
-  }
 
   @Override
   public boolean getDirectionReversed() {
@@ -108,5 +87,10 @@ public class Magazine extends PropertySubsystem implements IMagazine {
   @Override
   public Map<String, Object> getValues() {
     return null;
+  }
+
+  @Override
+  public IDigitalInput getPhotoEye() {
+    return this.m_photoEye;
   }
 }

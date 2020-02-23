@@ -13,6 +13,9 @@ public interface IIntake extends IPropertySubsystem {
   public void setExtended(boolean wantsExtended);
   public void toggleExtended();
   public void runExtender(double output);
+  public void extend();
+  public void retract();
+  public boolean isMotionMagicFinished();
 
   public Map<String, Object> getValues();
 }

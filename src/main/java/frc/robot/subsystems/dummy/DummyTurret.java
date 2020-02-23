@@ -1,11 +1,9 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
-
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.subsystems.interfaces.ITurret;
 
-public class DummyTurret implements ITurret, IPropertySubsystem {
+public class DummyTurret implements ITurret {
 
   @Override
   public double getAngle() {

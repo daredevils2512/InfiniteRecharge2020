@@ -36,46 +36,25 @@ public class Queue extends PropertySubsystem implements IQueue {
 
   private final TalonSRX m_runMotor;
 
-  private final Runnable m_incrementMagazinePowerCellCount;
-  private final Runnable m_decrementMagazinePowerCellCount;
-
-  private boolean m_powerCellPreviouslyDetected = false;
-
   /**
    * Creates a new Queue.
    */
-  public Queue(QueueMap queueMap, Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
+  public Queue(QueueMap queueMap) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
+    m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
     m_runMotor = new TalonSRX(queueMap.queueRunID);
     m_runMotor.configFactoryDefault();
-    m_runMotor.setInverted(InvertType.None);
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
     m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
-
-    m_incrementMagazinePowerCellCount = incrementMagazinePowerCellCount;
-    m_decrementMagazinePowerCellCount = decrementMagazinePowerCellCount;
   }
 
   @Override
   public void periodic() {
-    updateMagazinePowerCellCount();
 
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
-  }
-
-  private void updateMagazinePowerCellCount() {
-    if (m_photoEye.get() && !m_powerCellPreviouslyDetected) {
-      m_powerCellPreviouslyDetected = true;
-    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected) {
-      if (!getDirectionReversed()) {
-        m_decrementMagazinePowerCellCount.run();
-      } else {
-        m_incrementMagazinePowerCellCount.run();
-      }
-      m_powerCellPreviouslyDetected = false;
-    }
   }
 
   @Override
@@ -97,5 +76,10 @@ public class Queue extends PropertySubsystem implements IQueue {
   @Override
   public Map<String, Object> getValues() {
     return null;
+  }
+
+  @Override
+  public IDigitalInput getPhotoEye() {
+    return this.m_photoEye;
   }
 }

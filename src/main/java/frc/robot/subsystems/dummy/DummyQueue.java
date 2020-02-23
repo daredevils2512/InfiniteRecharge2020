@@ -2,10 +2,11 @@ package frc.robot.subsystems.dummy;
 
 import java.util.Map;
 
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
+import frc.robot.sensors.DummyDigitalInput;
+import frc.robot.sensors.IDigitalInput;
 import frc.robot.subsystems.interfaces.IQueue;
 
-public class DummyQueue implements IQueue, IPropertySubsystem {
+public class DummyQueue implements IQueue {
 
   @Override
   public void run(double speed) {
@@ -28,5 +29,10 @@ public class DummyQueue implements IQueue, IPropertySubsystem {
 
   @Override
   public void saveProperties() {
+  }
+
+  @Override
+  public IDigitalInput getPhotoEye() {
+    return new DummyDigitalInput();
   }
 }

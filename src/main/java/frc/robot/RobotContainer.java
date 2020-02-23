@@ -53,7 +53,7 @@ import frc.robot.vision.Limelight.Pipeline;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
-  private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
+  private MagazinePowerCellCounter m_magazinePowerCellCounter;
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
   private IDrivetrain m_drivetrain = new DummyDrivetrain();
@@ -83,17 +83,18 @@ public class RobotContainer {
   private final Command m_defaultDriveCommand;
 
   private Command m_autonomousCommand;
-
   private boolean m_intakeRunning = false;
   private boolean m_magazineRunning = false;
   private boolean m_queueRunning = false;
   private boolean m_autoRefillQueueEnabled = false;
   private boolean m_autoFeedShooterEnabled = false;
 
-  private double m_intakeExtenderSpeed = 0.3;
-  private double m_intakeSpeed = 0.5;
-  private double m_magazineSpeed = 0.5;
-  private double m_queueSpeed = 0.5;
+  private final double m_intakeExtenderSpeed = 0.3;
+  private final double m_intakeSpeed = 0.5;
+  private final double m_magazineSpeed = 0.5;
+  private final double m_queueSpeed = 0.25;
+  private final double m_shooterHoodSpeed = 0.2;
+  private final double m_turretSpeed = 0.5;
 
   private static Logger logger = Logger.getGlobal();
 
@@ -112,13 +113,16 @@ public class RobotContainer {
 
     m_buttonMap.put(ButtonCommand.INVERT_DRIVING, m_controlBoard.xbox.leftBumper);
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
+    m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.xbox.xButton);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickBottomRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_MAGAZINE, m_controlBoard.extreme.joystickBottomRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_QUEUE, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
     // m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
-    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
-    m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
+    // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
+    // m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.trigger);
 
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
@@ -135,7 +139,8 @@ public class RobotContainer {
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger());
-    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
+    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX() * m_turretSpeed);
 
     // This should probably be extracted from here and from PropertySubsystem at
     // some point
@@ -157,7 +162,7 @@ public class RobotContainer {
         isEnabled.set(this, Boolean.parseBoolean(properties.getProperty(name + ".isEnabled")));
         SmartDashboard.putBoolean(name + " enabled", isEnabled.getBoolean(this));
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-        logger.log(Level.SEVERE, name + "failed to load; threw : ", e);
+        logger.log(Level.SEVERE, name + " failed to load; threw : ", e);
       }
     }
 
@@ -219,20 +224,20 @@ public class RobotContainer {
     m_intake = intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
     m_shooter = shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
     m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
-    m_magazine = magazineEnabled ? new Magazine(magazineMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyMagazine();
-    m_queue = queueEnabled ? new Queue(queueMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyQueue();
+    m_magazine = magazineEnabled ? new Magazine(magazineMap) : new DummyMagazine();
+    m_queue = queueEnabled ? new Queue(queueMap) : new DummyQueue();
     m_turret = turretEnabled ? new Turret(turretMap) : new DummyTurret();
     m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
+    m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(), m_magazine);
+
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
-
-
+    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, this::getShooterSpeed));
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
     m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, m_controlBoard.extreme::getStickY));
-    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
-
+    
     configureButtonBindings();
 
     m_autonomousCommand = drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
@@ -253,42 +258,40 @@ public class RobotContainer {
         .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
 
       // Toggle intake extender motion magic
-      // m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whenPressed(new InstantCommand(() -> m_intake.toggleMotionMagicEnabled(), m_intake));
+      m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
       // Toggle intake extended
       // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed();
       // Start/stop intaking
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.runIntake(m_intake, m_intakeSpeed));
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whileHeld(Commands.runMagazine(m_magazine, () -> m_magazineSpeed));
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whileHeld(Commands.runQueue(m_queue, () -> m_queueSpeed));
-
-      // Toggle between having the magazine automatically refilling the queue
-      // and having the magazine be run manually
-      m_buttonMap.get(ButtonCommand.AUTO_REFILL_QUEUE).whenPressed(new InstantCommand(() -> {
-        m_autoRefillQueueEnabled = !m_autoRefillQueueEnabled;
-        if (m_autoRefillQueueEnabled) {
-          m_magazine.setDefaultCommand(Commands.autoRefillQueue(m_magazine, m_magazineSpeed, m_queue::hasPowerCell));
-        } else {
-          // m_magazine.setDefaultCommand(m_manualMagazineCommand);
-        }
-      }));
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
+      m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+      // m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whenReleased(Commands.runMagazine(m_magazine, 0.0));
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
+      m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
+      // m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whenReleased(Commands.runQueue(m_queue, 0.0));
+      m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> 5000.0));
 
       // Toggle between having the queue automatically feed the shooter
       // (which should check if the shooter and turret are ready to shoot)
-      // and having the queue be manually run
-      m_buttonMap.get(ButtonCommand.AUTO_FEED_SHOOTER).whenPressed(new InstantCommand(() -> {
-        m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
-        if (m_autoFeedShooterEnabled) {
-          m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
-        } else {
-          // m_queue.setDefaultCommand(m_manualQueueCommand);
-        }
-      }));
+      // and having the queue be manually run //idk how well this will work
+      // m_buttonMap.get(ButtonCommand.AUTO_FEED_SHOOTER).whenPressed(new InstantCommand(() -> {
+      //   m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
+      //   if (m_autoFeedShooterEnabled) {
+      //     m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
+      //   } else {
+      //     // m_queue.setDefaultCommand(m_manualQueueCommand);
+      //   }
+      // }));
 
       // Toggle between having the turret automatically track the target
       // and having the turret be turned manually
       m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
 
       m_turret.setDefaultCommand(Commands.moveTurret(m_turret, m_controlBoard.extreme::getPOVX));
+  }
+
+  private double getShooterSpeed() {
+    return m_controlBoard.xbox.getRightTrigger() * 9000;
   }
 
   public void setDriveType(DriveType driveType) {
@@ -327,6 +330,7 @@ public class RobotContainer {
 
   //beacuse
   public void robotContainerPeriodic() {
+    m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", m_magazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null) SmartDashboard.putBoolean("can shoot", m_hexagonPosition.canShoot());
   }

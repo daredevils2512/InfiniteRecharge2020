@@ -15,7 +15,7 @@ public class RunIntake extends CommandBase {
 
   @Override
   public void initialize() {
-    m_intake.setExtended(true);
+    m_intake.setMotionMagicEnabled(false);
   }
 
   @Override

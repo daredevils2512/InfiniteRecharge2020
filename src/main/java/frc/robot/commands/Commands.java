@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
@@ -29,6 +30,7 @@ import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
+import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.vision.Limelight;
 import frc.robot.RobotContainer;
 import frc.robot.sensors.ColorSensor.ColorDetect;
@@ -136,25 +138,25 @@ public final class Commands {
     return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
   }
 
-  public static Command runMagazine(IMagazine magazine, DoubleSupplier speedSupplier) {
-    return new RunCommand(() -> magazine.setSpeed(speedSupplier.getAsDouble()), magazine);
+  public static Command toggleIntakeExtended(IIntake intake) {
+    return new ToggleIntakeExtended(intake);
+  }
+
+  public static Command runMagazine(IMagazine magazine, double speed) {
+    return new RunMagazine(magazine, speed);
   }
 
   public static Command refillQueue(IMagazine magazine, double magazineSpeed, IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
     return new RefillQueue(magazine, magazineSpeed, magazinePowerCellCountSupplier, queueHasPowerCellSupplier);
   }
 
-  public static Command autoRefillQueue(IMagazine magazine, double magazineSpeed, BooleanSupplier powerCellQueued) {
-    return new AutoRefillQueue(magazine, magazineSpeed, powerCellQueued);
+  public static Command intakeBall(IIntake intake, double intakeSpeed, IMagazine magazine, double magazineSpeed, MagazinePowerCellCounter counter) {
+    return new IntakeBall(intake, intakeSpeed, magazine, magazineSpeed, counter);
   }
 
-  public static Command runQueue(IQueue queue, DoubleSupplier speedSupplier) {
-    return new RunCommand(() -> queue.run(speedSupplier.getAsDouble()), queue);
-  }
-
-  public static Command acceptFromMagazine(IQueue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
-    return new AcceptFromMagazine(queue, queueSpeed, magazinePowerCellCountSupplier);
-  }
+  public static Command runQueue(IQueue queue, double speed) {
+    return new ManualRunQueue(queue, speed);
+  }  
 
   public static Command feedShooter(IQueue queue, DoubleSupplier queueSpeedSupplier) {
     return new FeedShooter(queue, queueSpeedSupplier);
@@ -183,8 +185,8 @@ public final class Commands {
     // return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 
-  public static Command setShooterVelocity(IShooter shooter, DoubleSupplier velocitySupplier) {
-    return new RunCommand(() -> shooter.setTargetVelocity(velocitySupplier.getAsDouble()), shooter);
+  public static Command setShooterVelocity(IShooter shooter, Supplier<Double> speed) {
+    return new RunShooterPID(shooter, speed);
   }
 
   public static Command setShooterAngle(IShooter shooter, DoubleSupplier angleSupplier) {

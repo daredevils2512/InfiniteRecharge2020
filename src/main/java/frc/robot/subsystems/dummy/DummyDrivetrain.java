@@ -7,9 +7,8 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import frc.robot.subsystems.interfaces.IDrivetrain;
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 
-public class DummyDrivetrain implements IDrivetrain, IPropertySubsystem {
+public class DummyDrivetrain implements IDrivetrain {
 
   @Override
   public double getMaxSpeed() {

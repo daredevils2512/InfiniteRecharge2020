@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import com.ctre.phoenix.Logger;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -38,6 +38,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final NetworkTableEntry m_shooterPGainEntry;
   private final NetworkTableEntry m_shooterIGainEntry;
   private final NetworkTableEntry m_shooterDGainEntry;
+  private final NetworkTableEntry m_arbitraryFeedForwardEntry;
   private final NetworkTableEntry m_hoodPGainEntry;
   private final NetworkTableEntry m_hoodIGainEntry;
   private final NetworkTableEntry m_hoodDGainEntry;
@@ -64,6 +65,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private double m_shooterVelocityPGain = 0;
   private double m_shooterVelocityIGain = 0;
   private double m_shooterVelocityDGain = 0;
+  private double m_arbitraryFeedForward = 0;
 
   private final int m_hoodPositionPIDSlot;
   private double m_hoodPositionPGain = 0;
@@ -80,6 +82,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooterPGainEntry = m_networkTable.getEntry("Shooter P gain");
     m_shooterIGainEntry = m_networkTable.getEntry("Shooter I gain");
     m_shooterDGainEntry = m_networkTable.getEntry("Shooter D gain");
+    m_arbitraryFeedForwardEntry = m_networkTable.getEntry("arbitrary feed forward");
     m_hoodPGainEntry = m_networkTable.getEntry("Hood P gain");
     m_hoodIGainEntry = m_networkTable.getEntry("Hood I gain");
     m_hoodDGainEntry = m_networkTable.getEntry("Hood D gain");
@@ -99,6 +102,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooterVelocityPGain = Double.parseDouble(m_properties.getProperty("shooterVelocityPGain"));
     m_shooterVelocityIGain = Double.parseDouble(m_properties.getProperty("shooterVelocityIGain"));
     m_shooterVelocityDGain = Double.parseDouble(m_properties.getProperty("shooterVelocityDGain"));
+    m_arbitraryFeedForward = Double.parseDouble(m_properties.getProperty("arbitraryFeedForward"));
 
     m_hoodPositionPIDSlot = Integer.parseInt(m_properties.getProperty("hoodPositionPIDSlot"));
     m_hoodPositionPGain = Double.parseDouble(m_properties.getProperty("hoodPositionPGain"));
@@ -158,6 +162,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
     m_shooterVelocityIGain = m_shooterIGainEntry.getDouble(m_shooterVelocityIGain);
     m_shooterVelocityDGain = m_shooterDGainEntry.getDouble(m_shooterVelocityDGain);
+    m_arbitraryFeedForward = m_arbitraryFeedForwardEntry.getDouble(m_arbitraryFeedForward);
     m_hoodPositionPGain = m_hoodPGainEntry.getDouble(m_hoodPositionPGain);
     m_hoodPositionIGain = m_hoodIGainEntry.getDouble(m_hoodPositionIGain);
     m_hoodPositionDGain = m_hoodDGainEntry.getDouble(m_hoodPositionDGain);
@@ -198,6 +203,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   public void setTargetVelocity(double velocity) {
     m_logger.log(Level.FINER, "setting velocity to = ", velocity);
     m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
+    m_shooter.set(ControlMode.Velocity, toEncoderPulsesPer100Milliseconds(velocity), DemandType.ArbitraryFeedForward, m_arbitraryFeedForward);
     m_shooter.set(ControlMode.Velocity,
       toEncoderPulsesPer100Milliseconds(velocity));
   }
@@ -205,6 +211,13 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public void stop() {
     m_shooter.set(ControlMode.PercentOutput, 0);
+  }
+
+  @Override
+  public void setHoodSpeed(double speed) {
+    if (m_hoodEnabled) {
+      m_hood.set(ControlMode.PercentOutput, speed);
+    }
   }
 
   /**
@@ -260,6 +273,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     values.put("shooterVelocityPGain", m_shooterVelocityPGain);
     values.put("shooterVelocityIGain", m_shooterVelocityIGain);
     values.put("shooterVelocityDGain", m_shooterVelocityDGain);
+    values.put("arbitraryFeedForward", m_arbitraryFeedForward);
     if (m_hoodEnabled) {
       values.put("hoodPositionPGain", m_hoodPositionPGain);
       values.put("hoodPositionIGain", m_hoodPositionIGain);

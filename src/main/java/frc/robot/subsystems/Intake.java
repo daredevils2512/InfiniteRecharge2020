@@ -58,6 +58,7 @@ public class Intake extends PropertySubsystem implements IIntake {
   // TODO: Find the intake range of motion
   private final double m_extendedAngle; // Angle in degrees
   private final double m_retractedAngle;
+  private final double m_tolerance;
 
   // TODO: Configure PID for intake extender
   private final int m_motionMagicSlot;
@@ -71,6 +72,7 @@ public class Intake extends PropertySubsystem implements IIntake {
   private boolean m_extended = false;
 
   private boolean m_motionMagicEnabled = false;
+  private boolean m_isMotionMagicFinished = false;
 
   /**
    * Creates a new power cell intake
@@ -98,6 +100,7 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_extenderGearRatio = Double.parseDouble(m_properties.getProperty("extenderGearRatio"));
     m_extendedAngle = Double.parseDouble(m_properties.getProperty("extendedAngle"));
     m_retractedAngle = Double.parseDouble(m_properties.getProperty("retractedAngle"));
+    m_tolerance = Double.parseDouble(m_properties.getProperty("tolerance"));
 
     m_motionMagicSlot = Integer.parseInt(m_properties.getProperty("motionMagicSlot"));
     m_pGain = Double.parseDouble(m_properties.getProperty("pGain"));
@@ -154,21 +157,14 @@ public class Intake extends PropertySubsystem implements IIntake {
     if (m_extendedLimitSwitchEnabled) {
       if (m_extendedLimitSwitch.get()) {
         m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_extendedAngle));
+        m_extended = true;
       }
     }
     if (m_retractedLimitSwitchEnabled) {
       if (m_retractedLimitSwitch.get()) {
         m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_retractedAngle));
+        m_extended = false;
       }
-    }
-    if (m_motionMagicEnabled) {
-      double targetAngle = m_extended ? m_extendedAngle : m_retractedAngle;
-      double targetPosition = toEncoderTicks(targetAngle);
-      // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar
-      // is 1)
-      double gravityScalar = Math.sin(Math.toRadians(targetAngle));
-      m_extendMotor.set(ControlMode.MotionMagic, targetPosition,
-        DemandType.ArbitraryFeedForward, m_arbitraryFeedforward * gravityScalar);
     }
 
     m_extendedEntry.setBoolean(m_extended);
@@ -209,6 +205,38 @@ public class Intake extends PropertySubsystem implements IIntake {
     setMotionMagicEnabled(!getMotionMagicEnabled());
   }
 
+  public void extend() {
+    if (m_motionMagicEnabled) {
+      runPosition(m_extendedAngle);
+    }
+  }
+
+  public void retract() {
+    if (m_motionMagicEnabled) {
+      runPosition(m_retractedAngle);
+    }
+  }
+
+  private void runPosition(double targetAngle) {
+    double targetPosition = toEncoderTicks(targetAngle);
+    // Up is 0 degrees (gravity scalar is 0) and down is ~90 degrees (gravity scalar
+    // is 1)
+    double gravityScalar = Math.sin(Math.toRadians(this.toDegrees(m_extendMotor.getSelectedSensorPosition())));
+    m_networkTable.getEntry("target position").setDouble(targetAngle);
+    m_networkTable.getEntry("feed forward").setDouble(m_arbitraryFeedforward * gravityScalar);
+    m_networkTable.getEntry("gravity scalar").setDouble(gravityScalar);
+    m_extendMotor.set(ControlMode.MotionMagic, targetPosition,
+      DemandType.ArbitraryFeedForward, m_arbitraryFeedforward * gravityScalar);
+    m_networkTable.getEntry("motion magic output").setDouble(m_extendMotor.getMotorOutputPercent());
+    m_isMotionMagicFinished = Math.abs(toDegrees(m_extendMotor.getSelectedSensorPosition())) - targetAngle <= m_tolerance;
+    m_networkTable.getEntry("is motion magic finished").setBoolean(m_isMotionMagicFinished);
+  }
+
+  @Override
+  public boolean isMotionMagicFinished() {
+    return m_isMotionMagicFinished;
+  }
+
   public void resetIntakeExtenderAngle() {
     m_extendMotor.setSelectedSensorPosition(0);
   }
@@ -222,7 +250,12 @@ public class Intake extends PropertySubsystem implements IIntake {
 
   @Override
   public void setExtended(boolean wantsExtended) {
-    m_extended = wantsExtended;
+    m_networkTable.getEntry("wants extended").setBoolean(wantsExtended);
+    if (wantsExtended) {
+      extend();
+    } else {
+      retract();
+    }
   }
 
   public void toggleExtended() {
@@ -240,7 +273,7 @@ public class Intake extends PropertySubsystem implements IIntake {
     
     if (m_retractedLimitSwitchEnabled) {
       if (m_retractedLimitSwitch.get()) {
-        output = Math.max(output, 0);
+        output = Math.max(output, -0.03);
       }
     }
     if (m_extendedLimitSwitchEnabled) {
