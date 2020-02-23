@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.sensors.IDigitalInput;
-import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IMagazine;
 
 
@@ -25,7 +24,7 @@ public class MagazinePowerCellCounter {
   private IMagazine m_magazine;
 
   public MagazinePowerCellCounter(IDigitalInput magazineEye, IDigitalInput queueEye, IMagazine magazine) {
-    m_logger = Logger.getLogger(MagazinePowerCellCounter.class.getName());
+    m_logger = Logger.getGlobal();
     m_magazineEye = magazineEye;
     m_queueEye = queueEye;
     m_magazine = magazine;
@@ -40,7 +39,7 @@ public class MagazinePowerCellCounter {
       }
       m_magazineCount = Math.min(m_magazineCount, 3);
     } else {
-      System.out.println("ball move too quickly : " + (time - m_previousTimeAdd));
+      m_logger.warning("ball move too quickly : " + (time - m_previousTimeAdd));
     }
     m_previousTimeAdd = time;
   }
@@ -54,7 +53,7 @@ public class MagazinePowerCellCounter {
       }
       m_magazineCount = Math.max(m_magazineCount, 0);
     } else {
-      System.out.println("ball move too quickly : " + (time - m_previousTimeSub));
+      m_logger.warning("ball move too quickly : " + (time - m_previousTimeSub));
     }
     m_previousTimeSub = time;
   }
@@ -63,16 +62,16 @@ public class MagazinePowerCellCounter {
     if (m_magazineEye.get() && !m_previousMagazineEye) {
       m_previousMagazineEye = true;
       if (m_magazine.getDirectionReversed()) {
-        System.out.println("ball reversed");
+        m_logger.fine("ball reversed");
         decrementCount();
       } else {
-        System.out.println("ball in");
+        m_logger.fine("ball in");
         incrementCount();
       }
     }
 
     if (!m_queueEye.get() && m_previousQueueEye) {
-      System.out.println("ball out");
+      m_logger.fine("ball out");
       decrementCount();
       m_previousQueueEye = false;
     }
