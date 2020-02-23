@@ -80,6 +80,7 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_turretMaster.configMotionAcceleration(m_motionAcceleration);
     m_turretMaster.configMotionCruiseVelocity(m_motionCruiseVelocity);
 
+    m_turretMaster.configAllowableClosedloopError(m_positionSlot, toEncoderPulses(m_tolerance));
     m_turretMaster.configClosedLoopPeakOutput(m_positionSlot, 1.0);
     m_turretMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
@@ -135,10 +136,8 @@ public class Turret extends PropertySubsystem implements ITurret {
 
   @Override
   public void runPosition(double degrees) {
-    if (Math.abs(getAngle() - degrees) >= m_tolerance) {
-      m_turretMaster.set(ControlMode.MotionMagic, 
-        toEncoderPulses(DareMathUtil.wrap(degrees, -180, 180)));
-    }
+    m_turretMaster.set(ControlMode.MotionMagic, 
+      toEncoderPulses(DareMathUtil.wrap(degrees, -180, 180)));
   }
 
   @Override
