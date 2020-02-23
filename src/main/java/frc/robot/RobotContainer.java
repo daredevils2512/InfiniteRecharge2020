@@ -145,7 +145,7 @@ public class RobotContainer {
       double turn = -m_controlBoard.xbox.getRightStickX();
       turn = JoystickUtil.deadband(turn, 0.05);
       turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
-      return turn / 2;
+      return turn;
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY());
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.extreme.getSlider());
