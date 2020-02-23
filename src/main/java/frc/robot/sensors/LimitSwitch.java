@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 /**
  * Limit switch wrapper class
  */
-public class LimitSwitch {
+public class LimitSwitch implements IDigitalInput {
     private final DigitalInput m_digitalInput;
 
     /**

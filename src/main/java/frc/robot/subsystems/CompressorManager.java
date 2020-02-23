@@ -10,18 +10,19 @@ package frc.robot.subsystems;
 import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.Compressor;
+import frc.robot.subsystems.interfaces.ICompressorManager;
 
 /**
  * Add your docs here.
  */
-public class CompressorManager {
-  private static Logger logger = Logger.getLogger(CompressorManager.class.getName());
+public class CompressorManager extends LoggingSubsystem implements ICompressorManager {
   private Compressor compressor = new Compressor();
   private boolean m_compressorEnabled; 
   
-  public void toggleCompressor(){
+  @Override
+  public void toggleCompressor() {
     m_compressorEnabled = !m_compressorEnabled;
-    logger.log(Level.FINE, "compressor = ", m_compressorEnabled);
+    m_logger.log(Level.FINE, "compressor = ", m_compressorEnabled);
     compressor.setClosedLoopControl(m_compressorEnabled);
   } 
 }
