@@ -56,7 +56,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final double m_hoodGearRatio; // TODO: Check shooter hood gearing
   private final double m_hoodRadius;
   private final double m_hoodStartingPosition;
-  private final double m_hoodCircumfeprence;
+  private final double m_hoodCircumference;
   private final double m_hoodMMPerTooth;
 
   private final int m_shooterVelocityPIDSlot;
@@ -109,8 +109,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPositionIGain = Double.parseDouble(m_properties.getProperty("hoodPositionIGain"));
     m_hoodPositionDGain = Double.parseDouble(m_properties.getProperty("hoodPositionDGain"));
 
-    m_hoodCircumfeprence = m_hoodRadius * 2 * Math.PI;
-    m_hoodGearRatio = 1 / m_hoodCircumfeprence * m_hoodMMPerTooth;
+    m_hoodCircumference = m_hoodRadius * 2 * Math.PI;
+    m_hoodGearRatio = 1 / m_hoodCircumference * m_hoodMMPerTooth;
 
     m_shooter = new TalonSRX(shooterMap.shooter1ID);
     m_shooterFollower = new TalonSRX(shooterMap.shooter2ID);
