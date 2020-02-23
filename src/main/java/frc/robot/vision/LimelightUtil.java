@@ -28,6 +28,13 @@ public class LimelightUtil {
     return getNetworkTable(pipeline).getEntry("ta").getNumber(0).doubleValue() / 100;
   }
 
+  public static double getDistance(LimelightPipeline pipeline) {
+    usePipeline(pipeline);
+    double verticalOffset = getVerticalOffset(pipeline);
+    double targetAngleOfElevation = pipeline.getLimelight().getAngleOfElevation() + verticalOffset;
+    return verticalOffset / Math.tan(Math.toRadians(targetAngleOfElevation));
+  }
+
   private static void usePipeline(LimelightPipeline pipeline) {
     getNetworkTable(pipeline).getEntry("pipeline").setNumber(pipeline.getID());
   }
