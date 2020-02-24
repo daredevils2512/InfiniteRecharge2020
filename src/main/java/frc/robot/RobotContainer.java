@@ -81,11 +81,6 @@ public class RobotContainer {
   private final Command m_defaultDriveCommand;
 
   private Command m_autonomousCommand;
-  private boolean m_intakeRunning = false;
-  private boolean m_magazineRunning = false;
-  private boolean m_queueRunning = false;
-  private boolean m_autoRefillQueueEnabled = false;
-  private boolean m_autoFeedShooterEnabled = false;
 
   private final double m_intakeExtenderSpeed = 0.3;
   private final double m_intakeSpeed = 0.5;
