@@ -16,6 +16,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -31,7 +32,7 @@ public class Turret extends PropertySubsystem implements ITurret {
   private final NetworkTableEntry m_angleEntry;
   private final NetworkTableEntry m_wrappedAngleEntry;
 
-  private final TalonSRX m_turretMaster;
+  private final WPI_TalonSRX m_turretMaster;
 
   // TODO: Find encoder and gearing details for turret
   private final double m_encoderResolution;
@@ -65,12 +66,14 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_P = Double.parseDouble(m_properties.getProperty("P"));
     m_I = Double.parseDouble(m_properties.getProperty("I"));
     m_D = Double.parseDouble(m_properties.getProperty("D"));
+    m_motionAcceleration = Integer.parseInt(m_properties.getProperty("motionAcceleration"));
+    m_motionCruiseVelocity = Integer.parseInt(m_properties.getProperty("motionCruiseVelocity"));
 
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_angleEntry = m_networkTable.getEntry("Angle");
     m_wrappedAngleEntry = m_networkTable.getEntry("Wrapped angle");
 
-    m_turretMaster = new TalonSRX(turretMap.turretID);
+    m_turretMaster = new WPI_TalonSRX(turretMap.turretID);
     m_turretMaster.configFactoryDefault();
 
     m_turretMaster.config_IntegralZone(m_positionSlot, 0);
@@ -86,7 +89,7 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_turretMaster.setNeutralMode(NeutralMode.Brake);
     m_turretMaster.set(ControlMode.PercentOutput, 0);
     m_turretMaster.setSelectedSensorPosition(0);
-    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxTurnDegrees));
+    m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(180)); //for now
     m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(-m_maxTurnDegrees));
     // m_turretMaster.configForwardSoftLimitThreshold(toEncoderPulses(m_maxAngle));
     // m_turretMaster.configReverseSoftLimitThreshold(toEncoderPulses(m_minAngle));
@@ -103,6 +106,10 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_P = m_networkTable.getEntry("P gain").getDouble(0.0);
     m_I = m_networkTable.getEntry("I gain").getDouble(0.0);
     m_D = m_networkTable.getEntry("D gain").getDouble(0.0);
+
+    m_turretMaster.config_kP(0, m_P);
+    m_turretMaster.config_kI(0, m_I);
+    m_turretMaster.config_kD(0, m_D);
 
     m_angleEntry.setNumber(getAngle());
     m_wrappedAngleEntry.setNumber(DareMathUtil.wrap(getAngle(), m_minAngle, m_maxAngle));
@@ -136,8 +143,13 @@ public class Turret extends PropertySubsystem implements ITurret {
   @Override
   public void runPosition(double degrees) {
     if (Math.abs(getAngle() - degrees) >= m_tolerance) {
+      m_networkTable.getEntry("motion magic target").setDouble(degrees);
+      m_networkTable.getEntry("motion magic tick target").setDouble(DareMathUtil.wrap(degrees, -180, 180));
       m_turretMaster.set(ControlMode.MotionMagic, 
         toEncoderPulses(DareMathUtil.wrap(degrees, -180, 180)));
+      m_networkTable.getEntry("motion magic output").setDouble(m_turretMaster.getMotorOutputPercent());
+    } else {
+      m_logger.log(Level.INFO, "at target");
     }
   }
 
@@ -161,7 +173,8 @@ public class Turret extends PropertySubsystem implements ITurret {
 
   //returns a fused heading problaby
   private int toEncoderPulses(double angle) {
-    return (int)((angle / 360) * m_encoderResolution);
+    int x = (int)((angle / 360) / m_gearRatio * m_encoderResolution);
+    return x;
   }
 
   @Override

@@ -23,11 +23,12 @@ public class CompressorManager extends LoggingSubsystem implements ICompressorMa
   private final NetworkTableEntry m_isRunningEntry;
 
   private Compressor m_compressor = new Compressor();
-  private boolean m_compressorEnabled;
+  private boolean m_compressorEnabled  = true;
 
   public CompressorManager() {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_isRunningEntry = m_networkTable.getEntry("Is running");
+    this.setClosedLoopControl(m_compressorEnabled);
   }
 
   @Override

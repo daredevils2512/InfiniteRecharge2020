@@ -34,6 +34,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
+  private final NetworkTableEntry m_hoodPositionEntry;
   private final NetworkTableEntry m_shooterVelocityEntry;
   private final NetworkTableEntry m_shooterPGainEntry;
   private final NetworkTableEntry m_shooterIGainEntry;
@@ -79,6 +80,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
     m_shooterVelocityEntry = m_networkTable.getEntry("Shooter RPM");
+    m_hoodPositionEntry = m_networkTable.getEntry("hood position");
     m_shooterPGainEntry = m_networkTable.getEntry("Shooter P gain");
     m_shooterIGainEntry = m_networkTable.getEntry("Shooter I gain");
     m_shooterDGainEntry = m_networkTable.getEntry("Shooter D gain");
@@ -138,16 +140,21 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
     if (m_hoodEnabled) {
       m_hood = new TalonSRX(shooterMap.shooterHoodID);
+      m_hood.setSelectedSensorPosition(0);
       m_hood.configFactoryDefault();
       m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
       m_hood.setNeutralMode(NeutralMode.Brake);
+      m_hood.setInverted(InvertType.InvertMotorOutput);
     
       m_hood.config_kP(m_hoodPositionPIDSlot, m_hoodPositionPGain);
       m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
       m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
 
-      m_hood.configForwardSoftLimitThreshold(toEncoderPulsesHood(m_hoodForwardSoftLimit));
-      m_hood.configReverseSoftLimitThreshold(toEncoderPulsesHood(m_hoodReverseSoftLimit));
+      m_hood.configForwardSoftLimitThreshold(2300); //hardcoded for now
+      m_hood.configReverseSoftLimitThreshold(0);
+
+      m_hood.configForwardSoftLimitEnable(true);
+      m_hood.configReverseSoftLimitEnable(true);
    } else {
       m_hood = null;
     }
@@ -157,6 +164,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   public void periodic() {
     SmartDashboard.putNumber("master shooter current output ", m_shooter.getStatorCurrent());
     SmartDashboard.putNumber("master shooter current supply ", m_shooter.getSupplyCurrent());
+    m_hoodPositionEntry.setDouble(m_hood.getSelectedSensorPosition());
 
     // Remove once PID is tuned
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);

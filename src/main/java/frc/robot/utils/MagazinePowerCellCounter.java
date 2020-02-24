@@ -4,8 +4,8 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.sensors.IDigitalInput;
-import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IMagazine;
 
 
@@ -13,6 +13,9 @@ public class MagazinePowerCellCounter {
   private final Logger m_logger;
 
   private int m_magazineCount = 0;
+
+
+  
   private double  m_previousTimeAdd = 0.0; //buffer for addition
   private double m_previousTimeSub = 0.0; //buffer for subtraction
   private double m_errorTime = 0.1; //longest time in between 'balls' going in or out that wed want to ignore
@@ -31,28 +34,14 @@ public class MagazinePowerCellCounter {
     m_magazine = magazine;
   }
 
-  public void incrementCount() {
-    double time = Timer.getFPGATimestamp();
-    if (!(time - m_previousTimeAdd <= m_errorTime)) {
-      m_magazineCount++;
-      if (m_magazineCount > 3) {
-        m_logger.warning("Magazine power cell count exceeded max (3)!");
-      }
-      m_magazineCount = Math.min(m_magazineCount, 3);
-    } else {
-      System.out.println("ball move too quickly : " + (time - m_previousTimeAdd));
-    }
-    m_previousTimeAdd = time;
-  }
-
-  public void decrementCount() {
+  public void addToCount(int change) {
     double time = Timer.getFPGATimestamp();
     if (!(time - m_previousTimeSub <= m_errorTime)) {
-      m_magazineCount--;
+      m_magazineCount = m_magazineCount + change;
       if (m_magazineCount < 0) {
         m_logger.warning("Magazine power cell count less than zero!");
       }
-      m_magazineCount = Math.max(m_magazineCount, 0);
+      m_magazineCount = MathUtil.clamp(m_magazineCount, 0, 4);
     } else {
       System.out.println("ball move too quickly : " + (time - m_previousTimeSub));
     }
@@ -64,16 +53,16 @@ public class MagazinePowerCellCounter {
       m_previousMagazineEye = true;
       if (m_magazine.getDirectionReversed()) {
         System.out.println("ball reversed");
-        decrementCount();
+        addToCount(-1);;
       } else {
         System.out.println("ball in");
-        incrementCount();
+        addToCount(1);;
       }
     }
 
     if (!m_queueEye.get() && m_previousQueueEye) {
       System.out.println("ball out");
-      decrementCount();
+      addToCount(-1);
       m_previousQueueEye = false;
     }
 

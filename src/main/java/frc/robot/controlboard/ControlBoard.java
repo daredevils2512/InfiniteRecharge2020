@@ -55,10 +55,7 @@ public class ControlBoard {
       Object obj = cls.getDeclaredField(joystick).get(this);
       Field field = obj.getClass().getDeclaredField(value);
       button = (JoystickButton) field.get(obj);
-    } catch(IllegalAccessException e) {
-      button = null;
-      e.printStackTrace();
-    } catch(NoSuchFieldException e) {
+    } catch(IllegalAccessException | NoSuchFieldException e) {
       button = null;
       e.printStackTrace();
     }
