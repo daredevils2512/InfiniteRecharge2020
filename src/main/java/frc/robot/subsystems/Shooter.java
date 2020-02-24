@@ -33,7 +33,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final TalonSRX m_hood;
 
   private final int m_shooterEncoderResolution;
-  private final int m_hoodEncoderResolution; // TODO: Check shooter encoder resolution
+  private final int m_hoodEncoderResolution;
   private final double m_shooterGearRatio; // TODO: Check shooter gearing
   private final double m_hoodGearRatio; // TODO: Check shooter hood gearing
 

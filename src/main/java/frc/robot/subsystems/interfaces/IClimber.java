@@ -1,7 +1,5 @@
 package frc.robot.subsystems.interfaces;
 
-import java.util.Map;
-
 import frc.robot.subsystems.Drivetrain;
 
 public interface IClimber extends IPropertySubsystem {

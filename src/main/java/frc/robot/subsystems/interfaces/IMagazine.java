@@ -1,7 +1,5 @@
 package frc.robot.subsystems.interfaces;
 
-import java.util.Map;
-
 public interface IMagazine extends IPropertySubsystem {
   public boolean getPowerCellDetected();
   public void updatePowerCellCount();
