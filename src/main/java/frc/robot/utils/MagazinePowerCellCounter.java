@@ -16,8 +16,7 @@ public class MagazinePowerCellCounter {
 
 
   
-  private double  m_previousTimeAdd = 0.0; //buffer for addition
-  private double m_previousTimeSub = 0.0; //buffer for subtraction
+  private double  m_previousTime; //state buffer
   private double m_errorTime = 0.1; //longest time in between 'balls' going in or out that wed want to ignore
 
   private boolean m_previousMagazineEye = false;
@@ -36,18 +35,21 @@ public class MagazinePowerCellCounter {
 
   public void addToCount(int change) {
     double time = Timer.getFPGATimestamp();
-    if (!(time - m_previousTimeSub <= m_errorTime)) {
+    if (!(time - m_previousTime <= m_errorTime)) {
       m_magazineCount = m_magazineCount + change;
       if (m_magazineCount < 0) {
         m_logger.warning("Magazine power cell count less than zero!");
       }
       m_magazineCount = MathUtil.clamp(m_magazineCount, 0, 4);
     } else {
-      System.out.println("ball move too quickly : " + (time - m_previousTimeSub));
+      System.out.println("ball move too quickly : " + (time - m_previousTime));
     }
-    m_previousTimeSub = time;
+    m_previousTime = time;
   }
 
+  /**
+   * this holds the counting logic -- may need to change ima call it a work in progress
+   */
   public void updateCount() {
     if (m_magazineEye.get() && !m_previousMagazineEye) {
       m_previousMagazineEye = true;
