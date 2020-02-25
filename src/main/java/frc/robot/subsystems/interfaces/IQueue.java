@@ -3,7 +3,6 @@ package frc.robot.subsystems.interfaces;
 import java.util.Map;
 
 import frc.robot.sensors.IDigitalInput;
-import frc.robot.sensors.PhotoEye;
 
 public interface IQueue extends IPropertySubsystem {
   public void run(double speed);

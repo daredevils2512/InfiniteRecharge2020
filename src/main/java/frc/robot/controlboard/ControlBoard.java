@@ -17,15 +17,17 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.utils.PropertyFiles;
 
 public class ControlBoard {
-  private final int xboxPort = 0;
-  private final int extremePort = 1;
-  private final Properties properties;
+  private final int m_xboxPort = 0;
+  private final int m_extremePort = 1;
+  private final int m_buttonBoxPort = 2;
+  private final Properties m_properties;
 
-  public final Xbox xbox = new Xbox(xboxPort);
-  public final Extreme extreme = new Extreme(extremePort);
+  public final Xbox xbox = new Xbox(m_xboxPort);
+  public final Extreme extreme = new Extreme(m_extremePort);
+  public final ButtonBox buttonBox = new ButtonBox(m_buttonBoxPort);
 
   public ControlBoard() {
-    properties = PropertyFiles.loadProperties(this.getClass().getSimpleName().toLowerCase());
+    m_properties = PropertyFiles.loadProperties(this.getClass().getSimpleName().toLowerCase());
   }
 
 
@@ -34,17 +36,17 @@ public class ControlBoard {
    * @param propertiesstring a string that pretends to be a file for testing
    */
   ControlBoard(String propertiesstring) {
-    properties = new Properties();
+    m_properties = new Properties();
     try {
       InputStream deployStream = new ByteArrayInputStream(propertiesstring.getBytes());
-      properties.load(deployStream);
+      m_properties.load(deployStream);
     } catch(IOException e) {
       e.printStackTrace();
     }
 }
 
   public JoystickButton getButton(String propertiesKey) {
-    String propertiesValue = properties.getProperty(propertiesKey);
+    String propertiesValue = m_properties.getProperty(propertiesKey);
     propertiesValue = propertiesValue.trim();
     Class<? extends ControlBoard> cls = this.getClass();
     String[] splitValue = propertiesValue.split("\\.");

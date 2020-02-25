@@ -5,8 +5,9 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class PhotoEye implements IDigitalInput {
+public class PhotoEye extends Trigger implements IDigitalInput {
   private final DigitalInput m_photoEye;
 
   public PhotoEye(int channel) {

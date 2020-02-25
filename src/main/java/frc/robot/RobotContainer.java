@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
+
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ButtonCommand;
 import frc.robot.controlboard.ControlBoard;
@@ -122,13 +123,13 @@ public class RobotContainer {
       double move = -m_controlBoard.xbox.getLeftStickY();
       move = JoystickUtil.deadband(move, 0.05);
       move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
-      return move / 2;
+      return move;
     });
     m_joystickMap.put(JoystickCommand.TURN, () -> {
       double turn = -m_controlBoard.xbox.getRightStickX();
       turn = JoystickUtil.deadband(turn, 0.05);
       turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
-      return turn / 2;
+      return turn;
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger());
