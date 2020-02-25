@@ -19,8 +19,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.commands.Commands;
 import frc.robot.controlboard.ButtonCommand;
@@ -83,11 +81,6 @@ public class RobotContainer {
   private final Command m_defaultDriveCommand;
 
   private Command m_autonomousCommand;
-  private boolean m_intakeRunning = false;
-  private boolean m_magazineRunning = false;
-  private boolean m_queueRunning = false;
-  private boolean m_autoRefillQueueEnabled = false;
-  private boolean m_autoFeedShooterEnabled = false;
 
   private final double m_intakeExtenderSpeed = 0.3;
   private final double m_intakeSpeed = 0.5;
@@ -159,7 +152,7 @@ public class RobotContainer {
     for (ILogging subsystem : subsystemArray) {
       String dummyName = subsystem.getClass().getSimpleName();
       String name = dummyName.toLowerCase().split("y")[1];
-      System.out.println("initializing " + name);
+      logger.config("initializing" + name);
       try {
         Field isEnabled = this.getClass().getDeclaredField(name + "Enabled");
         isEnabled.setAccessible(true);
@@ -169,6 +162,8 @@ public class RobotContainer {
         logger.log(Level.SEVERE, name + " failed to load; threw : ", e);
       }
     }
+
+    logger.setLevel(Level.parse(properties.getProperty("globalLogLevel").toUpperCase()));
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
     // File path to generated robot path

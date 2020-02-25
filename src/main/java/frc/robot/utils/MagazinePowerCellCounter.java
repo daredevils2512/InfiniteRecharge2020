@@ -27,7 +27,7 @@ public class MagazinePowerCellCounter {
   private IMagazine m_magazine;
 
   public MagazinePowerCellCounter(IDigitalInput magazineEye, IDigitalInput queueEye, IMagazine magazine) {
-    m_logger = Logger.getLogger(MagazinePowerCellCounter.class.getName());
+    m_logger = Logger.getGlobal();
     m_magazineEye = magazineEye;
     m_queueEye = queueEye;
     m_magazine = magazine;

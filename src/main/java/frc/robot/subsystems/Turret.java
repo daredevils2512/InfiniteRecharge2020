@@ -14,7 +14,6 @@ import java.util.logging.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
@@ -83,6 +82,7 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_turretMaster.configMotionAcceleration(m_motionAcceleration);
     m_turretMaster.configMotionCruiseVelocity(m_motionCruiseVelocity);
 
+    m_turretMaster.configAllowableClosedloopError(m_positionSlot, toEncoderPulses(m_tolerance));
     m_turretMaster.configClosedLoopPeakOutput(m_positionSlot, 1.0);
     m_turretMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
 
@@ -107,9 +107,9 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_I = m_networkTable.getEntry("I gain").getDouble(0.0);
     m_D = m_networkTable.getEntry("D gain").getDouble(0.0);
 
-    m_turretMaster.config_kP(0, m_P);
-    m_turretMaster.config_kI(0, m_I);
-    m_turretMaster.config_kD(0, m_D);
+    m_turretMaster.config_kP(m_positionSlot, m_P);
+    m_turretMaster.config_kI(m_positionSlot, m_I);
+    m_turretMaster.config_kD(m_positionSlot, m_D);
 
     m_angleEntry.setNumber(getAngle());
     m_wrappedAngleEntry.setNumber(DareMathUtil.wrap(getAngle(), m_minAngle, m_maxAngle));
@@ -142,15 +142,11 @@ public class Turret extends PropertySubsystem implements ITurret {
 
   @Override
   public void runPosition(double degrees) {
-    if (Math.abs(getAngle() - degrees) >= m_tolerance) {
-      m_networkTable.getEntry("motion magic target").setDouble(degrees);
-      m_networkTable.getEntry("motion magic tick target").setDouble(DareMathUtil.wrap(degrees, -180, 180));
-      m_turretMaster.set(ControlMode.MotionMagic, 
-        toEncoderPulses(DareMathUtil.wrap(degrees, -180, 180)));
-      m_networkTable.getEntry("motion magic output").setDouble(m_turretMaster.getMotorOutputPercent());
-    } else {
-      m_logger.log(Level.INFO, "at target");
-    }
+    m_networkTable.getEntry("motion magic target").setDouble(degrees);
+    m_networkTable.getEntry("motion magic tick target").setDouble(DareMathUtil.wrap(degrees, -180, 180));
+    m_turretMaster.set(ControlMode.MotionMagic, 
+      toEncoderPulses(DareMathUtil.wrap(degrees, -180, 180)));
+    m_networkTable.getEntry("motion magic output").setDouble(m_turretMaster.getMotorOutputPercent());
   }
 
   @Override
