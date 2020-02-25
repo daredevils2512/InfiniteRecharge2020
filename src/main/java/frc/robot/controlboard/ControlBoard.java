@@ -7,10 +7,63 @@
 
 package frc.robot.controlboard;
 
-public class ControlBoard {
-  private final int xboxPort = 0;
-  private final int extremePort = 1;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.Properties;
 
-  public final Xbox xbox = new Xbox(xboxPort);
-  public final Extreme extreme = new Extreme(extremePort);
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.utils.PropertyFiles;
+
+public class ControlBoard {
+  private final int m_xboxPort = 0;
+  private final int m_extremePort = 1;
+  private final int m_buttonBoxPort = 2;
+  private final Properties m_properties;
+
+  public final Xbox xbox = new Xbox(m_xboxPort);
+  public final Extreme extreme = new Extreme(m_extremePort);
+  public final ButtonBox buttonBox = new ButtonBox(m_buttonBoxPort);
+
+  public ControlBoard() {
+    m_properties = PropertyFiles.loadProperties(this.getClass().getSimpleName().toLowerCase());
+  }
+
+
+  /**
+   * mainly for testing
+   * @param propertiesstring a string that pretends to be a file for testing
+   */
+  ControlBoard(String propertiesstring) {
+    m_properties = new Properties();
+    try {
+      InputStream deployStream = new ByteArrayInputStream(propertiesstring.getBytes());
+      m_properties.load(deployStream);
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+}
+
+  public JoystickButton getButton(String propertiesKey) {
+    String propertiesValue = m_properties.getProperty(propertiesKey);
+    propertiesValue = propertiesValue.trim();
+    Class<? extends ControlBoard> cls = this.getClass();
+    String[] splitValue = propertiesValue.split("\\.");
+    String joystick = splitValue[0];
+    String value = splitValue[1];
+    JoystickButton button;
+    try {
+      Object obj = cls.getDeclaredField(joystick).get(this);
+      Field field = obj.getClass().getDeclaredField(value);
+      button = (JoystickButton) field.get(obj);
+    } catch(IllegalAccessException e) {
+      button = null;
+      e.printStackTrace();
+    } catch(NoSuchFieldException e) {
+      button = null;
+      e.printStackTrace();
+    }
+    return button;
+  }
 }
