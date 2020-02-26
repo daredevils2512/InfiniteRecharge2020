@@ -1,7 +1,5 @@
 package frc.robot.subsystems.interfaces;
 
-import java.util.Map;
-
 public interface IShooter extends IPropertySubsystem {
   public void resetHoodAngle(double angle);
   public void setPercentOutput(double speed);
@@ -11,5 +9,5 @@ public interface IShooter extends IPropertySubsystem {
   public void setTargetAngle(double angle);
   public double getVelocity();
   public double getAngle();
-  public Map<String, Object> getValues();
+
 }

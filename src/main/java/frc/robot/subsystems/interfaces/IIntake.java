@@ -1,7 +1,5 @@
 package frc.robot.subsystems.interfaces;
 
-import java.util.Map;
-
 public interface IIntake extends IPropertySubsystem {
   public void runIntake(double speed);
 
@@ -17,5 +15,5 @@ public interface IIntake extends IPropertySubsystem {
   public void retract();
   public boolean isMotionMagicFinished();
 
-  public Map<String, Object> getValues();
+
 }
