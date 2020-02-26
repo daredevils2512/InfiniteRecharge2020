@@ -43,6 +43,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final NetworkTableEntry m_hoodPGainEntry;
   private final NetworkTableEntry m_hoodIGainEntry;
   private final NetworkTableEntry m_hoodDGainEntry;
+  private final NetworkTableEntry m_setShooterSpeed;
+  private final NetworkTableEntry m_shooterSpeedSetter;
 
   private final TalonSRX m_shooter;
   private final TalonSRX m_shooterFollower;
@@ -88,6 +90,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPGainEntry = m_networkTable.getEntry("Hood P gain");
     m_hoodIGainEntry = m_networkTable.getEntry("Hood I gain");
     m_hoodDGainEntry = m_networkTable.getEntry("Hood D gain");
+    m_setShooterSpeed = m_networkTable.getEntry("set shooter RPM");
+    m_shooterSpeedSetter = m_networkTable.getEntry("set shooter speed toggle");
 
     m_hoodEnabled = Boolean.parseBoolean(m_properties.getProperty("hoodEnabled"));
     m_shooterEncoderResolution = Integer.parseInt(m_properties.getProperty("shooterEncoderResolution"));
@@ -190,6 +194,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooterPGainEntry.setDouble(m_shooterVelocityPGain);
     m_shooterIGainEntry.setDouble(m_shooterVelocityIGain);
     m_shooterDGainEntry.setDouble(m_shooterVelocityDGain);
+    if (m_shooterSpeedSetter.getBoolean(false)) {
+      setTargetVelocity(m_setShooterSpeed.getDouble(0));
+    }
   }
 
   @Override
