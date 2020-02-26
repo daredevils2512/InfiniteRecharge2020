@@ -41,6 +41,7 @@ import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
+import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight.Pipeline;
 
 /**
@@ -55,6 +56,7 @@ public class RobotContainer {
   private MagazinePowerCellCounter m_magazinePowerCellCounter;
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
+  private PiTable m_piTable;
   private IDrivetrain m_drivetrain = new DummyDrivetrain();
   private IIntake m_intake = new DummyIntake();
   private IShooter m_shooter = new DummyShooter();
@@ -69,6 +71,7 @@ public class RobotContainer {
   private String m_pathPath = "paths/auto1.wpilib.json";
 
   private final boolean limelightEnabled;
+  private final boolean piTableEnabled;
   private boolean drivetrainEnabled = false;
   private boolean intakeEnabled = false;
   private boolean shooterEnabled = false;
@@ -168,11 +171,13 @@ public class RobotContainer {
     logger.setLevel(Level.parse(properties.getProperty("globalLogLevel").toUpperCase()));
 
     limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
+    piTableEnabled = Boolean.parseBoolean(properties.getProperty("piTable.isEnabled"));
     // File path to generated robot path
     m_pathPath = properties.getProperty("PATH_PATH");
 
     SmartDashboard.putBoolean("limelight enabled", limelightEnabled);
 
+    m_piTable = piTableEnabled ? new PiTable() : null;
     if (limelightEnabled) {
       m_limelight = new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline")));
     }
@@ -345,7 +350,7 @@ public class RobotContainer {
   //beacuse
   public void robotContainerPeriodic() {
     m_magazinePowerCellCounter.updateCount();
-    SmartDashboard.putNumber("power cell count", m_magazinePowerCellCounter.getCount());
+    SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null) SmartDashboard.putBoolean("can shoot", m_hexagonPosition.canShoot());
   }
 

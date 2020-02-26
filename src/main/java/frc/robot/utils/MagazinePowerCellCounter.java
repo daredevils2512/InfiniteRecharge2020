@@ -12,9 +12,7 @@ import frc.robot.subsystems.interfaces.IMagazine;
 public class MagazinePowerCellCounter {
   private final Logger m_logger;
 
-  private int m_magazineCount = 0;
-
-
+  private static int m_magazineCount = 0;
   
   private double  m_previousTime; //state buffer
   private double m_errorTime = 0.1; //longest time in between 'balls' going in or out that wed want to ignore
@@ -72,7 +70,7 @@ public class MagazinePowerCellCounter {
     m_previousQueueEye = m_queueEye.get();
   }
 
-  public int getCount() {
+  public static int getCount() {
     SmartDashboard.putNumber("power cell count", m_magazineCount);
     return m_magazineCount;
   }

@@ -8,12 +8,10 @@ import frc.robot.subsystems.interfaces.IQueue;
 public abstract class RunQueueCommand extends CommandBase {
   protected final IQueue m_queue;
   protected final double m_queueSpeed;
-  protected final IntSupplier m_magazinePowerCellCountSupplier;
 
-  public RunQueueCommand(IQueue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
+  public RunQueueCommand(IQueue queue, double queueSpeed) {
     m_queue = queue;
     m_queueSpeed = queueSpeed;
-    m_magazinePowerCellCountSupplier = magazinePowerCellCountSupplier;
     addRequirements(queue);
   }
 

@@ -20,4 +20,8 @@ public final class DareMathUtil {
     double range = max - min;
     return (value - sign * min) % range + sign * min;
   }
+
+  public static boolean isWithinXOf(double value, double target, double tolerance) {
+    return Math.abs(value - target) <= tolerance;
+  }
 }
