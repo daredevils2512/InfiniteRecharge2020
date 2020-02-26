@@ -31,7 +31,6 @@ import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.MagazinePowerCellCounter;
-import frc.robot.vision.Limelight;
 import frc.robot.RobotContainer;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 
@@ -175,8 +174,8 @@ public final class Commands {
     return new RunCommand(() -> turret.runPosition(position));
   }
 
-  public static Command findTarget(ITurret turret, Limelight limelight, double angleTolerance) {
-    return new FindTarget(turret, limelight, angleTolerance);
+  public static Command findTarget(ITurret turret) {
+    return new FindTarget(turret);
   }
 
   /**

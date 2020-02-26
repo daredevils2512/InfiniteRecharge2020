@@ -102,8 +102,6 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
-    subsystemArray = new ILogging[] {m_drivetrain, m_intake, m_turret, m_magazine, m_queue, m_shooter, m_spinner, m_climber, m_compressor};
-
     m_buttonMap.put(ButtonCommand.REVERSE_INTAKE, m_controlBoard.xbox.leftBumper);
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
     m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.xbox.xButton);
@@ -112,6 +110,7 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_MAGAZINE, m_controlBoard.extreme.joystickBottomRight);
     m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.extreme.joystickTopLeft);
     m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.extreme.joystickBottomLeft);
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.baseMiddleRight);
     // m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     // m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_QUEUE, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
@@ -148,6 +147,8 @@ public class RobotContainer {
     //     Filesystem.getOperatingDirectory() + "/" + robotMapPropertiesFilename);
     // File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/" + robotMapPropertiesFilename);
     Properties robotMapProperties = PropertyFiles.loadProperties("RobotMap");
+
+    subsystemArray = new ILogging[] {m_drivetrain, m_intake, m_turret, m_magazine, m_queue, m_shooter, m_spinner, m_climber, m_compressor};
 
     for (ILogging subsystem : subsystemArray) {
       String dummyName = subsystem.getClass().getSimpleName();
@@ -295,7 +296,7 @@ public class RobotContainer {
 
       // Toggle between having the turret automatically track the target
       // and having the turret be turned manually
-      // m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret, m_limelight, 5));
+      m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
 
       m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
 
