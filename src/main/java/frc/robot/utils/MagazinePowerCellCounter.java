@@ -40,7 +40,7 @@ public class MagazinePowerCellCounter {
       }
       m_magazineCount = MathUtil.clamp(m_magazineCount, 0, 4);
     } else {
-      System.out.println("ball move too quickly : " + (time - m_previousTime));
+      m_logger.warning("ball move too quickly : " + (time - m_previousTime));
     }
     m_previousTime = time;
   }
@@ -52,16 +52,16 @@ public class MagazinePowerCellCounter {
     if (m_magazineEye.get() && !m_previousMagazineEye) {
       m_previousMagazineEye = true;
       if (m_magazine.getDirectionReversed()) {
-        System.out.println("ball reversed");
+        m_logger.fine("ball reversed");
         addToCount(-1);;
       } else {
-        System.out.println("ball in");
+        m_logger.fine("ball in");
         addToCount(1);;
       }
     }
 
     if (!m_queueEye.get() && m_previousQueueEye) {
-      System.out.println("ball out");
+      m_logger.fine("ball out");
       addToCount(-1);
       m_previousQueueEye = false;
     }
