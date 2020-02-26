@@ -31,7 +31,6 @@ import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.MagazinePowerCellCounter;
-import frc.robot.vision.Limelight;
 import frc.robot.RobotContainer;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 
@@ -170,8 +169,13 @@ public final class Commands {
     return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
   }
 
-  public static Command findTarget(ITurret turret, Limelight limelight, double angleTolerance) {
-    return new FindTarget(turret, limelight, angleTolerance);
+  public static Command runTurretPosition(ITurret turret, double position) {
+    System.out.println("ran turret position" + position);
+    return new RunCommand(() -> turret.runPosition(position));
+  }
+
+  public static Command findTarget(ITurret turret) {
+    return new FindTarget(turret);
   }
 
   /**
@@ -180,7 +184,6 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command runShooter(IShooter shooter, DoubleSupplier speedSupplier) {
-    System.out.println(speedSupplier.getAsDouble());
     return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
     // return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
@@ -193,8 +196,12 @@ public final class Commands {
     return new RunCommand(() -> shooter.setTargetAngle(angleSupplier.getAsDouble()), shooter);
   }
 
+  public static Command runHood(IShooter shooter, DoubleSupplier supplier) {
+    return new RunCommand(() -> shooter.setHoodSpeed(supplier.getAsDouble()));
+  }
+
   public static Command stopShooter(IShooter shooter) {
-    return new InstantCommand(() -> shooter.stop(), shooter);
+    return new InstantCommand(shooter::stop, shooter);
   }
 
   public static Command setSpinnerExtended(ISpinner spinner, boolean wantsExtended) {

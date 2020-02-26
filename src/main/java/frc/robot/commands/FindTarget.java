@@ -11,23 +11,16 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.ITurret;
-import frc.robot.vision.Limelight;
 
 public class FindTarget extends CommandBase {
   private ITurret m_turret;
-  private Limelight m_limelight;
   private NetworkTable m_networkTable;
-
-  private double m_tolerance;
-  private double m_targetPosition;
 
   /**
    * Creates a new FindTarget.
    */
-  public FindTarget(ITurret turret, Limelight limelight, double tolerance) {
+  public FindTarget(ITurret turret) {
     m_turret = turret;
-    m_limelight = limelight;
-    m_tolerance = tolerance;
     m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
     addRequirements(m_turret);
   }

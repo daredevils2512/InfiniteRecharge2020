@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class Extreme {
   public final int m_stickYAxis = 1;
+  public final int m_stickZAxis = 2;
 
   private final Joystick m_joystick;
 
@@ -48,6 +49,10 @@ public class Extreme {
 
   public double getStickY() {
     return m_joystick.getRawAxis(m_stickYAxis);
+  }
+
+  public double getTwist() {
+    return m_joystick.getRawAxis(m_stickZAxis);
   }
 
   public double getSlider() {
