@@ -87,10 +87,10 @@ public class RobotContainer {
   private Command m_autonomousCommand;
 
   private final double m_intakeExtenderSpeed = 0.3;
-  private final double m_intakeSpeed = 0.5;
+  private final double m_intakeSpeed = 0.7;
   private final double m_magazineSpeed = 0.5;
   private final double m_queueSpeed = 0.75;
-  private final double m_shooterHoodSpeed = 0.5;
+  private final double m_shooterHoodSpeed = 0.4;
   private final double m_turretSpeed = 0.5;
 
   private static Logger logger = Logger.getGlobal();
@@ -112,11 +112,11 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
     m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_MAGAZINE, m_controlBoard.extreme.joystickBottomRight);
-    m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.extreme.joystickTopLeft);
-    m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.extreme.joystickBottomLeft);
+    m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);
+    m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.buttonBox.green);
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.baseMiddleRight);
-    // m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
-    // m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_QUEUE, m_controlBoard.extreme.joystickBottomLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_QUEUE, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
     m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontRight);
     m_buttonMap.put(ButtonCommand.SHOOT, m_controlBoard.extreme.trigger);
@@ -124,6 +124,7 @@ public class RobotContainer {
     // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     // m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.trigger);
+    m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
 
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -270,16 +271,21 @@ public class RobotContainer {
       // Start/stop intaking
       m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
       m_buttonMap.get(ButtonCommand.REVERSE_INTAKE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+
       m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
       m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
       // m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whenReleased(Commands.runMagazine(m_magazine, 0.0));
-      // m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
-      // m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
+      
+      m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
+      m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
       // m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whenReleased(Commands.runQueue(m_queue, 0.0));
+      
       m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> 5000.0));
 
       m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
+      m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
       m_buttonMap.get(ButtonCommand.HOOD_DOWN).whileHeld(Commands.runHood(m_shooter, () -> -m_shooterHoodSpeed));
+      m_buttonMap.get(ButtonCommand.HOOD_DOWN).whenReleased(Commands.runHood(m_shooter, () -> 0.0));
 
 
       m_buttonMap.get(ButtonCommand.SHOOT).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed))
@@ -302,9 +308,10 @@ public class RobotContainer {
 
       // Toggle between having the turret automatically track the target
       // and having the turret be turned manually
-      m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
+      if (limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
 
       m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
+      m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
 
       m_turret.setDefaultCommand(Commands.moveTurret(m_turret, () -> m_controlBoard.extreme.getTwist() * 0.3));
   }
@@ -351,7 +358,7 @@ public class RobotContainer {
   public void robotContainerPeriodic() {
     m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
-    if (m_hexagonPosition != null) SmartDashboard.putBoolean("can shoot", m_hexagonPosition.canShoot());
+    if (m_hexagonPosition != null) m_hexagonPosition.updatePosition();
   }
 
   /**

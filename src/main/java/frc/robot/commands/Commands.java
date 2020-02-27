@@ -22,7 +22,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.subsystems.CompressorManager;
 import frc.robot.subsystems.interfaces.IClimber;
+import frc.robot.subsystems.interfaces.ICompressorManager;
 import frc.robot.subsystems.interfaces.IDrivetrain;
 import frc.robot.subsystems.interfaces.IIntake;
 import frc.robot.subsystems.interfaces.IMagazine;
@@ -198,7 +200,7 @@ public final class Commands {
   }
 
   public static Command runHood(IShooter shooter, DoubleSupplier supplier) {
-    return new RunCommand(() -> shooter.setHoodSpeed(supplier.getAsDouble()));
+    return new RunCommand(() -> shooter.setHoodSpeed(supplier.getAsDouble())).andThen(new RunCommand(() -> shooter.setHoodSpeed(0.0)));
   }
 
   public static Command stopShooter(IShooter shooter) {
@@ -215,6 +217,10 @@ public final class Commands {
 
   public static Command precisionControl(ISpinner spinner, ColorDetect targetColor) {
     return new PrecisionControl(spinner, targetColor);
+  }
+
+  public static Command toggleCompressor(ICompressorManager compressor) {
+    return new RunCommand(() -> compressor.toggleCompressor());
   }
 
   public static Command followPath(IDrivetrain drivetrain, String file) {

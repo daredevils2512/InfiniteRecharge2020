@@ -49,7 +49,7 @@ public class HexagonPosition {
     }
 
     public boolean canShoot() {
-        boolean canShoot = Math.abs(m_turretPosition - m_turret.getAngle()) <= m_tolerance;
+        boolean canShoot = Math.abs(getTurretRelativePosition() - m_turret.getAngle()) <= m_tolerance;
         m_networkTable.getEntry("can shoot").setBoolean(canShoot);
         return  canShoot;
     }

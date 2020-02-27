@@ -154,7 +154,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
       m_hood.config_kI(m_hoodPositionPIDSlot, m_hoodPositionIGain);
       m_hood.config_kD(m_hoodPositionPIDSlot, m_hoodPositionDGain);
 
-      m_hood.configForwardSoftLimitThreshold(2300); //hardcoded for now
+      m_hood.configForwardSoftLimitThreshold(2000); //hardcoded for now
       m_hood.configReverseSoftLimitThreshold(0);
 
       m_hood.configForwardSoftLimitEnable(true);

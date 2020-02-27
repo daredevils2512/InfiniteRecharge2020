@@ -20,5 +20,6 @@ public enum ButtonCommand {
   TURRET_TESTING_MOTION_MAGIC, 
   SHOOT,
   HOOD_UP,
-  HOOD_DOWN;
+  HOOD_DOWN, 
+  TOGGLE_COMPRESSOR;
 }

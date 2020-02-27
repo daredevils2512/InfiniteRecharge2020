@@ -46,7 +46,7 @@ public class Queue extends PropertySubsystem implements IQueue {
 
     m_runMotor = new TalonSRX(queueMap.queueRunID);
     m_runMotor.configFactoryDefault();
-    m_runMotor.setInverted(InvertType.InvertMotorOutput);
+    m_runMotor.setInverted(InvertType.None);
 
     m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
   }
