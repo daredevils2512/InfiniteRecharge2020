@@ -92,7 +92,7 @@ public class RobotContainer {
   private final double m_magazineSpeed = 0.5;
   private final double m_queueSpeed = 0.75;
   private final double m_shooterHoodSpeed = 0.4;
-  private final double m_turretSpeed = 0.5;
+  private final double m_turretSpeed = 0.3;
 
   private static Logger logger = Logger.getGlobal();
 
@@ -140,7 +140,7 @@ public class RobotContainer {
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger() * 9000);
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
-    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getPOVX() * m_turretSpeed);
+    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getTwist() * m_turretSpeed);
 
     properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
@@ -225,8 +225,9 @@ public class RobotContainer {
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
     
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
-    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
     m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER)));
+    m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
+    m_turret.setDefaultCommand(Commands.moveTurret(m_turret, m_joystickMap.get(JoystickCommand.MANUAL_MOVE_TURRET)));
 
     configureButtonBindings();
 
@@ -295,8 +296,6 @@ public class RobotContainer {
 
       m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
       m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
-
-      m_turret.setDefaultCommand(Commands.moveTurret(m_turret, () -> m_controlBoard.extreme.getTwist() * 0.3));
   }
 
   public void setDriveType(DriveType driveType) {
