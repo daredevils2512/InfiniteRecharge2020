@@ -241,6 +241,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightIGainEntry.setNumber(m_leftIGain);
     m_rightDGainEntry.setNumber(m_leftDGain);
 
+    m_networkTable.getEntry("heading").setDouble(getHeading());
     m_invertedDrivingEntry.setBoolean(m_isDrivingInverted);
     m_leftDistanceEntry.setNumber(getLeftDistance());
     m_rightDistanceEntry.setNumber(getRightDistance());
@@ -340,7 +341,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   @Override
   public double getHeading() {
-    return m_pigeonEnabled ? getFusedHeading() : 0.0;
+    return m_pigeonEnabled ? -getFusedHeading() % 360 : 0.0;
   }
 
   /**

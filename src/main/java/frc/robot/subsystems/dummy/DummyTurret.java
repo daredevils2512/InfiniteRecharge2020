@@ -38,5 +38,10 @@ public class DummyTurret implements ITurret {
 
   @Override
   public void saveProperties() {
-  } 
+  }
+
+  @Override
+  public boolean isAtSetpoint() {
+    return true;
+  }
 }

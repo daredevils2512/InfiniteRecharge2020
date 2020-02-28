@@ -47,6 +47,7 @@ public class Limelight {
   public Limelight(Pipeline defaultPipeline) {
     m_pipeline = defaultPipeline;
     m_table = NetworkTableInstance.getDefault().getTable("limelight");
+    this.setPipeline(defaultPipeline);
     lastPostion = 1.0;
   }
 

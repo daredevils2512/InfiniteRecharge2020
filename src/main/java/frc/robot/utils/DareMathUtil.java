@@ -21,6 +21,13 @@ public final class DareMathUtil {
     return (value - sign * min) % range + sign * min;
   }
 
+  /**
+   * checks if value is within tolerance x of target
+   * @param value input value
+   * @param target target that value might be near
+   * @param tolerance acceptable error
+   * @return true if value is within acceptable error of the target
+   */
   public static boolean isWithinXOf(double value, double target, double tolerance) {
     return Math.abs(value - target) <= tolerance;
   }

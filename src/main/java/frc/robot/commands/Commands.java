@@ -13,6 +13,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
@@ -174,10 +176,11 @@ public final class Commands {
 
   public static Command runTurretPosition(ITurret turret, double position) {
     System.out.println("ran turret position" + position);
-    return new RunCommand(() -> turret.runPosition(position));
+    return new RunCommand(() -> turret.runPosition(position), turret);
   }
 
   public static Command findTarget(ITurret turret) {
+    Logger.getGlobal().log(Level.INFO, "finding traget");
     return new FindTarget(turret);
   }
 

@@ -114,7 +114,6 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_MAGAZINE, m_controlBoard.extreme.joystickBottomRight);
     m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);
     m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.buttonBox.green);
-    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.baseMiddleRight);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_QUEUE, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
@@ -123,7 +122,7 @@ public class RobotContainer {
     // m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
     // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     // m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
-    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.trigger);
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
     m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
 
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
@@ -185,6 +184,7 @@ public class RobotContainer {
 
     //not dead code
     if (turretEnabled && drivetrainEnabled && limelightEnabled) {
+      Logger.getGlobal().log(Level.INFO, "initalized hexagon position");
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     }
 
@@ -308,7 +308,8 @@ public class RobotContainer {
 
       // Toggle between having the turret automatically track the target
       // and having the turret be turned manually
-      if (limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
+      System.out.println("limelight enabled: " + limelightEnabled);
+      m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).whileHeld(Commands.findTarget(m_turret));
 
       m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
       m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
