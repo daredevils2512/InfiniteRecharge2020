@@ -33,6 +33,8 @@ import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.MagazinePowerCellCounter;
+import frc.robot.vision.Limelight;
+import frc.robot.vision.LimelightLEDMode;
 import frc.robot.RobotContainer;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 
@@ -52,6 +54,21 @@ import frc.robot.sensors.ColorSensor.ColorDetect;
  */
 public final class Commands {
   private Commands() {
+  }
+
+  public static Command setLimelightLEDMode(Limelight limelight, LimelightLEDMode ledMode) {
+    return new InstantCommand(() -> limelight.setLEDMode(ledMode));
+  }
+
+  /**
+   * Sets the limelight LED mode to force OFF if not currently set to OFF, otherwise revert to mode set by pipeline
+   * @param limelight Limelight to set LED mode on
+   * @return New {@link Command}
+   */
+  public static Command toggleLimelightLEDForceOff(Limelight limelight) {
+    return new InstantCommand(() -> {
+      limelight.setLEDMode(limelight.getLEDMode() == LimelightLEDMode.OFF ? LimelightLEDMode.PIPELINE : LimelightLEDMode.OFF);
+    });
   }
 
   /**

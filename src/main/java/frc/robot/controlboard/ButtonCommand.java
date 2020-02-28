@@ -1,6 +1,7 @@
 package frc.robot.controlboard;
 
 public enum ButtonCommand {
+  LIMELIGHT_LED,
   INVERT_DRIVING,
   SHIFT_DRIVETRAIN,
   MANUAL_RUN_INTAKE,

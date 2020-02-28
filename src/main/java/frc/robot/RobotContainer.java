@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 import frc.robot.commands.Commands;
@@ -105,6 +106,7 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
+    m_buttonMap.put(ButtonCommand.LIMELIGHT_LED, m_controlBoard.buttonBox.topWhite);
     m_buttonMap.put(ButtonCommand.REVERSE_INTAKE, m_controlBoard.xbox.leftBumper);
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
     m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.xbox.xButton);
@@ -241,61 +243,64 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-      m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN)
-        .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
-        .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
-      // m_buttonMap.get(ButtonCommand.INVERT_DRIVING)
-      //   .whenPressed(Commands.setDrivingInverted(m_drivetrain, true))
-      //   .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
+    // Toggle limelight LED force off
+    m_buttonMap.get(ButtonCommand.LIMELIGHT_LED).whenPressed(Commands.toggleLimelightLEDForceOff(m_limelight));
 
-      // Toggle intake extender motion magic
-      m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
-      // Toggle intake extended
-      // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed();
-      // Start/stop intaking
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
-      m_buttonMap.get(ButtonCommand.REVERSE_INTAKE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+    m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN)
+      .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
+      .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
+    // m_buttonMap.get(ButtonCommand.INVERT_DRIVING)
+    //   .whenPressed(Commands.setDrivingInverted(m_drivetrain, true))
+    //   .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
 
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
-      m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
-      // m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whenReleased(Commands.runMagazine(m_magazine, 0.0));
-      
-      m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
-      m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
-      // m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whenReleased(Commands.runQueue(m_queue, 0.0));
-      
-      m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> 5000.0));
+    // Toggle intake extender motion magic
+    m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
+    // Toggle intake extended
+    // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed();
+    // Start/stop intaking
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
+    m_buttonMap.get(ButtonCommand.REVERSE_INTAKE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
 
-      m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
-      m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
-      m_buttonMap.get(ButtonCommand.HOOD_DOWN).whileHeld(Commands.runHood(m_shooter, () -> -m_shooterHoodSpeed));
-      m_buttonMap.get(ButtonCommand.HOOD_DOWN).whenReleased(Commands.runHood(m_shooter, () -> 0.0));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
+    m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+    // m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whenReleased(Commands.runMagazine(m_magazine, 0.0));
+    
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
+    m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
+    // m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whenReleased(Commands.runQueue(m_queue, 0.0));
+    
+    m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> 5000.0));
+
+    m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
+    m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
+    m_buttonMap.get(ButtonCommand.HOOD_DOWN).whileHeld(Commands.runHood(m_shooter, () -> -m_shooterHoodSpeed));
+    m_buttonMap.get(ButtonCommand.HOOD_DOWN).whenReleased(Commands.runHood(m_shooter, () -> 0.0));
 
 
-      m_buttonMap.get(ButtonCommand.SHOOT).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed))
-        .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
-        .whileHeld(Commands.runQueue(m_queue, m_queueSpeed))
-        .whileHeld(Commands.runShooter(m_shooter, () -> 9000));
+    m_buttonMap.get(ButtonCommand.SHOOT).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed))
+      .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
+      .whileHeld(Commands.runQueue(m_queue, m_queueSpeed))
+      .whileHeld(Commands.runShooter(m_shooter, () -> 9000));
 
-      m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN).whenPressed(Commands.drivetrainToggleLowGear(m_drivetrain));
-      // Toggle between having the queue automatically feed the shooter
-      // (which should check if the shooter and turret are ready to shoot)
-      // and having the queue be manually run //idk how well this will work
-      // m_buttonMap.get(ButtonCommand.AUTO_FEED_SHOOTER).whenPressed(new InstantCommand(() -> {
-      //   m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
-      //   if (m_autoFeedShooterEnabled) {
-      //     m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
-      //   } else {
-      //     // m_queue.setDefaultCommand(m_manualQueueCommand);
-      //   }
-      // }));
+    m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN).whenPressed(Commands.drivetrainToggleLowGear(m_drivetrain));
+    // Toggle between having the queue automatically feed the shooter
+    // (which should check if the shooter and turret are ready to shoot)
+    // and having the queue be manually run //idk how well this will work
+    // m_buttonMap.get(ButtonCommand.AUTO_FEED_SHOOTER).whenPressed(new InstantCommand(() -> {
+    //   m_autoFeedShooterEnabled = !m_autoFeedShooterEnabled;
+    //   if (m_autoFeedShooterEnabled) {
+    //     m_queue.setDefaultCommand(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_magazinePowerCellCounter::getCount));
+    //   } else {
+    //     // m_queue.setDefaultCommand(m_manualQueueCommand);
+    //   }
+    // }));
 
-      // Toggle between having the turret automatically track the target
-      // and having the turret be turned manually
-      if (limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
+    // Toggle between having the turret automatically track the target
+    // and having the turret be turned manually
+    if (limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
 
-      m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
-      m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
+    m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
+    m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
   }
 
   public void setDriveType(DriveType driveType) {
