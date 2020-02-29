@@ -23,6 +23,10 @@ public class Counter {
     m_count += amount;
   }
 
+  public void setCount(int count) {
+    m_count = count;
+  }
+
   public int getCount() {
     return m_count;
   }

@@ -9,12 +9,13 @@ public class BoundedCounter extends Counter {
   public BoundedCounter(int lowerBound, int upperBound) {
     m_lowerBound = lowerBound;
     m_upperBound = upperBound;
+    m_count = lowerBound;
   }
 
   public BoundedCounter(int lowerBound, int upperBound, int count) {
-    super(MathUtil.clamp(count, lowerBound, upperBound));
     m_lowerBound = lowerBound;
     m_upperBound = upperBound;
+    m_count = MathUtil.clamp(count, lowerBound, upperBound);
   }
 
   @Override
@@ -33,7 +34,13 @@ public class BoundedCounter extends Counter {
 
   @Override
   public void changeCount(int amount) {
-    // TODO: Bound
-    super.changeCount(amount);
+    int newCount = MathUtil.clamp(m_count + amount, m_lowerBound, m_upperBound);
+    super.setCount(newCount);
+  }
+
+  @Override
+  public void setCount(int count) {
+    count = MathUtil.clamp(count, m_lowerBound, m_upperBound);
+    super.setCount(count);
   }
 }
