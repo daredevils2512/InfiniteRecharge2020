@@ -127,7 +127,7 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.buttonBox.bigWhite);
     m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
     m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.buttonBox.bottomWhite);
-    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.trigger);
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.xbox.bButton);
     m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
     m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);
     m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.buttonBox.green);
