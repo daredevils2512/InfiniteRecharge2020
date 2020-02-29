@@ -12,18 +12,13 @@ import edu.wpi.first.wpilibj.DigitalInput;
 /**
  * Limit switch wrapper class
  */
-public class LimitSwitch implements IDigitalInput {
-    private final DigitalInput m_digitalInput;
+public class LimitSwitch extends DevilDigitalInput {
 
     /**
      * Create a new limit switch
      * @param port digital input port
      */
     public LimitSwitch(int port) {
-        m_digitalInput = new DigitalInput(port);
-    }
-
-    public boolean get() {
-        return m_digitalInput.get();
+        super(port);
     }
 }
