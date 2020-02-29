@@ -41,7 +41,7 @@ public class IntakeBall extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_startingCount = m_counter.getCount();
+    m_startingCount = MagazinePowerCellCounter.getCount();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -69,6 +69,6 @@ public class IntakeBall extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_counter.getCount() > m_startingCount;
+    return MagazinePowerCellCounter.getCount() > m_startingCount;
   }
 }
