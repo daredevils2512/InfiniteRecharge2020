@@ -35,14 +35,8 @@ public class ControlBoard {
    * mainly for testing
    * @param propertiesstring a string that pretends to be a file for testing
    */
-  ControlBoard(String propertiesstring) {
-    m_properties = new Properties();
-    try {
-      InputStream deployStream = new ByteArrayInputStream(propertiesstring.getBytes());
-      m_properties.load(deployStream);
-    } catch(IOException e) {
-      e.printStackTrace();
-    }
+  ControlBoard(String propertiesString) {
+    m_properties = PropertyFiles.loadFromString(propertiesString);
 }
 
   public JoystickButton getButton(String propertiesKey) {

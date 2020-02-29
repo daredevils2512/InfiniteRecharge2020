@@ -23,13 +23,10 @@ public class CompressorManager extends LoggingSubsystem implements ICompressorMa
   private final NetworkTableEntry m_isRunningEntry;
 
   private Compressor m_compressor = new Compressor();
-  private boolean m_compressorEnabled;
 
   public CompressorManager() {
-    m_compressorEnabled = true;
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_isRunningEntry = m_networkTable.getEntry("Is running");
-    this.setClosedLoopControl(m_compressorEnabled);
   }
 
   @Override
@@ -49,8 +46,7 @@ public class CompressorManager extends LoggingSubsystem implements ICompressorMa
   
   @Override
   public void toggleCompressor() {
-    m_compressorEnabled = !m_compressorEnabled;
-    m_logger.log(Level.FINE, "compressor = ", m_compressorEnabled);
-    m_compressor.setClosedLoopControl(m_compressorEnabled);
+    m_compressor.setClosedLoopControl(!getClosedLoopControl());
+    m_logger.fine("Compressor closed loop control: " + getClosedLoopControl());
   }
 }

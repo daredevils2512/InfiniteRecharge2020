@@ -1,8 +1,6 @@
 package frc.robot.utils;
 
-public final class DareMathUtil {
-  private DareMathUtil() {
-  }
+public class DareMathUtil {
 
   public static double mapRange(double value, double oldMin, double oldMax, double newMin, double newMax) {
     double valueNormalized = (value - oldMin) / (oldMax - oldMin);
