@@ -32,6 +32,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
     public int shooterHoodID = -1;
   }
 
+  //{@Link https://www.desmos.com/calculator/hlfz61fwpw}
+
   /**
    * notes
    * 
