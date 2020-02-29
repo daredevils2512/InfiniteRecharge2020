@@ -32,24 +32,6 @@ public class Shooter extends PropertySubsystem implements IShooter {
     public int shooterHoodID = -1;
   }
 
-  //{@Link https://www.desmos.com/calculator/hlfz61fwpw}
-
-  /**
-   * notes
-   * 
-   * front of trench: status: good 
-   * distance: 4.8
-   * set rpm: 6k
-   * hood pos: 1900
-   * 
-   * 6.2 : 6500
-   * 5.7 : 6000
-   * 2.9 : 6000
-   * 4.0 : 5500
-   * 4.3 : 5700
-   * 
-   */
-
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
   private final NetworkTableEntry m_hoodPositionEntry;
