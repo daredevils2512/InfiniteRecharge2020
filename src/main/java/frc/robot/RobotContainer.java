@@ -167,11 +167,6 @@ public class RobotContainer {
     m_climberEnabled = Boolean.parseBoolean(m_properties.getProperty("climber.isEnabled"));
     m_spinnerEnabled = Boolean.parseBoolean(m_properties.getProperty("spinner.isEnabled"));
 
-    //not dead code
-    if (m_turretEnabled && m_drivetrainEnabled && m_limelightEnabled) {
-      Logger.getGlobal().log(Level.INFO, "initalized hexagon position");
-      m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
-    }
     logger.setLevel(Level.parse(m_properties.getProperty("globalLogLevel").toUpperCase()));
 
     // File path to generated robot path

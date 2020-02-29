@@ -54,7 +54,6 @@ public class Turret extends PropertySubsystem implements ITurret {
    * Creates a new turret
    */
   public Turret(TurretMap turretMap) {
-    super();
     m_encoderResolution = Integer.parseInt(m_properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(m_properties.getProperty("gearRatio"));
     m_maxTurnDegrees = Double.parseDouble(m_properties.getProperty("maxTurnDegrees"));
@@ -146,6 +145,8 @@ public class Turret extends PropertySubsystem implements ITurret {
   public void setSpeed(double speed) {
     m_turretMaster.set(ControlMode.PercentOutput, speed);
   }
+
+
 
   @Override
   public void runPosition(double degrees) {
