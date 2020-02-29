@@ -15,11 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
 
-<<<<<<< HEAD
-import edu.wpi.first.networktables.NetworkTableInstance;
-=======
 import edu.wpi.first.wpilibj.Filesystem;
->>>>>>> 1541a6cdecfabb3f438a2a8d6e1b8e32960b4fe8
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
