@@ -9,6 +9,7 @@ package frc.robot;
 
 import java.util.logging.Logger;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -66,6 +67,8 @@ public class Robot extends TimedRobot {
       m_robotContainer.setDriveType(newDriveType);
     }
     m_robotContainer.robotContainerPeriodic();
+
+    if (RobotController.getBatteryVoltage() <= 7 || RobotController.isBrownedOut()) logger.severe("ROBOT IS BROWNING OUT");
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled
