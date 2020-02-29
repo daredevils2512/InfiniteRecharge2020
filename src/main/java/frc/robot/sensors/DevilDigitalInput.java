@@ -2,16 +2,15 @@ package frc.robot.sensors;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public abstract class DevilDigitalInput implements IDigitalInput {
+public abstract class DevilDigitalInput extends DigitalInput implements IDigitalInput {
  
-    protected  final DigitalInput m_digitalInput;
+ //   protected  final DigitalInput m_digitalInput;
 
     public DevilDigitalInput(int port){
-        this.m_digitalInput = new DigitalInput(port);
+      super(port);
+        //this.m_digitalInput = new DigitalInput(port);
     }
 
-    public boolean get() {
-      return this.m_digitalInput.get();
-    }
-    
+    //public boolean get()
+
 }

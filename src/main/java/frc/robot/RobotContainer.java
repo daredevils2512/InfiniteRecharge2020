@@ -66,6 +66,8 @@ import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.Limelight.Pipeline;
 
+import edu.wpi.first.wpilibj.Counter;
+
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -73,6 +75,15 @@ import frc.robot.vision.Limelight.Pipeline;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
+  //somewhat evil singleton counter
+  private static Counter m_powerCellCounter = new Counter();
+
+  public static Counter getCounter(){
+    return m_powerCellCounter;
+  }
+  //gloriously evil
+
   private final ControlBoard m_controlBoard;
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
@@ -88,6 +99,7 @@ public class RobotContainer {
 
   private BoundedCounter m_magazinePowerCellCounter = new BoundedCounter(0, 3);
   
+
   private final Properties properties;
 
   private String m_pathPath = "paths/auto1.wpilib.json";
@@ -229,10 +241,19 @@ public class RobotContainer {
     m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
 
+
+/*
     m_magazine.onPowerCellIn(() -> m_magazinePowerCellCounter.increment());
     m_magazine.onPowerCellOut(() -> m_magazinePowerCellCounter.decrement());
     m_queue.onPowerCellInMagazine(() -> m_magazinePowerCellCounter.increment());
     m_queue.onPowerCellOutMagazine(() -> m_magazinePowerCellCounter.decrement());
+*/
+    /*
+      NOW wherever you run code that switches the motor directions, you switch the up down sources
+      OR you create a second counter that inverts the up/down source and then you substract the 2 counter values to get a current value.. (maybe)
+      i'd test just using teh coutner
+    */
+    
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
     m_intake.setDefaultCommand(m_manualIntakeCommand);

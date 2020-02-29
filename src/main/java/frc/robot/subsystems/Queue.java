@@ -16,7 +16,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
+import edu.wpi.first.wpilibj.DigitalSource;
+import frc.robot.RobotContainer;
 import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
@@ -30,8 +31,8 @@ public class Queue extends PropertySubsystem implements IQueue {
   }
 
   private boolean m_photoEyeEnabled;
-  private final IDigitalInput m_photoEye;
-  private final Trigger m_photoEyeTrigger;
+  private final DigitalSource m_photoEye;
+  //private final Trigger m_photoEyeTrigger;
 
   public final NetworkTable m_networkTable;
   private final NetworkTableEntry m_runSpeedEntry;
@@ -55,6 +56,10 @@ public class Queue extends PropertySubsystem implements IQueue {
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
     m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
+
+    RobotContainer.getCounter().setDownSource(m_photoEye);
+
+    /*
     m_photoEyeTrigger = new Trigger(() -> m_photoEye.get());
     m_photoEyeTrigger.whenActive(() -> {
       if (getDirectionReversed()) {
@@ -70,6 +75,7 @@ public class Queue extends PropertySubsystem implements IQueue {
         m_onPowerCellOutShooter.run();
       }
     });
+    */
   }
 
   @Override
