@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 import frc.robot.commands.Commands;
@@ -68,21 +67,21 @@ public class RobotContainer {
   private final IMagazine m_magazine;
   private final IClimber m_climber;
   private final ICompressorManager m_compressor;
-  private final Properties properties;
+  private final Properties m_properties;
 
   private String m_pathPath = "paths/auto1.wpilib.json";
 
-  private final boolean limelightEnabled;
-  private final boolean piTableEnabled;
-  private final boolean compressorEnabled;
-  private final boolean drivetrainEnabled;
-  private final boolean intakeEnabled;
-  private final boolean shooterEnabled;
-  private final boolean spinnerEnabled;
-  private final boolean queueEnabled;
-  private final boolean turretEnabled;
-  private final boolean magazineEnabled;
-  private final boolean climberEnabled;
+  private final boolean m_limelightEnabled;
+  private final boolean m_piTableEnabled;
+  private final boolean m_compressorEnabled;
+  private final boolean m_drivetrainEnabled;
+  private final boolean m_intakeEnabled;
+  private final boolean m_shooterEnabled;
+  private final boolean m_spinnerEnabled;
+  private final boolean m_queueEnabled;
+  private final boolean m_turretEnabled;
+  private final boolean m_magazineEnabled;
+  private final boolean m_climberEnabled;
 
   private final Command m_defaultDriveCommand;
 
@@ -144,32 +143,32 @@ public class RobotContainer {
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getTwist() * m_turretSpeed);
 
-    properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
+    m_properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/RobotMap.properties");
     Properties robotMapProperties = PropertyFiles.loadProperties(robotMapPropertiesFile);
 
-    limelightEnabled = Boolean.parseBoolean(properties.getProperty("limelight.isEnabled"));
-    piTableEnabled = Boolean.parseBoolean(properties.getProperty("piTable.isEnabled"));
+    m_limelightEnabled = Boolean.parseBoolean(m_properties.getProperty("limelight.isEnabled"));
+    m_piTableEnabled = Boolean.parseBoolean(m_properties.getProperty("piTable.isEnabled"));
 
-    compressorEnabled = Boolean.parseBoolean(properties.getProperty("compressor.isEnabled"));
-    drivetrainEnabled = Boolean.parseBoolean(properties.getProperty("drivetrain.isEnabled"));
-    intakeEnabled = Boolean.parseBoolean(properties.getProperty("intake.isEnabled"));
-    magazineEnabled = Boolean.parseBoolean(properties.getProperty("magazine.isEnabled"));
-    queueEnabled = Boolean.parseBoolean(properties.getProperty("queue.isEnabled"));
-    shooterEnabled = Boolean.parseBoolean(properties.getProperty("shooter.isEnabled"));
-    turretEnabled = Boolean.parseBoolean(properties.getProperty("turret.isEnabled"));
-    climberEnabled = Boolean.parseBoolean(properties.getProperty("climber.isEnabled"));
-    spinnerEnabled = Boolean.parseBoolean(properties.getProperty("spinner.isEnabled"));
+    m_compressorEnabled = Boolean.parseBoolean(m_properties.getProperty("compressor.isEnabled"));
+    m_drivetrainEnabled = Boolean.parseBoolean(m_properties.getProperty("drivetrain.isEnabled"));
+    m_intakeEnabled = Boolean.parseBoolean(m_properties.getProperty("intake.isEnabled"));
+    m_magazineEnabled = Boolean.parseBoolean(m_properties.getProperty("magazine.isEnabled"));
+    m_queueEnabled = Boolean.parseBoolean(m_properties.getProperty("queue.isEnabled"));
+    m_shooterEnabled = Boolean.parseBoolean(m_properties.getProperty("shooter.isEnabled"));
+    m_turretEnabled = Boolean.parseBoolean(m_properties.getProperty("turret.isEnabled"));
+    m_climberEnabled = Boolean.parseBoolean(m_properties.getProperty("climber.isEnabled"));
+    m_spinnerEnabled = Boolean.parseBoolean(m_properties.getProperty("spinner.isEnabled"));
 
-    logger.setLevel(Level.parse(properties.getProperty("globalLogLevel").toUpperCase()));
+    logger.setLevel(Level.parse(m_properties.getProperty("globalLogLevel").toUpperCase()));
 
     // File path to generated robot path
-    m_pathPath = properties.getProperty("PATH_PATH");
+    m_pathPath = m_properties.getProperty("PATH_PATH");
 
-    SmartDashboard.putBoolean("limelight enabled", limelightEnabled);
+    SmartDashboard.putBoolean("limelight enabled", m_limelightEnabled);
 
-    m_piTable = piTableEnabled ? new PiTable() : null;
+    m_piTable = m_piTableEnabled ? new PiTable() : null;
 
     DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
     drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
@@ -210,18 +209,18 @@ public class RobotContainer {
     climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty("climberLeftID"));
     climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty("climberRightID"));
 
-    m_limelight = limelightEnabled ? new Limelight(Pipeline.valueOf(properties.getProperty("limelight.defaultPipeline"))) : null;
-    m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
-    m_drivetrain = drivetrainEnabled ? new Drivetrain(drivetrainMap) : new DummyDrivetrain();
-    m_intake = intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
-    m_shooter = shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
-    m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
-    m_magazine = magazineEnabled ? new Magazine(magazineMap) : new DummyMagazine();
-    m_queue = queueEnabled ? new Queue(queueMap) : new DummyQueue();
-    m_turret = turretEnabled ? new Turret(turretMap) : new DummyTurret();
-    m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
+    m_limelight = m_limelightEnabled ? new Limelight(Pipeline.valueOf(m_properties.getProperty("limelight.defaultPipeline"))) : null;
+    m_compressor = m_compressorEnabled ? new CompressorManager() : new DummyCompressor();
+    m_drivetrain = m_drivetrainEnabled ? new Drivetrain(drivetrainMap) : new DummyDrivetrain();
+    m_intake = m_intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
+    m_shooter = m_shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
+    m_spinner = m_spinnerEnabled ? new Spinner() : new DummySpinner();
+    m_magazine = m_magazineEnabled ? new Magazine(magazineMap) : new DummyMagazine();
+    m_queue = m_queueEnabled ? new Queue(queueMap) : new DummyQueue();
+    m_turret = m_turretEnabled ? new Turret(turretMap) : new DummyTurret();
+    m_climber = m_climberEnabled ? new Climber(climberMap) : new DummyClimber();
 
-    m_hexagonPosition = limelightEnabled ? new HexagonPosition(m_drivetrain, m_turret, m_limelight) : null;
+    m_hexagonPosition = m_limelightEnabled ? new HexagonPosition(m_drivetrain, m_turret, m_limelight) : null;
     m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(), m_magazine);
 
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
@@ -233,7 +232,7 @@ public class RobotContainer {
 
     configureButtonBindings();
 
-    m_autonomousCommand = drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
+    m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
   }
 
   /**
@@ -297,33 +296,34 @@ public class RobotContainer {
 
     // Toggle between having the turret automatically track the target
     // and having the turret be turned manually
-    if (limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
+    if (m_limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
 
     m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
     m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
   }
 
   public void setDriveType(DriveType driveType) {
-    if (drivetrainEnabled) {
+    if (m_drivetrainEnabled) {
+      IDrivetrain drivetrain = m_drivetrain;
       Command driveCommand;
       switch (driveType) {
         case SIMPLE_ARCADE_DRIVE:
-          driveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
+          driveCommand = Commands.simpleArcadeDrive(drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
           break;
         case VELOCITY_ARCADE_DRIVE:
-          driveCommand = Commands.velocityArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
+          driveCommand = Commands.velocityArcadeDrive(drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
           break;
         case ACCELERATION_LIMITED_SIMPLE_ARCADE_DRIVE:
-          driveCommand = Commands.accelerationLimitedSimpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN), 2, 3);
+          driveCommand = Commands.accelerationLimitedSimpleArcadeDrive(drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN), 2, 3);
           break;
         case ACCELERATION_LIMITED_VELOCITY_ARCADE_DRIVE:
-          driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN), 2, 3);
+          driveCommand = Commands.accelerationLimitedVelocityArcadeDrive(drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN), 2, 3);
           break;
         default:
           driveCommand = m_defaultDriveCommand;
           break;
       }
-      m_drivetrain.setDefaultCommand(driveCommand);
+      drivetrain.setDefaultCommand(driveCommand);
     }
   }
 
@@ -349,9 +349,9 @@ public class RobotContainer {
    * <p> <B> <I> subsystesm must run their property saving methods here for them to save unless theyre called elswhere
    */
   public void saveAllProperties() {
-    if (drivetrainEnabled) m_drivetrain.saveProperties();
-    if (intakeEnabled) m_intake.saveProperties();
-    if (shooterEnabled) m_shooter.saveProperties();
-    if (turretEnabled) m_turret.saveProperties();
+    if (m_drivetrainEnabled) m_drivetrain.saveProperties();
+    if (m_intakeEnabled) m_intake.saveProperties();
+    if (m_shooterEnabled) m_shooter.saveProperties();
+    if (m_turretEnabled) m_turret.saveProperties();
   }
 }
