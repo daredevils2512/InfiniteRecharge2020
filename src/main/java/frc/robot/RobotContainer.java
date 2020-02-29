@@ -275,6 +275,7 @@ public class RobotContainer {
 
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+    // m_buttonMap.get(ButtonCommand.AUTO_REFILL_QUEUE).toggleWhenPressed(Commands.autoRefill);
     
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
