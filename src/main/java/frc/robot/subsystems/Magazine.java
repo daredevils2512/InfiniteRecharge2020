@@ -60,7 +60,7 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     m_photoEyeTrigger = new Trigger(() -> m_photoEye.get());
     m_photoEyeTrigger.whenActive(() -> {
       if (!getDirectionReversed()) {
-        m_onPowerCellOut.run();
+        m_onPowerCellIn.run();
       }
     });
     m_photoEyeTrigger.whenInactive(() -> {
