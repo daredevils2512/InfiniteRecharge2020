@@ -1,11 +1,15 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import frc.robot.subsystems.interfaces.IDrivetrain;
 
 public class DummyDrivetrain implements IDrivetrain {
@@ -118,5 +122,25 @@ public class DummyDrivetrain implements IDrivetrain {
 
   @Override
   public void saveProperties() {
+  }
+
+  @Override
+  public SimpleMotorFeedforward getFeedForward() {
+    return new SimpleMotorFeedforward(0, 0);
+  }
+
+  @Override
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds();
+  }
+
+  @Override
+  public PIDController getLeftController() {
+    return new PIDController(0.0, 0.0, 0.0);
+  }
+
+  @Override
+  public PIDController getRightController() {
+    return new PIDController(0.0, 0.0, 0.0);
   }
 }

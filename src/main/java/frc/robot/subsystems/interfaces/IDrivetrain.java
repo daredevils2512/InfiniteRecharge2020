@@ -7,14 +7,19 @@
 
 package frc.robot.subsystems.interfaces;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 /**
  * The drivetrain is a 6 wheel west coast differential drivetrain with two-gear
  * transmission. It consists of four {@link TalonFX} motor controllers for
@@ -36,6 +41,10 @@ public interface IDrivetrain extends IPropertySubsystem {
   public double getRightVelocity();
 
   public DifferentialDriveKinematics getKinematics();
+  public SimpleMotorFeedforward getFeedForward();
+  public DifferentialDriveWheelSpeeds getWheelSpeeds();
+  public PIDController getLeftController();
+  public PIDController getRightController();
 
   public double getHeading();
 
@@ -52,4 +61,8 @@ public interface IDrivetrain extends IPropertySubsystem {
   public void voltageTank(double left, double right);
   public void velocityArcadeDrive(double velocity, double angularVelocity);
   public void setWheelSpeeds(double left, double right);
+
+
+
+
 }

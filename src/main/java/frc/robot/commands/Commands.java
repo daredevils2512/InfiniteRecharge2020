@@ -18,8 +18,13 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.spline.Spline;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator.ControlVectorList;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -35,22 +40,21 @@ import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.MagazinePowerCellCounter;
+import frc.robot.vision.PiTable;
 import frc.robot.RobotContainer;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 
 /**
  * Definitions for all commands
  * 
- * <p>The reasoning here is that whether a command
- * should be inlined or not should be up to the discretion
- * of whoever is writing command based on their
- * complexity and specific implementation, but
- * anyone using commands should be able to access
- * them all in the same manner, regardless of whether
- * they are inlined or not. This class is meant to
- * make both requirements possible and avoid overflowing
- * the {@link RobotContainer} class with hard-to-read
- * command definitions.
+ * <p>
+ * The reasoning here is that whether a command should be inlined or not should
+ * be up to the discretion of whoever is writing command based on their
+ * complexity and specific implementation, but anyone using commands should be
+ * able to access them all in the same manner, regardless of whether they are
+ * inlined or not. This class is meant to make both requirements possible and
+ * avoid overflowing the {@link RobotContainer} class with hard-to-read command
+ * definitions.
  */
 public final class Commands {
   private Commands() {
@@ -58,34 +62,45 @@ public final class Commands {
 
   /**
    * Simple percent output arcade drive
-   * @param drivetrain Drivetrain to use
+   * 
+   * @param drivetrain   Drivetrain to use
    * @param moveSupplier Forward speed supplier (-1 to +1)
    * @param turnSupplier Turn speed supplier (-1 to +1)
    * @return New {@link Command}
    */
-  public static Command simpleArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
-    return new RunCommand(() -> drivetrain.simpleArcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()), drivetrain);
+  public static Command simpleArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier,
+      DoubleSupplier turnSupplier) {
+    return new RunCommand(() -> drivetrain.simpleArcadeDrive(moveSupplier.getAsDouble(), turnSupplier.getAsDouble()),
+        drivetrain);
   }
 
   /**
    * Arcade drive with PID velocity control
-   * @param drivetrain Drivetrain to use
+   * 
+   * @param drivetrain   Drivetrain to use
    * @param moveSupplier Forward speed supplier (-1 to +1)
    * @param turnSupplier Turn speed supplier (-1 to +1)
    * @return New {@link Command}
    */
-  public static Command velocityArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier) {
+  public static Command velocityArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier,
+      DoubleSupplier turnSupplier) {
     DoubleSupplier velocitySupplier = () -> moveSupplier.getAsDouble() * drivetrain.getMaxSpeed();
     DoubleSupplier angularVelocitySupplier = () -> turnSupplier.getAsDouble() * drivetrain.getMaxAngularSpeed();
-    return new RunCommand(() -> drivetrain.velocityArcadeDrive(velocitySupplier.getAsDouble(), angularVelocitySupplier.getAsDouble()), drivetrain);
+    return new RunCommand(
+        () -> drivetrain.velocityArcadeDrive(velocitySupplier.getAsDouble(), angularVelocitySupplier.getAsDouble()),
+        drivetrain);
   }
 
-  public static Command accelerationLimitedSimpleArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier, double maxMoveAcceleration, double maxTurnAcceleration) {
-    return new AccelerationLimitedSimpleArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration, maxTurnAcceleration);
+  public static Command accelerationLimitedSimpleArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier,
+      DoubleSupplier turnSupplier, double maxMoveAcceleration, double maxTurnAcceleration) {
+    return new AccelerationLimitedSimpleArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration,
+        maxTurnAcceleration);
   }
 
-  public static Command accelerationLimitedVelocityArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier, DoubleSupplier turnSupplier, double maxMoveAcceleration, double maxTurnAcceleration) {
-    return new AccelerationLimitedVelocityArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration, maxTurnAcceleration);
+  public static Command accelerationLimitedVelocityArcadeDrive(IDrivetrain drivetrain, DoubleSupplier moveSupplier,
+      DoubleSupplier turnSupplier, double maxMoveAcceleration, double maxTurnAcceleration) {
+    return new AccelerationLimitedVelocityArcadeDrive(drivetrain, moveSupplier, turnSupplier, maxMoveAcceleration,
+        maxTurnAcceleration);
   }
 
   public static Command driveStraight(IDrivetrain drivetrain, double distance) {
@@ -108,29 +123,29 @@ public final class Commands {
     return new InstantCommand(() -> drivetrain.setLowGear(!drivetrain.getLowGear()), drivetrain);
   }
 
-  //probly temporary
+  // probly temporary
   public static Command climberUp(IClimber climber, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
     return new RunCommand(() -> climber.climb(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()), climber);
   }
 
   /**
    * Extends and starts running the power cell intake
+   * 
    * @return New {@link Command}
    */
   public static Command startIntaking(IIntake intake, IMagazine magazine) {
-    return
-      new InstantCommand(() -> intake.setExtended(true), intake).andThen(
-      new RunCommand(() -> magazine.setSpeed(1), magazine));
+    return new InstantCommand(() -> intake.setExtended(true), intake)
+        .andThen(new RunCommand(() -> magazine.setSpeed(1), magazine));
   }
 
   /**
    * Stops running and retracts the power cell intake
+   * 
    * @return New {@link Command}
    */
   public static Command stopIntaking(IIntake intake, IMagazine magazine) {
-    return
-      new InstantCommand(() -> magazine.setSpeed(0), magazine).andThen(
-      new InstantCommand(() -> intake.setExtended(false), intake));
+    return new InstantCommand(() -> magazine.setSpeed(0), magazine)
+        .andThen(new InstantCommand(() -> intake.setExtended(false), intake));
   }
 
   public static Command runIntake(IIntake intake, double speed) {
@@ -149,17 +164,19 @@ public final class Commands {
     return new RunMagazine(magazine, speed);
   }
 
-  public static Command refillQueue(IMagazine magazine, double magazineSpeed, IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
+  public static Command refillQueue(IMagazine magazine, double magazineSpeed,
+      IntSupplier magazinePowerCellCountSupplier, BooleanSupplier queueHasPowerCellSupplier) {
     return new RefillQueue(magazine, magazineSpeed, magazinePowerCellCountSupplier, queueHasPowerCellSupplier);
   }
 
-  public static Command intakeBall(IIntake intake, double intakeSpeed, IMagazine magazine, double magazineSpeed, MagazinePowerCellCounter counter) {
+  public static Command intakeBall(IIntake intake, double intakeSpeed, IMagazine magazine, double magazineSpeed,
+      MagazinePowerCellCounter counter) {
     return new IntakeBall(intake, intakeSpeed, magazine, magazineSpeed, counter);
   }
 
   public static Command runQueue(IQueue queue, double speed) {
     return new ManualRunQueue(queue, speed);
-  }  
+  }
 
   public static Command feedShooter(IQueue queue, DoubleSupplier queueSpeedSupplier) {
     return new FeedShooter(queue, queueSpeedSupplier);
@@ -186,12 +203,14 @@ public final class Commands {
 
   /**
    * Set shooter percent output
+   * 
    * @param shooter
    * @return New {@link Command}
    */
   public static Command runShooter(IShooter shooter, DoubleSupplier speedSupplier) {
     return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
-    // return new RunCommand(() -> shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
+    // return new RunCommand(() ->
+    // shooter.setPercentOutput(speedSupplier.getAsDouble()), shooter);
   }
 
   public static Command setShooterVelocity(IShooter shooter, Supplier<Double> speed) {
@@ -203,7 +222,8 @@ public final class Commands {
   }
 
   public static Command runHood(IShooter shooter, DoubleSupplier supplier) {
-    return new RunCommand(() -> shooter.setHoodSpeed(supplier.getAsDouble())).andThen(new RunCommand(() -> shooter.setHoodSpeed(0.0)));
+    return new RunCommand(() -> shooter.setHoodSpeed(supplier.getAsDouble()))
+        .andThen(new RunCommand(() -> shooter.setHoodSpeed(0.0)));
   }
 
   public static Command stopShooter(IShooter shooter) {
@@ -226,6 +246,21 @@ public final class Commands {
     return new RunCommand(() -> compressor.toggleCompressor());
   }
 
+  public static Command findBall(IDrivetrain drivetrain, PiTable table) {
+    Translation2d translation = table.getClosestBallPose().getTranslation();
+    TrajectoryConfig config = new TrajectoryConfig(3.0, 3.0);
+    ControlVectorList vectors = new ControlVectorList();
+    Spline.ControlVector vector = new Spline.ControlVector(new double[]{translation.getX()}, new double[]{translation.getY()});
+    vectors.add(vector);
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(vectors, config);
+
+    return new RamseteCommand(trajectory, drivetrain::getPose, new RamseteController(), drivetrain.getFeedForward(),
+        drivetrain.getKinematics(), drivetrain::getWheelSpeeds, drivetrain.getLeftController(),
+        drivetrain.getRightController(), drivetrain::voltageTank, drivetrain)
+        .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
+    
+  }
+
   public static Command followPath(IDrivetrain drivetrain, String file) {
     Trajectory trajectory;
     try {
@@ -235,8 +270,9 @@ public final class Commands {
       trajectory = null;
       e.printStackTrace();
     }
-    return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
-      drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain)
-      .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
+    return new RamseteCommand(trajectory, drivetrain::getPose, new RamseteController(), drivetrain.getFeedForward(),
+        drivetrain.getKinematics(), drivetrain::getWheelSpeeds, drivetrain.getLeftController(),
+        drivetrain.getRightController(), drivetrain::voltageTank, drivetrain)
+        .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
   }
 }

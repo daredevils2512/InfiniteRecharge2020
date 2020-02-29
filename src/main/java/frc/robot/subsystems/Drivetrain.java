@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import java.util.logging.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -210,7 +211,9 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
       m_pigeon.configFactoryDefault();
     }
 
-    m_shifter = m_shiftersEnabled ? new DoubleSolenoid(drivetrainMap.shiftForwardChannel, drivetrainMap.shiftReverseChannel) : null;
+    m_shifter = m_shiftersEnabled
+        ? new DoubleSolenoid(drivetrainMap.shiftForwardChannel, drivetrainMap.shiftReverseChannel)
+        : null;
 
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
     m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);
@@ -335,7 +338,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private double getFusedHeading() {
-    if (m_pigeonEnabled) m_logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
+    if (m_pigeonEnabled)
+      m_logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
@@ -463,5 +467,25 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     return values;
   }
 
+  @Override
+  public SimpleMotorFeedforward getFeedForward() {
+    return m_driveMotorFeedforward;
+  }
 
+  @Override
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
+  }
+
+  @Override
+  public PIDController getLeftController() {
+    return m_leftPIDController;
+  }
+
+  @Override
+  public PIDController getRightController() {
+    return m_rightPIDController;
+  }
+
+  
 }

@@ -2,6 +2,9 @@ package frc.robot.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 
 public class PiTable {
 
@@ -50,6 +53,26 @@ public class PiTable {
     }
 
     /**
+     * distance straight forward to how ever far forward the ball is in meters
+     * <p> really juset entry[3] but better
+     * @param entry a double array of one of the balls
+     * @return the index three of the array
+     */
+    public double getX(double[] entry) {
+        return entry[3];
+    }
+
+    /**
+     * distance straight sideways to how ever far sideways the ball is in meters
+     * <p> really juset entry[4] but better
+     * @param entry a double array of one of the balls
+     * @return the index four of the array
+     */
+    public double getY(double[] entry) {
+        return entry[4];
+    }
+
+    /**
      * size of target in pixels 
      * <p> not too useful but its one of the things returned by the pipeline so why not
      * <p> really just entry[3] but like this for verbose or somehting
@@ -57,7 +80,11 @@ public class PiTable {
      * @return the index three of the entry
      */
     public double getSize(double[] entry) {
-        return entry[3];
+        return entry[5];
+    }
+
+    public Pose2d getPose(double[] entry) {
+        return new Pose2d(new Translation2d(getX(entry), getY(entry)), new Rotation2d(Math.toRadians(getXOffset(entry))));
     }
 
     /**
@@ -83,5 +110,13 @@ public class PiTable {
             lastClosestTargetPosition = getClosestTarget();
         }
         return lastClosestTargetPosition;
+    }
+
+    /**
+     * mainly for convience
+     * @return the pose of the closest ball
+     */
+    public Pose2d getClosestBallPose() {
+        return getPose(getClosestTarget());
     }
 }
