@@ -53,13 +53,12 @@ public class Queue extends PropertySubsystem implements IQueue {
 
   @Override
   public void periodic() {
-
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
   }
 
   @Override
   public void run(double speed) {
-    m_runMotor.set(ControlMode.PercentOutput, speed);
+      m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   @Override
