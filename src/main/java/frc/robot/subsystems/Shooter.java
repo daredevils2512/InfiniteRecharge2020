@@ -120,7 +120,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public void resetHoodAngle(double angle) {
-    // m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
+    m_hood.setSelectedSensorPosition(toEncoderPulsesHood(angle));
   }
 
   @Override

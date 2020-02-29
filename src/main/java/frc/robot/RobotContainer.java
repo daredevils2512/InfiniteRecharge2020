@@ -15,7 +15,9 @@ import java.io.File;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -247,6 +249,9 @@ public class RobotContainer {
     configureButtonBindings();
 
     m_autonomousCommand = drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
+
+    SmartDashboard.putData("resetTurretAngle", (Sendable)Commands.resetTurretAngle(m_turret));
+    SmartDashboard.putData("resetHoodAngle", (Sendable)Commands.resetHoodAngle(m_shooter));
   }
 
   /**

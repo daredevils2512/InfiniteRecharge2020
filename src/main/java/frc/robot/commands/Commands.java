@@ -176,6 +176,9 @@ public final class Commands {
     return new FindTarget(turret, limelight, angleTolerance);
   }
 
+  public static Command resetTurretAngle(ITurret turret) {
+    return new InstantCommand(() -> turret.resetEncoder(), turret);
+  }
   /**
    * Set shooter percent output
    * @param shooter
@@ -223,5 +226,9 @@ public final class Commands {
     return new RamseteCommand(trajectory, drivetrain::getPose , new RamseteController(),
       drivetrain.getKinematics(), drivetrain::voltageTank , drivetrain)
       .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
+  }
+
+  public static Command resetHoodAngle(IShooter shooter) {
+    return new InstantCommand(() -> shooter.resetHoodAngle(0), shooter);
   }
 }
