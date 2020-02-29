@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.reflect.Field;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -110,10 +111,11 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
     m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.xbox.xButton);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.xbox.aButton);
+
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
     m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_MAGAZINE, m_controlBoard.extreme.joystickBottomRight);
-    m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);
-    m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.buttonBox.green);
+
+
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_REVERSE_QUEUE, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
@@ -124,7 +126,9 @@ public class RobotContainer {
     // m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
     m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
-
+    m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);
+    m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.buttonBox.green);
+    
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
       move = JoystickUtil.deadband(move, 0.05);
@@ -280,7 +284,7 @@ public class RobotContainer {
       m_buttonMap.get(ButtonCommand.MANUAL_REVERSE_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
       // m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whenReleased(Commands.runQueue(m_queue, 0.0));
       
-      m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> 5000.0));
+      m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
 
       m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
       m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
@@ -289,9 +293,9 @@ public class RobotContainer {
 
 
       m_buttonMap.get(ButtonCommand.SHOOT).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed))
-        .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
+        // .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
         .whileHeld(Commands.runQueue(m_queue, m_queueSpeed))
-        .whileHeld(Commands.runShooter(m_shooter, () -> 9000));
+        .whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
 
       m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN).whenPressed(Commands.drivetrainToggleLowGear(m_drivetrain));
       // Toggle between having the queue automatically feed the shooter
@@ -360,6 +364,7 @@ public class RobotContainer {
     m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null) m_hexagonPosition.updatePosition();
+    if (limelightEnabled) SmartDashboard.putNumber("distance", m_limelight.getDistanceToTarget());
   }
 
   /**

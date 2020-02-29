@@ -99,6 +99,8 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_networkTable.getEntry("P gain").setNumber(m_P);
     m_networkTable.getEntry("I gain").setNumber(m_I);
     m_networkTable.getEntry("D gain").setNumber(m_D);
+    m_networkTable.getEntry("motion acceleration").setNumber(m_motionAcceleration);
+    m_networkTable.getEntry("motion cruise velocity").setNumber(m_motionCruiseVelocity);
   }
 
   @Override
@@ -107,10 +109,14 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_P = m_networkTable.getEntry("P gain").getDouble(0.0);
     m_I = m_networkTable.getEntry("I gain").getDouble(0.0);
     m_D = m_networkTable.getEntry("D gain").getDouble(0.0);
+    m_motionAcceleration = m_networkTable.getEntry("motion acceleration").getNumber(0.0).intValue();
+    m_motionCruiseVelocity = m_networkTable.getEntry("motion cruise velocity").getNumber(0.0).intValue();
 
     m_turretMaster.config_kP(m_positionSlot, m_P);
     m_turretMaster.config_kI(m_positionSlot, m_I);
     m_turretMaster.config_kD(m_positionSlot, m_D);
+    m_turretMaster.configMotionAcceleration(m_motionAcceleration);
+    m_turretMaster.configMotionCruiseVelocity(m_motionCruiseVelocity);
 
     m_angleEntry.setNumber(getAngle());
     m_wrappedAngleEntry.setNumber(DareMathUtil.wrap(getAngle(), m_minAngle, m_maxAngle));
@@ -185,6 +191,8 @@ public class Turret extends PropertySubsystem implements ITurret {
     values.put("P", m_P);
     values.put("I", m_I);
     values.put("D", m_D);
+    values.put("motionCruiseVelocity", m_motionCruiseVelocity);
+    values.put("motionAcceleration", m_motionAcceleration);
     return values;
   }
 }

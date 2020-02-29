@@ -6,7 +6,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 public class PiTable {
 
     private NetworkTable m_table;
-    private double m_maxRange;
 
     public PiTable() {
         m_table = NetworkTableInstance.getDefault().getTable("ball table");

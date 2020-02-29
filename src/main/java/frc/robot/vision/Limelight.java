@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.util.Units;
 
 /**
  * Limelight manager for power cell target tracking
@@ -21,6 +22,8 @@ public class Limelight {
   // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
   public static final double RANGE_Y_DEGREES = 24.85;
+  private final double m_angle = 30;
+  private final double m_heightOffset = 98.25 - 19.25;
   private final Pipeline m_pipeline;
 
   public enum Pipeline {
@@ -108,5 +111,13 @@ public class Limelight {
     }
     logger.log(Level.FINER, "last pos", lastPostion);
     return lastPostion;
+  }
+
+    /**
+     * sets the pipeline to the default pipeline
+     * @return distance in units of something to the tagret
+     */
+    public double getDistanceToTarget() {
+      return Units.inchesToMeters(m_heightOffset) / Math.tan(Math.toRadians(m_angle + this.ty()));
   }
 }

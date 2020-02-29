@@ -9,6 +9,7 @@ package frc.robot.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IDrivetrain;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
@@ -37,7 +38,7 @@ public class HexagonPosition {
     private void calculatePosition() {
         m_networkTable.getEntry("has target").setBoolean(m_limelight.hasTarget());
         m_turretPosition = m_limelight.hasTarget() ? m_turret.getAngle() + m_limelight.tx() : m_turretPosition;
-        m_robotPosition = (m_limelight.hasTarget()) ? m_drivetrain.getHeading() + m_limelight.tx() + m_turret.getAngle() : m_robotPosition;
+        m_robotPosition = m_limelight.hasTarget() ? m_drivetrain.getHeading() + m_limelight.tx() + m_turret.getAngle() : m_robotPosition;
     }
 
     public void updatePosition() {
@@ -59,4 +60,5 @@ public class HexagonPosition {
     private double getTurretRelativePosition() {
         return m_robotPosition - m_drivetrain.getHeading();
     }
+
 }
