@@ -6,6 +6,25 @@ import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.subsystems.interfaces.IQueue;
 
 public class DummyQueue implements IQueue, IPropertySubsystem {
+  @Override
+  public void onPowerCellInMagazine(Runnable runnable) {
+    
+  }
+
+  @Override
+  public void onPowerCellInShooter(Runnable runnable) {
+    
+  }
+
+  @Override
+  public void onPowerCellOutMagazine(Runnable runnable) {
+    
+  }
+
+  @Override
+  public void onPowerCellOutShooter(Runnable runnable) {
+    
+  }
 
   @Override
   public void run(double speed) {

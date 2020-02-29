@@ -21,6 +21,7 @@ import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IMagazine;
+import frc.robot.utils.Trigger;
 
 public class Magazine extends PropertySubsystem implements IMagazine {
   public static class MagazineMap {
@@ -33,21 +34,20 @@ public class Magazine extends PropertySubsystem implements IMagazine {
   
   private boolean m_photoEyeEnabled;
   private final IDigitalInput m_photoEye;
+  private final Trigger m_photoEyeTrigger;
 
   private final WPI_TalonSRX m_runMotor;
   
   private final int ticksPerBall = 0;
   private final double arbitraryFeedForward = 0;
 
-  private boolean m_powerCellPreviouslyDetected;
-
-  private final Runnable m_incrementPowerCellCount;
-  private final Runnable m_decrementPowerCellCount;
+  private Runnable m_onPowerCellIn = () -> { };
+  private Runnable m_onPowerCellOut = () -> { };
 
   /**
    * Creates a new magazine
    */
-  public Magazine(MagazineMap magazineMap, Runnable incrementPowerCellCount, Runnable decrementPowerCellCount) {
+  public Magazine(MagazineMap magazineMap) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
 
@@ -57,19 +57,32 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
     m_photoEye = m_photoEyeEnabled ? new PhotoEye(magazineMap.photoEyeChannel) : new DummyDigitalInput();
-
-    m_incrementPowerCellCount = incrementPowerCellCount;
-    m_decrementPowerCellCount = decrementPowerCellCount;
+    m_photoEyeTrigger = new Trigger(() -> m_photoEye.get());
+    m_photoEyeTrigger.whenActive(() -> {
+      if (!getDirectionReversed()) {
+        m_onPowerCellOut.run();
+      }
+    });
+    m_photoEyeTrigger.whenInactive(() -> {
+      if (getDirectionReversed()) {
+        m_onPowerCellOut.run();
+      }
+    });
   }
 
   @Override
   public void periodic() {
-    if (m_photoEyeEnabled) {
-      updatePowerCellCount();
-      m_powerCellPreviouslyDetected = getPowerCellDetected();
-    }
+    m_photoEyeTrigger.update();
 
     m_directionReversedEntry.setBoolean(getDirectionReversed());
+  }
+
+  public void onPowerCellIn(Runnable runnable) {
+    m_onPowerCellIn = runnable;
+  }
+
+  public void onPowerCellOut(Runnable runnable) {
+    m_onPowerCellOut = runnable;
   }
 
   @Override
@@ -77,17 +90,6 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     if (m_photoEye.get())
       m_logger.fine("power cell detected");
     return m_photoEye.get();
-  }
-
-  // might be temporary
-  @Override
-  public void updatePowerCellCount() {
-    if (!getPowerCellDetected() && m_powerCellPreviouslyDetected) {
-      if (getDirectionReversed())
-        m_decrementPowerCellCount.run();
-      else
-        m_incrementPowerCellCount.run();
-    }
   }
 
   @Override

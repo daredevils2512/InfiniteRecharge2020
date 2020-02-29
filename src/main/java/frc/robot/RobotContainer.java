@@ -59,8 +59,8 @@ import frc.robot.subsystems.Magazine.MagazineMap;
 import frc.robot.subsystems.Queue.QueueMap;
 import frc.robot.subsystems.Shooter.ShooterMap;
 import frc.robot.subsystems.Turret.TurretMap;
+import frc.robot.utils.BoundedCounter;
 import frc.robot.utils.DriveType;
-import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
@@ -74,21 +74,22 @@ import frc.robot.vision.Limelight.Pipeline;
  */
 public class RobotContainer {
   private final ControlBoard m_controlBoard;
-  private MagazinePowerCellCounter m_magazinePowerCellCounter = new MagazinePowerCellCounter();
   private HexagonPosition m_hexagonPosition;
   private Limelight m_limelight;
+  private ICompressorManager m_compressor;
   private IDrivetrain m_drivetrain;
   private IIntake m_intake;
-  private IShooter m_shooter;
-  private ISpinner m_spinner;
-  private IQueue m_queue;
-  private ITurret m_turret;
   private IMagazine m_magazine;
+  private IQueue m_queue;
+  private IShooter m_shooter;
+  private ITurret m_turret;
   private IClimber m_climber;
-  private ICompressorManager m_compressor;
+  private ISpinner m_spinner;
+
+  private BoundedCounter m_magazinePowerCellCounter = new BoundedCounter(0, 3);
+  
   private final Properties properties;
 
-  private static final String PROPERTIES_NAME = "/robotContainer.properties";
   private String m_pathPath = "paths/auto1.wpilib.json";
 
   private final boolean limelightEnabled;
@@ -222,11 +223,16 @@ public class RobotContainer {
     m_intake = intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
     m_shooter = shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
     m_spinner = spinnerEnabled ? new Spinner() : new DummySpinner();
-    m_magazine = magazineEnabled ? new Magazine(magazineMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyMagazine();
-    m_queue = queueEnabled ? new Queue(queueMap, m_magazinePowerCellCounter::incrementCount, m_magazinePowerCellCounter::decrementCount) : new DummyQueue();
+    m_magazine = magazineEnabled ? new Magazine(magazineMap) : new DummyMagazine();
+    m_queue = queueEnabled ? new Queue(queueMap) : new DummyQueue();
     m_turret = turretEnabled ? new Turret(turretMap) : new DummyTurret();
     m_climber = climberEnabled ? new Climber(climberMap) : new DummyClimber();
     m_compressor = compressorEnabled ? new CompressorManager() : new DummyCompressor();
+
+    m_magazine.onPowerCellIn(() -> m_magazinePowerCellCounter.increment());
+    m_magazine.onPowerCellOut(() -> m_magazinePowerCellCounter.decrement());
+    m_queue.onPowerCellInMagazine(() -> m_magazinePowerCellCounter.increment());
+    m_queue.onPowerCellOutMagazine(() -> m_magazinePowerCellCounter.decrement());
 
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
     m_intake.setDefaultCommand(m_manualIntakeCommand);

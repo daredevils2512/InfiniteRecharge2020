@@ -6,14 +6,19 @@ import frc.robot.subsystems.interfaces.IMagazine;
 import frc.robot.subsystems.interfaces.IPropertySubsystem;
 
 public class DummyMagazine implements IMagazine, IPropertySubsystem {
+  @Override
+  public void onPowerCellIn(Runnable runnable) {
+    
+  }
+
+  @Override
+  public void onPowerCellOut(Runnable runnable) {
+    
+  }
 
   @Override
   public boolean getPowerCellDetected() {
     return false;
-  }
-
-  @Override
-  public void updatePowerCellCount() {
   }
 
   @Override
