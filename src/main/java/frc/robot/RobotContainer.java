@@ -225,8 +225,11 @@ public class RobotContainer {
     m_queue = m_queueEnabled ? new Queue(queueMap) : new DummyQueue();
     m_turret = m_turretEnabled ? new Turret(turretMap) : new DummyTurret();
     m_climber = m_climberEnabled ? new Climber(climberMap) : new DummyClimber();
-
-    m_hexagonPosition = m_limelightEnabled ? new HexagonPosition(m_drivetrain, m_turret, m_limelight) : null;
+    //not dead code
+    if (m_turretEnabled && m_drivetrainEnabled && m_limelightEnabled) {
+      Logger.getGlobal().log(Level.INFO, "initalized hexagon position");
+      m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
+    } else {m_hexagonPosition = null;}
     m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(), m_magazine);
 
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
