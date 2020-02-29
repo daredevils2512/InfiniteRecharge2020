@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 public class PropertyFiles {
   private static Logger logger = Logger.getLogger(PropertyFiles.class.getName());
 
-  public static void loadProperties(Properties properties, File propertiesFile) {
+  public static Properties loadProperties(Properties properties, File propertiesFile) {
     try {
       InputStream inputStream = new FileInputStream(propertiesFile);
       properties.load(inputStream);
@@ -26,6 +26,14 @@ public class PropertyFiles {
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to load properties from " + propertiesFile.getPath() + "!", e);
     }
+
+    return properties;
+  }
+
+  public static Properties loadProperties(File propertiesFile) {
+    Properties properties = new Properties();
+    loadProperties(properties, propertiesFile);
+    return properties;
   }
 
   public static Properties loadProperties(File defaultPropertiesFile, File propertiesFile) {

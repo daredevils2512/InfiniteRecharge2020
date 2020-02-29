@@ -61,6 +61,15 @@ public class Limelight {
     m_table.getEntry("pipeline").setNumber(pipeline.getID());
   }
 
+  public void setLEDMode(LimelightLEDMode ledMode) {
+    m_table.getEntry("ledMode").setNumber(ledMode.getIntValue());
+  }
+
+  public LimelightLEDMode getLEDMode() {
+    int intValue = m_table.getEntry("ledMode").getNumber(0).intValue();
+    return LimelightLEDMode.fromIntValue(intValue);
+  }
+
   public boolean hasTarget() {
     return m_table.getEntry("tv").getNumber(0).intValue() == 1;
   }
