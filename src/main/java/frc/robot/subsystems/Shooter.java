@@ -24,6 +24,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IShooter;
+import frc.robot.utils.DareMathUtil;
 
 public class Shooter extends PropertySubsystem implements IShooter {
   public static class ShooterMap {
@@ -195,7 +196,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     SmartDashboard.putNumber("master shooter current output ", m_shooter.getStatorCurrent());
     SmartDashboard.putNumber("master shooter current supply ", m_shooter.getSupplyCurrent());
     // m_hoodPositionEntry.setDouble(m_hood.getSelectedSensorPosition());
-
+    m_networkTable.getEntry("is at calcuoltead speed").setBoolean(DareMathUtil.isWithinXOf(getVelocity(), getCalculatedVelocity(), 100));
     // Remove once PID is tuned
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
     m_shooterVelocityIGain = m_shooterIGainEntry.getDouble(m_shooterVelocityIGain);
@@ -283,6 +284,11 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public double getVelocity() {
     return toRPM(m_shooter.getSelectedSensorVelocity());
+  }
+
+  @Override
+  public double getCalculatedVelocity() {
+    return NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0);
   }
 
   /**

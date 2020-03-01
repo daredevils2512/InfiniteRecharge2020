@@ -199,9 +199,8 @@ public final class Commands {
     return new FeedShooter(queue, queueSpeedSupplier);
   }
 
-  public static Command autoFeedShooter(IQueue queue, double queueSpeed, IShooter shooter,
-      Supplier<Double> targetVelocitySupplier, double tolerance) {
-    return new AutoFeedShooter(queue, queueSpeed, shooter, targetVelocitySupplier, tolerance);
+  public static Command autoFeedShooter(IQueue queue, double queueSpeed, IShooter shooter, double tolerance) {
+    return new AutoFeedShooter(queue, queueSpeed, shooter, tolerance);
   }
 
   public static Command moveTurret(ITurret turret, DoubleSupplier speedSupplier) {
