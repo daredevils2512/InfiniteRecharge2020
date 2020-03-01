@@ -32,7 +32,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     public int shooterHoodID = -1;
   }
 
-  //{@Link https://www.desmos.com/calculator/hlfz61fwpw}
+  //{@Link https://www.desmos.com/calculator/bxirdukkdg}
 
   /**
    * notes
@@ -64,6 +64,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final NetworkTableEntry m_hoodDGainEntry;
   private final NetworkTableEntry m_setShooterSpeed;
   private final NetworkTableEntry m_shooterSpeedSetter;
+  private final NetworkTableEntry m_targetVelocity;
 
   private final TalonSRX m_shooter;
   private final TalonSRX m_shooterFollower;
@@ -113,6 +114,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodDGainEntry = m_networkTable.getEntry("Hood D gain");
     m_setShooterSpeed = m_networkTable.getEntry("set shooter RPM");
     m_shooterSpeedSetter = m_networkTable.getEntry("set shooter speed toggle");
+    m_targetVelocity = m_networkTable.getEntry("shooter target velocity");
     m_shooterSpeedSetter.setDouble(0.0);
 
     m_hoodEnabled = Boolean.parseBoolean(m_properties.getProperty("hoodEnabled"));
@@ -244,6 +246,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public void setTargetVelocity(double velocity) {
     m_logger.log(Level.FINER, "setting velocity to = ", velocity);
+    m_targetVelocity.setDouble(velocity);
     m_shooter.selectProfileSlot(m_shooterVelocityPIDSlot, 0);
     m_shooter.set(ControlMode.Velocity, toEncoderPulsesPer100Milliseconds(velocity), DemandType.ArbitraryFeedForward, m_arbitraryFeedForward);
     m_shooter.set(ControlMode.Velocity,
