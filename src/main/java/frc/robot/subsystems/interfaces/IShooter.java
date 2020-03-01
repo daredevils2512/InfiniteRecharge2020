@@ -10,5 +10,5 @@ public interface IShooter extends IPropertySubsystem {
   public double getVelocity();
   public double getAngle();
   public double getCalculatedVelocity();
-
+  public boolean isAtSpeed();
 }

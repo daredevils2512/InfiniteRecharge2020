@@ -196,7 +196,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     SmartDashboard.putNumber("master shooter current output ", m_shooter.getStatorCurrent());
     SmartDashboard.putNumber("master shooter current supply ", m_shooter.getSupplyCurrent());
     // m_hoodPositionEntry.setDouble(m_hood.getSelectedSensorPosition());
-    m_networkTable.getEntry("is at calcuoltead speed").setBoolean(DareMathUtil.isWithinXOf(getVelocity(), getCalculatedVelocity(), 100));
+    m_networkTable.getEntry("is at calcuoltead speed").setBoolean(isAtSpeed());
     // Remove once PID is tuned
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
     m_shooterVelocityIGain = m_shooterIGainEntry.getDouble(m_shooterVelocityIGain);
@@ -288,7 +288,13 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public double getCalculatedVelocity() {
-    return NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0);
+    double setShooterSpeed = m_networkTable.getEntry("set shooter speed toggle").getDouble(0.0);
+    return (setShooterSpeed == 0.0) ? NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0) : setShooterSpeed;
+  }
+
+  @Override
+  public boolean isAtSpeed() {
+    return DareMathUtil.isWithinXOf(getVelocity(), getCalculatedVelocity(), 100);
   }
 
   /**
@@ -333,4 +339,6 @@ public class Shooter extends PropertySubsystem implements IShooter {
     }
     return values;
   }
+
+
 }
