@@ -27,9 +27,9 @@ public class HexagonPosition {
 
     //{@Link https://www.desmos.com/calculator/5uswspqn79}
     
-    private final double a = 72.8293846094; //constatnts
-    private final double b = -638.158056361;
-    private final double c = 7324.04270221;
+    private final double a = 59.3811442707; //constatnts
+    private final double b = -527.36680877;
+    private final double c = 7108.30542107;
 
     private double m_turretPosition;
     private double m_robotPosition;
