@@ -18,6 +18,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalSource;
 import frc.robot.RobotContainer;
+import frc.robot.sensors.DevilDigitalInput;
 import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
@@ -31,7 +32,7 @@ public class Queue extends PropertySubsystem implements IQueue {
   }
 
   private boolean m_photoEyeEnabled;
-  private final DigitalSource m_photoEye;
+  private final DevilDigitalInput m_photoEye;
   //private final Trigger m_photoEyeTrigger;
 
   public final NetworkTable m_networkTable;
@@ -57,7 +58,7 @@ public class Queue extends PropertySubsystem implements IQueue {
 
     m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
 
-    RobotContainer.getCounter().setDownSource(m_photoEye);
+    RobotContainer.getCounter().setDownSource(m_photoEye.getDigitalInput());
 
     /*
     m_photoEyeTrigger = new Trigger(() -> m_photoEye.get());
@@ -80,7 +81,7 @@ public class Queue extends PropertySubsystem implements IQueue {
 
   @Override
   public void periodic() {
-    m_photoEyeTrigger.update();
+    //m_photoEyeTrigger.update();
 
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
   }
