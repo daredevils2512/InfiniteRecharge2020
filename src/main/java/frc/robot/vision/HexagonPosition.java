@@ -25,6 +25,10 @@ public class HexagonPosition {
     private final NetworkTable m_networkTable;
     private final double m_tolerance = 5.0; //in degrees probaly shouldnt be here but idk whatever
 
+    private final double a = 180.74488324; //constatnts
+    private final double b = -1491.97857776;
+    private final double c = 8764.60835839;
+
     private double m_turretPosition;
     private double m_robotPosition;
 
@@ -43,6 +47,7 @@ public class HexagonPosition {
 
     public void updatePosition() {
         calculatePosition();
+        m_networkTable.getEntry("calculated shooter rpm").setDouble(calculateShooterSpeed());
         m_networkTable.getEntry("robot relative position").setDouble(getRobotRelativePosition());
         m_networkTable.getEntry("turret relative position").setDouble(getTurretRelativePosition());
     }
@@ -59,6 +64,11 @@ public class HexagonPosition {
     
     private double getTurretRelativePosition() {
         return m_robotPosition - m_drivetrain.getHeading();
+    }
+
+    private double calculateShooterSpeed() {
+        double x = m_limelight.getDistanceToTarget();
+        return a * Math.pow(x, 2) + b * x + c;
     }
 
 }

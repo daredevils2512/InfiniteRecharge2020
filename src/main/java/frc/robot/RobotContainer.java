@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -284,7 +285,7 @@ public class RobotContainer {
       .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
       .whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
     
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> 9000.0));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
 
     m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
     m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
