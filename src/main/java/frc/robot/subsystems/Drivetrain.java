@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -191,6 +192,16 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_leftDriveFollower.configFactoryDefault();
     m_rightDriveMaster.configFactoryDefault();
     m_rightDriveFollower.configFactoryDefault();
+
+    SupplyCurrentLimitConfiguration supplyCurrentLimitConfig = new SupplyCurrentLimitConfiguration();
+    supplyCurrentLimitConfig.currentLimit = 40;
+    supplyCurrentLimitConfig.triggerThresholdCurrent = 60;
+    supplyCurrentLimitConfig.triggerThresholdTime = 0.5;
+
+    m_leftDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+    m_leftDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+    m_rightDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+    m_rightDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);
 
     // Designate drive masters
     m_leftDriveFollower.follow(m_leftDriveMaster);
