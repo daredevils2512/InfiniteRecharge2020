@@ -125,6 +125,7 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.joystickBottomLeft);
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);
+    m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.buttonBox.middleRed);
     // m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
     // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
     // m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
@@ -286,6 +287,7 @@ public class RobotContainer {
       .whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
     
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
+    m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getNumber(0).doubleValue()));
 
     m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
     m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
