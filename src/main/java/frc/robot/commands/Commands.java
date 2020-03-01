@@ -173,6 +173,10 @@ public final class Commands {
     return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
   }
 
+  public static Command setIntakeExtended(IIntake intake, boolean wantsExtended) {
+    return new InstantCommand(() -> intake.setExtended(wantsExtended));
+  }
+
   public static Command toggleIntakeExtended(IIntake intake) {
     return new ToggleIntakeExtended(intake);
   }
