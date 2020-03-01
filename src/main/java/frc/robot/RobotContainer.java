@@ -151,7 +151,9 @@ public class RobotContainer {
       return turn;
     });
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> m_controlBoard.xbox.getRightTrigger() * 9000);
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> 0.0);
+    m_joystickMap.put(JoystickCommand.INTAKE_IN, () -> m_controlBoard.xbox.getRightTrigger());
+    m_joystickMap.put(JoystickCommand.INTAKE_OUT, () -> m_controlBoard.xbox.getLeftTrigger());
     m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
     m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getTwist() * m_turretSpeed);
 
@@ -241,9 +243,12 @@ public class RobotContainer {
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
     
     m_drivetrain.setDefaultCommand(Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN)));
-    m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER)));
+    // m_intake.setDefaultCommand(Commands.runIntakeExtender_Temp(m_intake, m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER)));
     m_shooter.setDefaultCommand(Commands.runShooter(m_shooter, m_joystickMap.get(JoystickCommand.MANUAL_RUN_SHOOTER)));
     m_turret.setDefaultCommand(Commands.moveTurret(m_turret, m_joystickMap.get(JoystickCommand.MANUAL_MOVE_TURRET)));
+    m_intake.setDefaultCommand(Commands.intakeCommand(m_intake, this::getIntakeSpeed, m_intakeSpeed, m_magazine,
+        m_magazineSpeed, m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER)::getAsDouble,
+        m_intakeExtenderSpeed, this::getIntakeExtended, this::runExtenderMotionMagic));
 
     configureButtonBindings();
 
@@ -268,12 +273,11 @@ public class RobotContainer {
     //   .whenReleased(Commands.setDrivingInverted(m_drivetrain, false));
 
     // Toggle intake extender motion magic
-    m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
+    // m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
     // Toggle intake extended
     // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed();
     // Start/stop intaking
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+    // m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
 
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
@@ -339,6 +343,38 @@ public class RobotContainer {
       }
       drivetrain.setDefaultCommand(driveCommand);
     }
+  }
+
+  public double getIntakeSpeed() {
+    double inTrigger = m_joystickMap.get(JoystickCommand.INTAKE_IN).getAsDouble();
+    double outTrigger = -m_joystickMap.get(JoystickCommand.INTAKE_OUT).getAsDouble();
+    SmartDashboard.putNumber("intake in trigger", inTrigger);
+    SmartDashboard.putNumber("intake out trigger", outTrigger);
+    if (inTrigger > 0.0) {
+      return inTrigger;
+    } else if(outTrigger < 0.0) {
+      return outTrigger;
+    } else {
+      return 0.0;
+    }
+  }
+
+  public boolean getIntakeExtended() {
+    boolean extendButton = m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).get();
+    boolean retractButton = m_buttonMap.get(ButtonCommand.RETRACT_INTAKE).get();
+    boolean extended = false;
+    if (extendButton) extended = extendButton;
+    else if(retractButton) extended = !retractButton;
+    return extended;
+  }
+
+  public boolean runExtenderMotionMagic() {
+    boolean toggleButtonState = false;
+    boolean toggleButton = m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).get();
+    boolean motionMagic = false;
+    if (toggleButton && toggleButtonState == false) {motionMagic = !motionMagic;}
+    toggleButtonState = toggleButton;
+    return motionMagic;
   }
 
   /**

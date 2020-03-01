@@ -111,7 +111,7 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_runMotor = new WPI_TalonSRX(intakeMap.runMotorID);
     m_runMotor.configFactoryDefault();
     
-    m_runMotor.setInverted(InvertType.InvertMotorOutput);
+    m_runMotor.setInverted(InvertType.None);
     m_runMotor.setNeutralMode(NeutralMode.Brake);
 
     m_extendMotor = new WPI_TalonSRX(intakeMap.extendMotorID);

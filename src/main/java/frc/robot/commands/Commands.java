@@ -186,9 +186,10 @@ public final class Commands {
     return new RefillQueue(magazine, magazineSpeed, magazinePowerCellCountSupplier, queueHasPowerCellSupplier);
   }
 
-  public static Command intakeBall(IIntake intake, double intakeSpeed, IMagazine magazine, double magazineSpeed,
-      MagazinePowerCellCounter counter) {
-    return new IntakeBall(intake, intakeSpeed, magazine, magazineSpeed, counter);
+  public static Command intakeCommand(IIntake intake, Supplier<Double> intakeAxis, double intakeSpeed, IMagazine magazine,
+  double magazineSpeed, Supplier<Double> extenderSpeed, double extenderMaxSpeed, Supplier<Boolean> extended,
+  Supplier<Boolean> shouldExtend) {
+    return new IntakeCommand(intake, intakeAxis, intakeSpeed, magazine, magazineSpeed, extenderSpeed, extenderMaxSpeed, extended, shouldExtend);
   }
 
   public static Command runQueue(IQueue queue, double speed) {

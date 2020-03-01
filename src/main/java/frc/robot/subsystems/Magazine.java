@@ -21,6 +21,7 @@ import frc.robot.sensors.DummyDigitalInput;
 import frc.robot.sensors.IDigitalInput;
 import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IMagazine;
+import frc.robot.utils.MagazinePowerCellCounter;
 
 public class Magazine extends PropertySubsystem implements IMagazine {
   public static class MagazineMap {

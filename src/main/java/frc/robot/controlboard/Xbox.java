@@ -56,4 +56,8 @@ public class Xbox {
   public double getRightTrigger() {
     return m_controller.getTriggerAxis(Hand.kRight);
   }
+
+  public double getLeftTrigger() {
+    return m_controller.getTriggerAxis(Hand.kLeft);
+  }
 }
