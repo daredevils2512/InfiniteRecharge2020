@@ -33,6 +33,7 @@ public class HexagonPosition {
 
     private double m_turretPosition;
     private double m_robotPosition;
+    private double m_lastRobotPosition = 0.0;
 
     public HexagonPosition(IDrivetrain drivetrain, ITurret turret, Limelight limelight) {
         m_drivetrain = drivetrain;
@@ -44,7 +45,7 @@ public class HexagonPosition {
     private void calculatePosition() {
         m_networkTable.getEntry("has target").setBoolean(m_limelight.hasTarget());
         m_turretPosition = m_limelight.hasTarget() ? m_turret.getAngle() + m_limelight.tx() : m_turretPosition;
-        m_robotPosition = m_limelight.hasTarget() ? m_drivetrain.getHeading() + m_limelight.tx() + m_turret.getAngle() : m_robotPosition;
+        m_robotPosition = m_limelight.hasTarget() && DareMathUtil.isWithinXOf(m_robotPosition, m_lastRobotPosition, 10) ? m_drivetrain.getHeading() + m_limelight.tx() + m_turret.getAngle() : m_lastRobotPosition;
     }
 
     public void updatePosition() {
