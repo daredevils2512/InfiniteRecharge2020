@@ -235,7 +235,7 @@ public final class Commands {
   }
 
   public static Command autoSpinUpShooter(IShooter shooter, double target) {
-    return new RunCommand(() -> shooter.setTargetVelocity(), requirements)
+    return new RunCommand(() -> shooter.setTargetVelocity(target), shooter);
   }
 
   public static Command setShooterAngle(IShooter shooter, DoubleSupplier angleSupplier) {

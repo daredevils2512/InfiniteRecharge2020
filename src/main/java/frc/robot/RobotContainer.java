@@ -132,7 +132,7 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite); //TODO: fix these
     m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
     m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.buttonBox.bottomWhite);
-    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.xbox.bButton);
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.topRed);
     m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontRight);
     // m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.);
     m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);

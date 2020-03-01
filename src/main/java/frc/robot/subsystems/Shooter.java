@@ -194,7 +194,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   public void periodic() {
     SmartDashboard.putNumber("master shooter current output ", m_shooter.getStatorCurrent());
     SmartDashboard.putNumber("master shooter current supply ", m_shooter.getSupplyCurrent());
-    m_hoodPositionEntry.setDouble(m_hood.getSelectedSensorPosition());
+    // m_hoodPositionEntry.setDouble(m_hood.getSelectedSensorPosition());
 
     // Remove once PID is tuned
     m_shooterVelocityPGain = m_shooterPGainEntry.getDouble(m_shooterVelocityPGain);
