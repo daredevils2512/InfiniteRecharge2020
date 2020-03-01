@@ -284,8 +284,9 @@ public class RobotContainer {
 
     m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed))
       .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
-      .whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
-    
+      // .whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
+      .whileHeld(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_shooter, 100));
+      
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
     m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getNumber(0).doubleValue()));
 

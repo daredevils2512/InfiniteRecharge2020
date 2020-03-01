@@ -48,4 +48,9 @@ public class DummyShooter implements IShooter {
   @Override
   public void saveProperties() {
   }
+
+  @Override
+  public double getCalculatedVelocity() {
+    return 0;
+  }
 }
