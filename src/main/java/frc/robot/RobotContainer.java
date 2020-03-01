@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -106,37 +107,34 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
-    m_buttonMap.put(ButtonCommand.LIMELIGHT_LED, m_controlBoard.buttonBox.topWhite);
-
     m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
 
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
 
-    m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
     m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.RETRACT_INTAKE, m_controlBoard.xbox.yButton);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.xbox.xButton);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.xbox.leftBumper);
 
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.joystickTopRight);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.joystickBottomRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.extreme.baseFrontLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.extreme.baseFrontRight);
+    // m_buttonMap.put(ButtonCommand.INTAKE, );
 
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.joystickTopLeft);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.joystickBottomLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleRight);
+
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.baseBackLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.baseBackRight);
+
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.green);
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.yellow);
+    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);
-    m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.buttonBox.middleRed);
-    // m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
-    // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.joystickTopLeft);
-    // m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.extreme.joystickBottomLeft);
-    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite); //TODO: fix these
-    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
-    m_buttonMap.put(ButtonCommand.AUTO_FEED_SHOOTER, m_controlBoard.buttonBox.bottomWhite);
-    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.topRed);
+    m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.buttonBox.bottomWhite);
+    m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.buttonBox.middleRed);
+
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
+
     m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontRight);
-    // m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.);
-    m_buttonMap.put(ButtonCommand.HOOD_UP, m_controlBoard.buttonBox.yellow);
-    m_buttonMap.put(ButtonCommand.HOOD_DOWN, m_controlBoard.buttonBox.green);
     
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -263,8 +261,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Toggle limelight LED force off
-    m_buttonMap.get(ButtonCommand.LIMELIGHT_LED).whenPressed(Commands.toggleLimelightLEDForceOff(m_limelight));
-
     m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN)
       .whenPressed(Commands.drivetrainSetLowGear(m_drivetrain, true))
       .whenReleased(Commands.drivetrainSetLowGear(m_drivetrain, false));
@@ -274,32 +270,32 @@ public class RobotContainer {
 
     // Toggle intake extender motion magic
     // m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
+
     // Toggle intake extended
-    // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed();
+    m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed(Commands.setIntakeExtended(m_intake, true));
+    m_buttonMap.get(ButtonCommand.RETRACT_INTAKE).whenPressed(Commands.setIntakeExtended(m_intake, false));
+
     // Start/stop intaking
     // m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
 
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).toggleWhenPressed(Commands.runMagazine(m_magazine, m_magazineSpeed));
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE).toggleWhenPressed(Commands.runMagazine(m_magazine, -m_magazineSpeed)).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
-    // m_buttonMap.get(ButtonCommand.AUTO_REFILL_QUEUE).toggleWhenPressed(Commands.autoRefill);
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE).whileHeld(Commands.runMagazine(m_magazine, -m_magazineSpeed));
     
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).toggleWhenPressed(Commands.runQueue(m_queue, m_queueSpeed));
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE).toggleWhenPressed(Commands.runQueue(m_queue, -m_queueSpeed));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE).whileHeld(Commands.runQueue(m_queue, -m_queueSpeed));
 
-    m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed))
-      .whileHeld(Commands.runIntake(m_intake, m_intakeSpeed))
-      // .whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
-      .whileHeld(Commands.autoFeedShooter(m_queue, m_queueSpeed, m_shooter, 100));
-      
+    m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS).whileHeld(
+      Commands.runMagazine(m_magazine, m_magazineSpeed)
+      .alongWith(Commands.runQueue(m_queue, m_queueSpeed)));
+    m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS_REVERSE).whileHeld(
+      Commands.runIntake(m_intake, -m_intakeSpeed)
+      .alongWith(Commands.runMagazine(m_magazine, -m_magazineSpeed)
+      .alongWith(Commands.runQueue(m_queue, -m_queueSpeed))));
+    // Add auto refill qeuue
+    
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
     m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getNumber(0).doubleValue()));
 
-    m_buttonMap.get(ButtonCommand.HOOD_UP).whileHeld(Commands.runHood(m_shooter, () -> m_shooterHoodSpeed));
-    m_buttonMap.get(ButtonCommand.HOOD_UP).whenReleased(Commands.runHood(m_shooter, () -> 0.0));  
-    m_buttonMap.get(ButtonCommand.HOOD_DOWN).whileHeld(Commands.runHood(m_shooter, () -> -m_shooterHoodSpeed));
-    m_buttonMap.get(ButtonCommand.HOOD_DOWN).whenReleased(Commands.runHood(m_shooter, () -> 0.0));
-
-    m_buttonMap.get(ButtonCommand.SHIFT_DRIVETRAIN).whenPressed(Commands.drivetrainToggleLowGear(m_drivetrain));
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)
     // and having the queue be manually run //idk how well this will work

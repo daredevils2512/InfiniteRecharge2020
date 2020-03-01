@@ -25,8 +25,6 @@ public class Xbox {
   public final Button startButton;
   public final Button leftStickButton;
   public final Button rightStickButton;
-  public final Button leftTrigger;
-  public final Button rightTrigger;
 
   public Xbox(int port) {
     m_controller = new XboxController(port);
@@ -41,8 +39,6 @@ public class Xbox {
     startButton = new JoystickButton(m_controller, 8);
     leftStickButton = new JoystickButton(m_controller, 9);
     rightStickButton = new JoystickButton(m_controller, 10);
-    leftTrigger = new JoystickButton(m_controller, 11);
-    rightTrigger = new JoystickButton(m_controller, 12);
   }
 
   public double getLeftStickY() {
@@ -53,11 +49,11 @@ public class Xbox {
     return m_controller.getX(Hand.kRight);
   }
 
-  public double getRightTrigger() {
-    return m_controller.getTriggerAxis(Hand.kRight);
-  }
-
   public double getLeftTrigger() {
     return m_controller.getTriggerAxis(Hand.kLeft);
+  }
+
+  public double getRightTrigger() {
+    return m_controller.getTriggerAxis(Hand.kRight);
   }
 }

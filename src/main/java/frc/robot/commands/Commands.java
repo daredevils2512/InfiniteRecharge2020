@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.spline.Spline;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
@@ -173,6 +174,10 @@ public final class Commands {
     return new RunCommand(() -> intake.runExtender(speedSupplier.getAsDouble()), intake);
   }
 
+  public static Command setIntakeExtended(IIntake intake, boolean wantsExtended) {
+    return new InstantCommand(() -> intake.setExtended(wantsExtended));
+  }
+
   public static Command toggleIntakeExtended(IIntake intake) {
     return new ToggleIntakeExtended(intake);
   }
@@ -232,10 +237,6 @@ public final class Commands {
 
   public static Command setShooterVelocity(IShooter shooter, Supplier<Double> speed) {
     return new RunShooterPID(shooter, speed);
-  }
-
-  public static Command autoSpinUpShooter(IShooter shooter, double target) {
-    return new RunCommand(() -> shooter.setTargetVelocity(target), shooter);
   }
 
   public static Command setShooterAngle(IShooter shooter, DoubleSupplier angleSupplier) {

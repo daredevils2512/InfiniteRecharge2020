@@ -71,7 +71,7 @@ public class Intake extends PropertySubsystem implements IIntake {
 
   private boolean m_extended = false;
 
-  private boolean m_motionMagicEnabled = false;
+  private boolean m_motionMagicEnabled = true;
   private boolean m_isMotionMagicFinished = false;
 
   /**
@@ -250,6 +250,7 @@ public class Intake extends PropertySubsystem implements IIntake {
 
   @Override
   public void setExtended(boolean wantsExtended) {
+    m_logger.fine("Intake extended: " + wantsExtended);
     m_networkTable.getEntry("wants extended").setBoolean(wantsExtended);
     if (wantsExtended) {
       extend();
