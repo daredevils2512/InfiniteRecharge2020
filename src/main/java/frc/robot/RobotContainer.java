@@ -116,7 +116,7 @@ public class RobotContainer {
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.extreme.baseFrontLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.extreme.baseFrontRight);
-    m_buttonMap.put(ButtonCommand.INTAKE, m_controlBoard.xbox.leftTrigger);
+    // m_buttonMap.put(ButtonCommand.INTAKE, );
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleRight);
@@ -270,7 +270,7 @@ public class RobotContainer {
     // Start/stop intaking
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.runIntake(m_intake, m_intakeSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
-    m_buttonMap.get(ButtonCommand.INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
+    // m_buttonMap.get(ButtonCommand.INTAKE).whileHeld(Commands.intakeBall(m_intake, m_intakeSpeed, m_magazine, m_magazineSpeed, m_magazinePowerCellCounter));
 
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE).whileHeld(Commands.runMagazine(m_magazine, -m_magazineSpeed));
