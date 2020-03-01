@@ -25,9 +25,9 @@ public class HexagonPosition {
     private final NetworkTable m_networkTable;
     private final double m_tolerance = 5.0; //in degrees probaly shouldnt be here but idk whatever
 
-    private final double a = 180.74488324; //constatnts
-    private final double b = -1491.97857776;
-    private final double c = 8764.60835839;
+    private final double a = 100.957804481; //constatnts
+    private final double b = -814.277348213;
+    private final double c = 7577.2048123;
 
     private double m_turretPosition;
     private double m_robotPosition;
