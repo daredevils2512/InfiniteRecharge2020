@@ -288,7 +288,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public double getCalculatedVelocity() {
-    return NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0);
+    double setShooterSpeed = m_networkTable.getEntry("set shooter speed toggle").getDouble(0.0);
+    return (setShooterSpeed == 0.0) ? NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0) : setShooterSpeed;
   }
 
   /**
