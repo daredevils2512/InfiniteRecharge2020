@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -195,7 +196,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
     SupplyCurrentLimitConfiguration supplyCurrentLimitConfig = new SupplyCurrentLimitConfiguration();
     supplyCurrentLimitConfig.currentLimit = 40;
-    supplyCurrentLimitConfig.triggerThresholdCurrent = 60;
+    supplyCurrentLimitConfig.triggerThresholdCurrent = 50;
     supplyCurrentLimitConfig.triggerThresholdTime = 0.5;
 
     m_leftDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
@@ -211,6 +212,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_leftDriveFollower.setInverted(InvertType.FollowMaster);
     m_rightDriveMaster.setInverted(InvertType.None);
     m_rightDriveFollower.setInverted(InvertType.FollowMaster);
+
+    m_leftDriveMaster.setNeutralMode(NeutralMode.Coast);
+    m_leftDriveFollower.setNeutralMode(NeutralMode.Coast);
+    m_rightDriveMaster.setNeutralMode(NeutralMode.Coast);
+    m_rightDriveFollower.setNeutralMode(NeutralMode.Coast);
 
     m_leftEncoder = new Encoder(drivetrainMap.driveLeftEncoderChannelA, drivetrainMap.driveLeftEncoderChannelB);
     m_rightEncoder = new Encoder(drivetrainMap.driveRightEncoderChannelA, drivetrainMap.driveRightEncoderChannelB);
@@ -429,6 +435,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   @Override
   public void simpleArcadeDrive(double move, double turn) {
+    move = 0.75 * move;
+    turn = 0.75 * turn;
     m_leftDriveMaster.set(ControlMode.PercentOutput, move - turn);
     m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
   }

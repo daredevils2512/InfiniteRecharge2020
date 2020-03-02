@@ -265,7 +265,7 @@ public final class Commands {
   }
 
   public static Command toggleCompressor(ICompressorManager compressor) {
-    return new RunCommand(() -> compressor.toggleCompressor());
+    return new InstantCommand(() -> compressor.toggleCompressor());
   }
 
   public static Command findBall(IDrivetrain drivetrain, PiTable table) {

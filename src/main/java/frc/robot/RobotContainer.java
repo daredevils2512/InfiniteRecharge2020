@@ -18,6 +18,7 @@ import java.io.File;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -71,6 +72,8 @@ public class RobotContainer {
   private final ICompressorManager m_compressor;
   private final Properties m_properties;
 
+  private final PowerDistributionPanel pdp = new PowerDistributionPanel();
+
   private String m_pathPath = "paths/auto1.wpilib.json";
 
   private final boolean m_limelightEnabled;
@@ -116,16 +119,17 @@ public class RobotContainer {
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.extreme.baseFrontLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.extreme.baseFrontRight);
+    m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
     // m_buttonMap.put(ButtonCommand.INTAKE, );
 
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleLeft);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleLeft);
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.baseBackLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.baseBackRight);
 
-    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.green);
-    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.yellow);
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.yellow);
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.green);
     m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);
@@ -134,7 +138,7 @@ public class RobotContainer {
 
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
 
-    m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontRight);
+    m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontLeft);
     
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -272,8 +276,8 @@ public class RobotContainer {
     // m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).whileHeld(Commands.toggleIntakeExtended(m_intake));
 
     // Toggle intake extended
-    m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed(Commands.setIntakeExtended(m_intake, true));
-    m_buttonMap.get(ButtonCommand.RETRACT_INTAKE).whenPressed(Commands.setIntakeExtended(m_intake, false));
+    // m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).whenPressed(Commands.setIntakeExtended(m_intake, true));
+    // m_buttonMap.get(ButtonCommand.RETRACT_INTAKE).whenPressed(Commands.setIntakeExtended(m_intake, false));
 
     // Start/stop intaking
     // m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
@@ -293,8 +297,8 @@ public class RobotContainer {
       .alongWith(Commands.runQueue(m_queue, -m_queueSpeed))));
     // Add auto refill qeuue
     
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("Shooter").getEntry("set shooter speed toggle").getDouble(0.0)));
-    m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, () -> NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getNumber(0).doubleValue()));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
+    m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
 
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)
