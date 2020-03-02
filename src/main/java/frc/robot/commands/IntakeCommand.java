@@ -32,6 +32,8 @@ public class IntakeCommand extends CommandBase {
   private Supplier<Boolean> m_extendedSupplier;
   private Supplier<Boolean> m_shouldExtendSupplier;
 
+  private boolean magazineRunState = false;
+
   public IntakeCommand(IIntake intake, Supplier<Double> intakeAxis, double intakeSpeed, IMagazine magazine,
       double magazineSpeed, Supplier<Double> extenderSpeed, double extenderMaxSpeed, Supplier<Boolean> extended,
       Supplier<Boolean> shouldExtend) {
@@ -45,6 +47,9 @@ public class IntakeCommand extends CommandBase {
     m_extendedSupplier = extended;
     m_shouldExtendSupplier = shouldExtend;
     addRequirements(intake, magazine);
+
+    m_runMagazine = 0.0;
+    m_runIntake = 0.0;
   }
 
   @Override
@@ -53,23 +58,25 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_runIntake = 0.0;
-    m_runMagazine = 0.0;
+    m_runIntake = m_intakeAxis.get() * m_intakeSpeed;
+
     if (MagazinePowerCellCounter.getCount() <= 3 && m_intakeAxis.get() != 0.0) {
       m_runMagazine = m_magazineSpeed;
+      magazineRunState = true;
+      m_magazine.setSpeed(m_runMagazine);
+    } else if(magazineRunState) {
+      m_runMagazine = 0.0;
+      m_magazine.setSpeed(m_runMagazine);
+      magazineRunState = false;
     }
-    m_runIntake = m_intakeAxis.get() * m_intakeSpeed;
 
     SmartDashboard.putNumber("intake set speed", m_runIntake);
     if (m_shouldExtendSupplier.get()) {
       m_intake.setMotionMagicEnabled(true);
-      if (m_extendedSupplier.get())
-        m_intake.extend();
-      else
-        m_intake.retract();
+      if (m_extendedSupplier.get()) m_intake.extend();
+      else m_intake.retract();
     }
     m_intake.runIntake(m_runIntake);
-    m_magazine.setSpeed(m_runMagazine);
     m_intake.runExtender(m_extenderSpeedSupplier.get() * m_extenderMaxSpeed);
   }
 
