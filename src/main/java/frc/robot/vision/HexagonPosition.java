@@ -25,7 +25,7 @@ public class HexagonPosition {
     private final NetworkTable m_networkTable;
     private final double m_tolerance = 5.0; //in degrees probaly shouldnt be here but idk whatever
 
-    //{@Link https://www.desmos.com/calculator/5uswspqn79}
+    //{@Link https://www.desmos.com/calculator/6ics7ndnma}
     
     private final double a = 59.3811442707; //constatnts
     private final double b = -527.36680877;
