@@ -25,7 +25,7 @@ public class RunMagazine extends CommandBase {
     public RunMagazine(IMagazine magazine, double speed) {
         m_magazine = magazine;
         this.speed = speed;
-        logger = Logger.getGlobal();
+        logger = Logger.getLogger("frc.robot.Magazine.java");
         addRequirements(m_magazine);
     }
 
