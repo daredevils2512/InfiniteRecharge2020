@@ -15,7 +15,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.util.Units;
 
 /**
- * Limelight manager for power cell target tracking
+ * <h1> Limelight manager for power cell target tracking
  */
 public class Limelight {
   private static Logger logger = Logger.getLogger(Limelight.class.getName());
@@ -122,11 +122,12 @@ public class Limelight {
     return lastPostion;
   }
 
-    /**
-     * sets the pipeline to the default pipeline
-     * @return distance in units of something to the tagret
-     */
-    public double getDistanceToTarget() {
-      return Units.inchesToMeters(m_heightOffset) / Math.tan(Math.toRadians(m_angle + this.ty()));
+  /**
+   * <h1> sets the pipeline to the default pipeline
+   * 
+   * @return distance in units of something to the tagret
+   */
+  public double getDistanceToTarget() {
+    return Units.inchesToMeters(m_heightOffset) / Math.tan(Math.toRadians(m_angle + this.ty()));
   }
 }
