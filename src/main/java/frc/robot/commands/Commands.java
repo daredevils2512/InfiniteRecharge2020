@@ -38,6 +38,7 @@ import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
+import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightLEDMode;
