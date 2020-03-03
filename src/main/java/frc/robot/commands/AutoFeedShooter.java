@@ -3,7 +3,6 @@ package frc.robot.commands;
 import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.utils.DareMathUtil;
-import frc.robot.utils.MagazinePowerCellCounter;
 
 public class AutoFeedShooter extends RunQueueCommand {
 

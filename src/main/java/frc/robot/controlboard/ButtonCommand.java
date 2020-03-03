@@ -24,5 +24,6 @@ public enum ButtonCommand {
   AUTO_AIM_TURRET,
   HOOD_UP,
   HOOD_DOWN, 
-  TOGGLE_COMPRESSOR;
+  TOGGLE_COMPRESSOR,
+  STOP_MOTORS;
 }

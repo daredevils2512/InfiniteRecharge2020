@@ -38,7 +38,6 @@ import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
-import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightLEDMode;
@@ -58,6 +57,8 @@ import frc.robot.sensors.ColorSensor.ColorDetect;
  * definitions.
  */
 public final class Commands {
+  private static Logger logger = Logger.getLogger(Commands.class.getName());
+  
   private Commands() {
   }
 
@@ -216,13 +217,18 @@ public final class Commands {
   }
 
   public static Command runTurretPosition(ITurret turret, double position) {
-    System.out.println("ran turret position" + position);
+    logger.fine("ran turret postition" + position);
     return new RunCommand(() -> turret.runPosition(position), turret);
   }
 
   public static Command findTarget(ITurret turret) {
-    Logger.getGlobal().log(Level.INFO, "finding traget");
+    logger.log(Level.INFO, "finding traget");
     return new FindTarget(turret);
+  }
+
+  public static Command stopMotors(IMagazine magazine, IQueue queue, IShooter shooter) {
+    logger.info("stopping motors");
+    return new StopMotors(magazine, queue, shooter);
   }
 
   /**

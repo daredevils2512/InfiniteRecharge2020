@@ -15,12 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.Joystick.ButtonType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -100,6 +98,7 @@ public class RobotContainer {
   private final double m_turretSpeed = 0.3;
 
   private static Logger logger = Logger.getGlobal();
+  private static Logger commandLogger = Logger.getLogger(Commands.class.getName());
 
   private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
   private final Map<JoystickCommand, DoubleSupplier> m_joystickMap = new HashMap<>();
@@ -137,8 +136,10 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.buttonBox.middleRed);
 
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
+    m_buttonMap.put(ButtonCommand.STOP_MOTORS, m_controlBoard.buttonBox.topRed);
 
     m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontLeft);
+
     
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -178,6 +179,7 @@ public class RobotContainer {
     m_spinnerEnabled = Boolean.parseBoolean(m_properties.getProperty("spinner.isEnabled"));
 
     logger.setLevel(Level.parse(m_properties.getProperty("globalLogLevel").toUpperCase()));
+    commandLogger.setLevel(Level.parse(m_properties.getProperty("commandsLogLevel").toUpperCase()));
 
     // File path to generated robot path
     m_pathPath = m_properties.getProperty("PATH_PATH");
@@ -237,7 +239,7 @@ public class RobotContainer {
     m_climber = m_climberEnabled ? new Climber(climberMap) : new DummyClimber();
     //not dead code
     if (m_turretEnabled && m_drivetrainEnabled && m_limelightEnabled) {
-      Logger.getGlobal().log(Level.INFO, "initalized hexagon position");
+      logger.log(Level.INFO, "initalized hexagon position");
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     } else {m_hexagonPosition = null;}
     m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(), m_magazine);
@@ -299,6 +301,7 @@ public class RobotContainer {
     
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
     m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
+    m_buttonMap.get(ButtonCommand.STOP_MOTORS).toggleWhenPressed(Commands.stopMotors(m_magazine, m_queue, m_shooter));
 
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)
