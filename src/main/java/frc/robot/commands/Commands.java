@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.spline.Spline;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
@@ -30,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.CompressorManager;
 import frc.robot.subsystems.interfaces.IClimber;
 import frc.robot.subsystems.interfaces.ICompressorManager;
 import frc.robot.subsystems.interfaces.IDrivetrain;
@@ -68,13 +66,16 @@ public final class Commands {
   }
 
   /**
-   * Sets the limelight LED mode to force OFF if not currently set to OFF, otherwise revert to mode set by pipeline
+   * Sets the limelight LED mode to force OFF if not currently set to OFF,
+   * otherwise revert to mode set by pipeline
+   * 
    * @param limelight Limelight to set LED mode on
    * @return New {@link Command}
    */
   public static Command toggleLimelightLEDForceOff(Limelight limelight) {
     return new InstantCommand(() -> {
-      limelight.setLEDMode(limelight.getLEDMode() == LimelightLEDMode.OFF ? LimelightLEDMode.PIPELINE : LimelightLEDMode.OFF);
+      limelight.setLEDMode(
+          limelight.getLEDMode() == LimelightLEDMode.OFF ? LimelightLEDMode.PIPELINE : LimelightLEDMode.OFF);
     });
   }
 
@@ -191,10 +192,11 @@ public final class Commands {
     return new RefillQueue(magazine, magazineSpeed, magazinePowerCellCountSupplier, queueHasPowerCellSupplier);
   }
 
-  public static Command intakeCommand(IIntake intake, Supplier<Double> intakeAxis, double intakeSpeed, IMagazine magazine,
-  double magazineSpeed, Supplier<Double> extenderSpeed, double extenderMaxSpeed, Supplier<Boolean> extended,
-  Supplier<Boolean> shouldExtend) {
-    return new IntakeCommand(intake, intakeAxis, intakeSpeed, magazine, magazineSpeed, extenderSpeed, extenderMaxSpeed, extended, shouldExtend);
+  public static Command intakeCommand(IIntake intake, Supplier<Double> intakeAxis, double intakeSpeed,
+      IMagazine magazine, double magazineSpeed, Supplier<Double> extenderSpeed, double extenderMaxSpeed,
+      Supplier<Boolean> extended, Supplier<Boolean> shouldExtend) {
+    return new IntakeCommand(intake, intakeAxis, intakeSpeed, magazine, magazineSpeed, extenderSpeed, extenderMaxSpeed,
+        extended, shouldExtend);
   }
 
   public static Command runQueue(IQueue queue, double speed) {
@@ -205,8 +207,8 @@ public final class Commands {
     return new FeedShooter(queue, queueSpeedSupplier);
   }
 
-  public static Command autoFeedShooter(IQueue queue, double queueSpeed, IShooter shooter, double tolerance) {
-    return new AutoFeedShooter(queue, queueSpeed, shooter, tolerance);
+  public static Command autoFeedShooter(IQueue queue, double queueSpeed, IShooter shooter) {
+    return new AutoFeedShooter(queue, queueSpeed, shooter);
   }
 
   public static Command moveTurret(ITurret turret, DoubleSupplier speedSupplier) {
@@ -268,19 +270,34 @@ public final class Commands {
     return new InstantCommand(() -> compressor.toggleCompressor());
   }
 
+  public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
+      double magazineSpeed, int balls) {
+    double startingCount = MagazinePowerCellCounter.getCount();
+    return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()))
+        .alongWith(Commands.autoFeedShooter(queue, queueSpeed, shooter))
+        .alongWith(Commands.runMagazine(magazine, magazineSpeed))
+        .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
+  }
+
+  public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
+      double magazineSpeed, int balls, IDrivetrain drivetrain, double distance) {
+    return Commands.shootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls)
+        .andThen(Commands.driveStraight(drivetrain, distance));
+  }
+
   public static Command findBall(IDrivetrain drivetrain, PiTable table) {
     Translation2d translation = table.getClosestBallPose().getTranslation();
     TrajectoryConfig config = new TrajectoryConfig(3.0, 3.0);
     ControlVectorList vectors = new ControlVectorList();
-    Spline.ControlVector vector = new Spline.ControlVector(new double[]{translation.getX()}, new double[]{translation.getY()});
+    Spline.ControlVector vector = new Spline.ControlVector(new double[] { translation.getX() },
+        new double[] { translation.getY() });
     vectors.add(vector);
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(vectors, config);
 
     return new RamseteCommand(trajectory, drivetrain::getPose, new RamseteController(), drivetrain.getFeedForward(),
         drivetrain.getKinematics(), drivetrain::getWheelSpeeds, drivetrain.getLeftController(),
         drivetrain.getRightController(), drivetrain::voltageTank, drivetrain)
-        .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
-    
+            .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
   }
 
   public static Command followPath(IDrivetrain drivetrain, String file) {
@@ -288,13 +305,13 @@ public final class Commands {
     try {
       Path path = Filesystem.getDeployDirectory().toPath().resolve("paths/" + file);
       trajectory = TrajectoryUtil.fromPathweaverJson(path);
-    } catch(IOException e) {
+    } catch (IOException e) {
       trajectory = null;
       e.printStackTrace();
     }
     return new RamseteCommand(trajectory, drivetrain::getPose, new RamseteController(), drivetrain.getFeedForward(),
         drivetrain.getKinematics(), drivetrain::getWheelSpeeds, drivetrain.getLeftController(),
         drivetrain.getRightController(), drivetrain::voltageTank, drivetrain)
-        .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
+            .andThen(() -> drivetrain.simpleArcadeDrive(0, 0));
   }
 }
