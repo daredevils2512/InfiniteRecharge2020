@@ -282,10 +282,9 @@ public final class Commands {
   public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
       double magazineSpeed, int balls) {
     double startingCount = MagazinePowerCellCounter.getCount();
-    return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()))
-        .alongWith(Commands.runQueue(queue, queueSpeed))
-        .alongWith(Commands.runMagazine(magazine, magazineSpeed));
-        // .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
+    return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()), shooter)
+        .alongWith(Commands.runQueue(queue, queueSpeed), Commands.runMagazine(magazine, magazineSpeed))
+        .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
   }
 
   public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
