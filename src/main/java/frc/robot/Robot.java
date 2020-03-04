@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.RobotController;
@@ -102,6 +103,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
+      logger.log(Level.INFO, "auto caommand wasnt null");
       m_autonomousCommand.schedule();
     }
     logger.config("initialized auton");

@@ -31,13 +31,13 @@ public class RunMagazine extends CommandBase {
 
     @Override
     public void execute() {
-        logger.log(Level.FINE, "setting mag speed to = ", speed);
+        logger.log(Level.INFO, "setting mag speed to = ", speed);
         m_magazine.setSpeed(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        logger.fine("mag command interrupted");
+        logger.info("mag command interrupted");
         m_magazine.setSpeed(0.0);
     }
 }

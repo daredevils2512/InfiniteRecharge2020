@@ -10,6 +10,8 @@ public class PiTable {
 
     private NetworkTable m_table;
 
+    private double[] defaultValue = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+ 
     public PiTable() {
         m_table = NetworkTableInstance.getDefault().getTable("ball table");
     }
@@ -94,18 +96,18 @@ public class PiTable {
     public double[] getClosestTarget() {
         if (m_table.getSubTable("info").getEntry("closest target").getString("ball 0") != "ball 0") {
             String closestTarget = m_table.getSubTable("info").getEntry("closest target").getString("ball 1");
-            return m_table.getEntry(closestTarget).getDoubleArray(new double[]{0.0, 0.0, 0.0, 0.0});
+            return m_table.getEntry(closestTarget).getDoubleArray(defaultValue);
         } else {
-            return new double[]{0.0, 0.0, 0.0, 0.0};
+            return defaultValue;
         }
     }
 
     public double[] getTarget(int ball) {
-        return m_table.getEntry("ball " + ball).getDoubleArray(new double[]{0.0, 0.0, 0.0, 0.0});
+        return m_table.getEntry("ball " + ball).getDoubleArray(defaultValue);
     }
 
     public double[] getLastClosestTarget() {
-        double[] lastClosestTargetPosition = new double[]{0.0, 0.0, 0.0, 0.0};
+        double[] lastClosestTargetPosition = defaultValue;
         if (hasTarget()) {
             lastClosestTargetPosition = getClosestTarget();
         }

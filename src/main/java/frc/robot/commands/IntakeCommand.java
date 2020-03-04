@@ -8,6 +8,8 @@
 package frc.robot.commands;
 
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -46,7 +48,7 @@ public class IntakeCommand extends CommandBase {
     m_extenderMaxSpeed = extenderMaxSpeed;
     m_extendedSupplier = extended;
     m_shouldExtendSupplier = shouldExtend;
-    addRequirements(intake, magazine);
+    addRequirements(intake);
 
     m_runMagazine = 0.0;
     m_runIntake = 0.0;
@@ -65,6 +67,7 @@ public class IntakeCommand extends CommandBase {
       magazineRunState = true;
       m_magazine.setSpeed(m_runMagazine);
     } else if(magazineRunState) {
+      Logger.getGlobal().log(Level.INFO, "stopped magazine");
       m_runMagazine = 0.0;
       m_magazine.setSpeed(m_runMagazine);
       magazineRunState = false;
@@ -82,6 +85,7 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
+    if (interrupted) Logger.getGlobal().log(Level.INFO, "interuppted");
     m_intake.runIntake(0.0);
     m_magazine.setSpeed(0.0);
   }

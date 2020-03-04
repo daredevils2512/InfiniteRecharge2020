@@ -58,7 +58,7 @@ public class RobotContainer {
   private final MagazinePowerCellCounter m_magazinePowerCellCounter;
   private final HexagonPosition m_hexagonPosition;
   private final Limelight m_limelight;
-  private final PiTable m_piTable;
+  // private final PiTable m_piTable;
   private final IDrivetrain m_drivetrain;
   private final IIntake m_intake;
   private final IShooter m_shooter;
@@ -92,8 +92,8 @@ public class RobotContainer {
 
   private final double m_intakeExtenderSpeed = 0.3;
   private final double m_intakeSpeed = 0.7;
-  private final double m_magazineSpeed = 0.5;
-  private final double m_queueSpeed = 0.75;
+  private final double m_magazineSpeed = 0.8;
+  private final double m_queueSpeed = 0.9;
   private final double m_shooterHoodSpeed = 0.4;
   private final double m_turretSpeed = 0.3;
 
@@ -140,6 +140,8 @@ public class RobotContainer {
 
     m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontLeft);
 
+    m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.buttonBox.topWhite);
+
     
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -179,14 +181,14 @@ public class RobotContainer {
     m_spinnerEnabled = Boolean.parseBoolean(m_properties.getProperty("spinner.isEnabled"));
 
     logger.setLevel(Level.parse(m_properties.getProperty("globalLogLevel").toUpperCase()));
-    commandLogger.setLevel(Level.parse(m_properties.getProperty("commandsLogLevel").toUpperCase()));
+    // commandLogger.setLevel(Level.parse(m_properties.getProperty("commandsLogLevel").toUpperCase()));
 
     // File path to generated robot path
     m_pathPath = m_properties.getProperty("PATH_PATH");
 
     SmartDashboard.putBoolean("limelight enabled", m_limelightEnabled);
 
-    m_piTable = m_piTableEnabled ? new PiTable() : null;
+    // m_piTable = m_piTableEnabled ? new PiTable() : null;
 
     DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
     drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
@@ -256,7 +258,8 @@ public class RobotContainer {
 
     configureButtonBindings();
 
-    m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
+    // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
+    m_autonomousCommand = Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_magazine, m_magazineSpeed, 3, m_drivetrain, 0.0);
   }
 
   /**
@@ -292,7 +295,8 @@ public class RobotContainer {
 
     m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS).whileHeld(
       Commands.runMagazine(m_magazine, m_magazineSpeed)
-      .alongWith(Commands.runQueue(m_queue, m_queueSpeed)));
+      .alongWith(Commands.runQueue(m_queue, m_queueSpeed))
+      .alongWith(Commands.runIntake(m_intake, m_intakeSpeed)));
     m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS_REVERSE).whileHeld(
       Commands.runIntake(m_intake, -m_intakeSpeed)
       .alongWith(Commands.runMagazine(m_magazine, -m_magazineSpeed)
@@ -302,6 +306,8 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
     m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
     m_buttonMap.get(ButtonCommand.STOP_MOTORS).toggleWhenPressed(Commands.stopMotors(m_magazine, m_queue, m_shooter));
+
+    m_buttonMap.get(ButtonCommand.AUTONOMOUS).whileHeld(Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_magazine, m_magazineSpeed, 3, m_drivetrain, 0.0));
 
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)

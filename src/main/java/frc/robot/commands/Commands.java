@@ -229,7 +229,7 @@ public final class Commands {
 
   public static Command stopMotors(IMagazine magazine, IQueue queue, IShooter shooter) {
     logger.info("stopping motors");
-    return new StopMotors(magazine, queue, shooter);
+    return Commands.runMagazine(magazine, 0.0).alongWith(Commands.runQueue(queue, 0.0)).alongWith(Commands.runShooter(shooter,() -> 0.0));
   }
 
   /**
@@ -281,15 +281,17 @@ public final class Commands {
       double magazineSpeed, int balls) {
     double startingCount = MagazinePowerCellCounter.getCount();
     return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()))
-        .alongWith(Commands.autoFeedShooter(queue, queueSpeed, shooter))
-        .alongWith(Commands.runMagazine(magazine, magazineSpeed))
-        .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
+        .alongWith(Commands.runQueue(queue, queueSpeed))
+        .alongWith(Commands.runMagazine(magazine, magazineSpeed));
+        // .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
   }
 
   public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
       double magazineSpeed, int balls, IDrivetrain drivetrain, double distance) {
-    return Commands.shootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls)
-        .andThen(Commands.driveStraight(drivetrain, distance));
+
+    logger.log(Level.INFO, "ran auto command");
+    return Commands.shootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls);
+        // .andThen(Commands.driveStraight(drivetrain, distance));
   }
 
   public static Command findBall(IDrivetrain drivetrain, PiTable table) {

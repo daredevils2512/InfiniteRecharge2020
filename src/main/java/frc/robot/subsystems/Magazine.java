@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.logging.Level;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -48,7 +49,7 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
 
     m_runMotor = new WPI_TalonSRX(magazineMap.runMotorID);
-    m_runMotor.setInverted(InvertType.None);
+    m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
     m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
@@ -75,6 +76,7 @@ public class Magazine extends PropertySubsystem implements IMagazine {
 
   @Override
   public void setSpeed(double speed) {
+    m_logger.log(Level.INFO, "run motor set to " + speed);
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
