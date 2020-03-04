@@ -31,7 +31,7 @@ public class HexagonPosition {
     
     private final double a = 59.3811442707; //constatnts
     private final double b = -527.36680877;
-    private final double c = 7608.30542107;
+    private final double c = 7408.30542107;
 
     private double m_turretPosition;
     private double m_robotPosition = 0.0;
