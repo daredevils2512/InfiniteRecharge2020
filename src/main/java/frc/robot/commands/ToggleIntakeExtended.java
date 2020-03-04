@@ -7,10 +7,10 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IIntake;
+import frc.robot.utils.CommandLogger;
 
-public class ToggleIntakeExtended extends CommandBase {
+public class ToggleIntakeExtended extends CommandLogger {
 
   private IIntake m_intake;
 

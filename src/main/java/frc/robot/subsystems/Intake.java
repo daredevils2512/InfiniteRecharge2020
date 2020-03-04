@@ -331,6 +331,7 @@ public class Intake extends PropertySubsystem implements IIntake {
     values.put("arbitraryFeedforward", m_arbitraryFeedforward);
     values.put("cruiseVelocity", m_cruiseVelocity);
     values.put("acceleration", m_acceleration);
+    m_logger.fine("put values");
     return values;
   }
 }

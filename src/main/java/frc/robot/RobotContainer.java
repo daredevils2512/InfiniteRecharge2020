@@ -43,7 +43,6 @@ import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
-import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight.Pipeline;
 
 /**
@@ -99,6 +98,7 @@ public class RobotContainer {
 
   private static Logger logger = Logger.getGlobal();
   private static Logger commandLogger = Logger.getLogger(Commands.class.getName());
+  private static Logger limelightLogger = Logger.getLogger(Limelight.class.getName());
 
   private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
   private final Map<JoystickCommand, DoubleSupplier> m_joystickMap = new HashMap<>();
@@ -182,7 +182,6 @@ public class RobotContainer {
 
     logger.setLevel(Level.parse(m_properties.getProperty("globalLogLevel").toUpperCase()));
     commandLogger.setLevel(Level.parse(m_properties.getProperty("commandsLogLevel").toUpperCase()));
-    
 
     // File path to generated robot path
     m_pathPath = m_properties.getProperty("PATH_PATH");
@@ -256,6 +255,17 @@ public class RobotContainer {
     m_intake.setDefaultCommand(Commands.intakeCommand(m_intake, this::getIntakeSpeed, m_intakeSpeed, m_magazine,
         m_magazineSpeed, m_joystickMap.get(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER)::getAsDouble,
         m_intakeExtenderSpeed, this::getIntakeExtended, this::runExtenderMotionMagic));
+    
+    m_climber.setLogLevel(m_properties.getProperty("climber.logLevel"));
+    m_intake.setLogLevel(m_properties.getProperty("intake.logLevel"));
+    m_shooter.setLogLevel(m_properties.getProperty("shooter.logLevel"));
+    m_spinner.setLogLevel(m_properties.getProperty("spinner.logLevel"));
+    m_queue.setLogLevel(m_properties.getProperty("queue.logLevel"));
+    m_compressor.setLogLevel(m_properties.getProperty("compressor.logLevel"));
+    m_drivetrain.setLogLevel(m_properties.getProperty("drivetrain.logLevel"));
+    m_magazine.setLogLevel(m_properties.getProperty("magazine.logLevel"));
+    m_turret.setLogLevel(m_properties.getProperty("turret.logLevel"));
+    limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
 
     configureButtonBindings();
 

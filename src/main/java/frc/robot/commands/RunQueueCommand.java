@@ -1,9 +1,9 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IQueue;
+import frc.robot.utils.CommandLogger;
 
-public abstract class RunQueueCommand extends CommandBase {
+public abstract class RunQueueCommand extends CommandLogger {
   protected final IQueue m_queue;
   protected final double m_queueSpeed;
 
@@ -20,6 +20,7 @@ public abstract class RunQueueCommand extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
+    m_logger.fine("interrupted");
     m_queue.run(0);
   }
 

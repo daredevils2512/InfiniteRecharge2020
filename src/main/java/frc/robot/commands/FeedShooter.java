@@ -2,10 +2,10 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IQueue;
+import frc.robot.utils.CommandLogger;
 
-public class FeedShooter extends CommandBase {
+public class FeedShooter extends CommandLogger {
   private IQueue m_queue;
   private DoubleSupplier m_queueSpeedSupplier;
 

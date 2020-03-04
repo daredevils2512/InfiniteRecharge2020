@@ -139,10 +139,12 @@ public class Turret extends PropertySubsystem implements ITurret {
   @Override
   public void resetEncoder() {
     m_turretMaster.setSelectedSensorPosition(0);
+    m_logger.fine("reset encoder");
   }
 
   @Override
   public void setSpeed(double speed) {
+    m_logger.fine("set speed to" + speed);
     m_turretMaster.set(ControlMode.PercentOutput, speed);
   }
 
@@ -194,6 +196,7 @@ public class Turret extends PropertySubsystem implements ITurret {
     values.put("D", m_D);
     values.put("motionCruiseVelocity", m_motionCruiseVelocity);
     values.put("motionAcceleration", m_motionAcceleration);
+    m_logger.fine("put values");
     return values;
   }
 }

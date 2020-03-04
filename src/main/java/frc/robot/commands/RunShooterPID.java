@@ -2,10 +2,10 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IShooter;
+import frc.robot.utils.CommandLogger;
 
-public class RunShooterPID extends CommandBase{
+public class RunShooterPID extends CommandLogger {
 
     private IShooter m_shooter;
 

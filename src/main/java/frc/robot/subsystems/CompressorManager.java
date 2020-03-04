@@ -39,6 +39,7 @@ public class CompressorManager extends LoggingSubsystem implements ICompressorMa
   @Override
   public void setClosedLoopControl(boolean wantsClosedLoopControl) {
     m_compressor.setClosedLoopControl(wantsClosedLoopControl);
+    m_logger.fine("Compressor closed loop control: " + getClosedLoopControl());
   }
 
   @Override
@@ -49,6 +50,5 @@ public class CompressorManager extends LoggingSubsystem implements ICompressorMa
   @Override
   public void toggleCompressor() {
     m_compressor.setClosedLoopControl(!getClosedLoopControl());
-    m_logger.fine("Compressor closed loop control: " + getClosedLoopControl());
   }
 }

@@ -8,19 +8,17 @@
 package frc.robot.commands;
 
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IIntake;
 import frc.robot.subsystems.interfaces.IMagazine;
+import frc.robot.utils.CommandLogger;
 import frc.robot.utils.MagazinePowerCellCounter;
 
 /**
  * Add your docs here.
  */
-public class IntakeCommand extends CommandBase {
+public class IntakeCommand extends CommandLogger {
 
   private double m_runIntake;
   private double m_runMagazine;
@@ -67,7 +65,7 @@ public class IntakeCommand extends CommandBase {
       magazineRunState = true;
       m_magazine.setSpeed(m_runMagazine);
     } else if(magazineRunState) {
-      Logger.getGlobal().log(Level.INFO, "stopped magazine");
+      m_logger.info("stopped magazine");
       m_runMagazine = 0.0;
       m_magazine.setSpeed(m_runMagazine);
       magazineRunState = false;
@@ -85,7 +83,7 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    if (interrupted) Logger.getGlobal().log(Level.INFO, "interuppted");
+    if (interrupted) m_logger.info("interuppted");
     m_intake.runIntake(0.0);
     m_magazine.setSpeed(0.0);
   }
