@@ -293,6 +293,8 @@ public final class Commands {
   public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
       double magazineSpeed, int balls) {
     double startingCount = MagazinePowerCellCounter.getCount();
+    logger.log(Level.INFO, "Commands::shootBalls(QueueSPeed: "+queueSpeed+", MagazineSpeed: "+magazineSpeed+", balls: "+balls+" starting count: "+startingCount);
+
     return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()), shooter)
         .alongWith(Commands.runQueue(queue, queueSpeed), Commands.runMagazine(magazine, magazineSpeed))
         .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
