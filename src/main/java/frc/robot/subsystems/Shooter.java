@@ -256,6 +256,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public void stop() {
+    m_logger.finer("stop shooter");
     m_shooter.set(ControlMode.PercentOutput, 0);
   }
 

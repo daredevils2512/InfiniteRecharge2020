@@ -125,10 +125,12 @@ public final class Commands {
   }
 
   public static Command driveStraight(IDrivetrain drivetrain, double distance) {
+    logger.fine("running");
     return new DriveStraight(drivetrain, distance);
   }
 
   public static Command setDrivingInverted(IDrivetrain drivetrain, boolean wantsInverted) {
+    logger.fine("inverted to" + wantsInverted);
     return new InstantCommand(() -> drivetrain.setDrivingInverted(wantsInverted), drivetrain);
   }
 

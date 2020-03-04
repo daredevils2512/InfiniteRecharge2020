@@ -203,6 +203,7 @@ public class Intake extends PropertySubsystem implements IIntake {
   @Override
   public void toggleMotionMagicEnabled() {
     setMotionMagicEnabled(!getMotionMagicEnabled());
+    m_logger.fine("motion magic toggled to" + getMotionMagicEnabled());
   }
 
   public void extend() {
@@ -261,6 +262,7 @@ public class Intake extends PropertySubsystem implements IIntake {
 
   public void toggleExtended() {
     setExtended(!getExtended());
+    m_logger.fine("extended to" + getExtended());
   }
 
   /**

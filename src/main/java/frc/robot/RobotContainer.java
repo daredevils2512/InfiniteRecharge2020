@@ -181,7 +181,8 @@ public class RobotContainer {
     m_spinnerEnabled = Boolean.parseBoolean(m_properties.getProperty("spinner.isEnabled"));
 
     logger.setLevel(Level.parse(m_properties.getProperty("globalLogLevel").toUpperCase()));
-    // commandLogger.setLevel(Level.parse(m_properties.getProperty("commandsLogLevel").toUpperCase()));
+    commandLogger.setLevel(Level.parse(m_properties.getProperty("commandsLogLevel").toUpperCase()));
+    
 
     // File path to generated robot path
     m_pathPath = m_properties.getProperty("PATH_PATH");

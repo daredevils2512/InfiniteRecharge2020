@@ -132,6 +132,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private double m_rightIGain = 0;
   private double m_rightDGain = 0;
 
+  private Logger m_logger;
+
   /**
    * Creates a new drivetrain
    */
@@ -181,6 +183,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rollEntry = m_networkTable.getEntry("Roll");
     m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
     m_lowGearEntry = m_networkTable.getEntry("Low gear");
+
+    m_logger = Logger.getLogger(Drivetrain.class.getName());
 
     m_leftDriveMaster = new WPI_TalonFX(drivetrainMap.driveLeft1ID);
     m_leftDriveFollower = new WPI_TalonFX(drivetrainMap.driveLeft2ID);
@@ -299,6 +303,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private void resetEncoders() {
+    m_logger.fine("encoders reset");
     m_leftEncoder.reset();
     m_rightEncoder.reset();
   }
@@ -310,6 +315,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   @Override
   public void setDrivingInverted(boolean wantsInverted) {
+    m_logger.fine("inverted to" + wantsInverted);
     m_isDrivingInverted = wantsInverted;
   }
 
@@ -339,23 +345,23 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private double getYaw() {
-    m_logger.log(Level.FINER, "yaw = ", m_gyroData[0]);
+    m_logger.log(Level.FINE, "yaw = ", m_gyroData[0]);
     return m_gyroData[0];
   }
 
   private double getPitch() {
-    m_logger.log(Level.FINER, "pitch = ", m_gyroData[1]);
+    m_logger.log(Level.FINE, "pitch = ", m_gyroData[1]);
     return m_gyroData[1];
   }
 
   private double getRoll() {
-    m_logger.log(Level.FINER, "roll = ", m_gyroData[2]);
+    m_logger.log(Level.FINE, "roll = ", m_gyroData[2]);
     return m_gyroData[2];
   }
 
   private double getFusedHeading() {
     if (m_pigeonEnabled)
-      m_logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
+      m_logger.fine("fused heading = " + m_pigeon.getFusedHeading());
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
@@ -402,6 +408,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     resetEncoders();
     Pose2d newPose = new Pose2d();
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   @Override
@@ -409,6 +416,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     resetEncoders();
     Pose2d newPose = new Pose2d(translation, getPose().getRotation());
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   @Override
@@ -416,12 +424,14 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     resetEncoders();
     Pose2d newPose = new Pose2d(getPose().getTranslation(), rotation);
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   @Override
   public void resetPose(Pose2d pose) {
     resetEncoders();
     m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   /**
@@ -482,6 +492,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     values.put("rightPGain", m_rightPGain);
     values.put("rightIGain", m_rightIGain);
     values.put("rightDGain", m_rightDGain);
+    m_logger.fine("put values");
     return values;
   }
 
