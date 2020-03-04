@@ -7,37 +7,32 @@
 
 package frc.robot.commands;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IMagazine;
+import frc.robot.utils.CommandLogger;
 
 /**
  * Add your docs here.
  */
-public class RunMagazine extends CommandBase {
+public class RunMagazine extends CommandLogger {
 
     private IMagazine m_magazine;
     private double speed;
-    private Logger logger;
 
     public RunMagazine(IMagazine magazine, double speed) {
         m_magazine = magazine;
         this.speed = speed;
-        logger = Logger.getLogger("frc.robot.Magazine.java");
         addRequirements(m_magazine);
     }
 
     @Override
     public void execute() {
-        logger.log(Level.INFO, "setting mag speed to = ", speed);
+        m_logger.fine("setting mag speed to = " + speed);
         m_magazine.setSpeed(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        logger.info("mag command interrupted");
+        m_logger.fine("mag command interrupted");
         m_magazine.setSpeed(0.0);
     }
 }

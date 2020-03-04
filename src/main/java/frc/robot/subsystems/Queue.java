@@ -58,7 +58,8 @@ public class Queue extends PropertySubsystem implements IQueue {
 
   @Override
   public void run(double speed) {
-      m_runMotor.set(ControlMode.PercentOutput, speed);
+    m_logger.fine("set queue speed to" + speed);
+    m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
   @Override

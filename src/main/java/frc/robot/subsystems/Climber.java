@@ -24,6 +24,7 @@ public class Climber extends PropertySubsystem implements IClimber {
   public void climb(double leftSpeed, double rightSpeed) {
     m_leftClimbMotor.set(leftSpeed);
     m_rightClimbMotor.set(rightSpeed);
+    m_logger.fine("left speed = " + leftSpeed + "right speed = " + rightSpeed);
   }
 
   // TODO: Implement climbing

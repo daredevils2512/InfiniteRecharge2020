@@ -8,7 +8,6 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
-import java.util.logging.Level;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -76,7 +75,7 @@ public class Magazine extends PropertySubsystem implements IMagazine {
 
   @Override
   public void setSpeed(double speed) {
-    m_logger.log(Level.INFO, "run motor set to " + speed);
+    m_logger.fine("set speed to" + speed);
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 

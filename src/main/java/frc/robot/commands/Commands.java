@@ -125,27 +125,33 @@ public final class Commands {
   }
 
   public static Command driveStraight(IDrivetrain drivetrain, double distance) {
+    logger.fine("running");
     return new DriveStraight(drivetrain, distance);
   }
 
   public static Command setDrivingInverted(IDrivetrain drivetrain, boolean wantsInverted) {
+    logger.fine("inverted to" + wantsInverted);
     return new InstantCommand(() -> drivetrain.setDrivingInverted(wantsInverted), drivetrain);
   }
 
   public static Command toggleInvertedDriving(IDrivetrain drivetrain) {
+    logger.fine("inverted to" + !drivetrain.getDrivingInverted());
     return new InstantCommand(() -> drivetrain.setDrivingInverted(!drivetrain.getDrivingInverted()), drivetrain);
   }
 
   public static Command drivetrainSetLowGear(IDrivetrain drivetrain, boolean wantsLowGear) {
+    logger.fine("low gear = " + wantsLowGear);
     return new InstantCommand(() -> drivetrain.setLowGear(wantsLowGear), drivetrain);
   }
 
   public static Command drivetrainToggleLowGear(IDrivetrain drivetrain) {
+    logger.fine("low gear = " + !drivetrain.getLowGear());
     return new InstantCommand(() -> drivetrain.setLowGear(!drivetrain.getLowGear()), drivetrain);
   }
 
   // probly temporary
   public static Command climberUp(IClimber climber, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
+    logger.fine("left speed = " + leftSpeed + "right speed = " + rightSpeed);
     return new RunCommand(() -> climber.climb(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()), climber);
   }
 
@@ -155,6 +161,7 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command startIntaking(IIntake intake, IMagazine magazine) {
+    logger.fine("running");
     return new InstantCommand(() -> intake.setExtended(true), intake)
         .andThen(new RunCommand(() -> magazine.setSpeed(1), magazine));
   }
@@ -165,11 +172,13 @@ public final class Commands {
    * @return New {@link Command}
    */
   public static Command stopIntaking(IIntake intake, IMagazine magazine) {
+    logger.fine("stopping");
     return new InstantCommand(() -> magazine.setSpeed(0), magazine)
         .andThen(new InstantCommand(() -> intake.setExtended(false), intake));
   }
 
   public static Command runIntake(IIntake intake, double speed) {
+    logger.fine("running at" + speed);
     return new RunIntake(intake, speed);
   }
 
@@ -178,6 +187,7 @@ public final class Commands {
   }
 
   public static Command setIntakeExtended(IIntake intake, boolean wantsExtended) {
+    logger.fine("set to" + wantsExtended);
     return new InstantCommand(() -> intake.setExtended(wantsExtended));
   }
 
@@ -186,6 +196,7 @@ public final class Commands {
   }
 
   public static Command runMagazine(IMagazine magazine, double speed) {
+    logger.fine("running at" + speed);
     return new RunMagazine(magazine, speed);
   }
 
@@ -202,6 +213,7 @@ public final class Commands {
   }
 
   public static Command runQueue(IQueue queue, double speed) {
+    logger.fine("running at" + speed);
     return new ManualRunQueue(queue, speed);
   }
 
@@ -214,6 +226,7 @@ public final class Commands {
   }
 
   public static Command moveTurret(ITurret turret, DoubleSupplier speedSupplier) {
+    logger.fine("running at" + speedSupplier);
     return new RunCommand(() -> turret.setSpeed(speedSupplier.getAsDouble()), turret);
   }
 
@@ -223,7 +236,7 @@ public final class Commands {
   }
 
   public static Command findTarget(ITurret turret) {
-    logger.log(Level.INFO, "finding traget");
+    logger.info("finding traget");
     return new FindTarget(turret);
   }
 
@@ -280,6 +293,8 @@ public final class Commands {
   public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
       double magazineSpeed, int balls) {
     double startingCount = MagazinePowerCellCounter.getCount();
+    logger.log(Level.INFO, "Commands::shootBalls(QueueSPeed: "+queueSpeed+", MagazineSpeed: "+magazineSpeed+", balls: "+balls+" starting count: "+startingCount);
+
     return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()), shooter)
         .alongWith(Commands.runQueue(queue, queueSpeed), Commands.runMagazine(magazine, magazineSpeed))
         .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);

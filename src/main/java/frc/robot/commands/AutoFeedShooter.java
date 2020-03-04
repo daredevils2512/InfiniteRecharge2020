@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;
-import frc.robot.utils.DareMathUtil;
 
 public class AutoFeedShooter extends RunQueueCommand {
 

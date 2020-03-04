@@ -7,11 +7,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.interfaces.ISpinner;
+import frc.robot.utils.CommandLogger;
 
-public class RotationControl extends CommandBase {
+public class RotationControl extends CommandLogger {
   private final ISpinner m_spinner;
   private final double m_rotations;
   private ColorDetect pastColor;
