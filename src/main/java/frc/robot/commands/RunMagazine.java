@@ -25,8 +25,12 @@ public class RunMagazine extends CommandLogger {
     }
 
     @Override
-    public void execute() {
+    public void initialize() {
         m_logger.fine("setting mag speed to = " + speed);
+    }
+
+    @Override
+    public void execute() {
         m_magazine.setSpeed(speed);
     }
 

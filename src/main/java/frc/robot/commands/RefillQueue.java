@@ -21,8 +21,12 @@ public class RefillQueue extends CommandLogger {
   }
 
   @Override
-  public void execute() {
+  public void initialize() {
     m_logger.fine("refilling queue");
+  }
+
+  @Override
+  public void execute() {
     m_magazine.setSpeed(m_magazineSpeed);
   }
 

@@ -16,11 +16,11 @@ public class RunIntake extends CommandLogger {
   @Override
   public void initialize() {
     m_intake.setMotionMagicEnabled(false);
+    m_logger.fine("running intake at" + m_speed);
   }
 
   @Override
   public void execute() {
-    m_logger.fine("running intake at" + m_speed);
     m_intake.runIntake(m_speed);
   }
 

@@ -34,9 +34,9 @@ public class FindTarget extends CommandLogger {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_logger.fine("initializesed turret tracking");
     m_limelight.setLEDMode(LimelightLEDMode.ON);
     m_limelight.setPipeline(Pipeline.Hexagon);
+    m_logger.fine("finding target at: " + m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -45,7 +45,6 @@ public class FindTarget extends CommandLogger {
     double target = m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle());
     // SmartDashboard.putNumber("target position", m_networkTable.getEntry("turret relative position").getDouble(m_turret.getAngle()));
     m_turret.runPosition(target);
-    m_logger.fine("finding target at: " + target);
     // m_turret.runPosition(m_turret.getAngle() + m_limelight.tx());
   }
 

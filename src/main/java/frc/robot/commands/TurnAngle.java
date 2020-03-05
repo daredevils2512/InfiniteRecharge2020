@@ -33,6 +33,7 @@ public class TurnAngle extends CommandLogger {
     m_startAngle = getWrappedHeading();
     m_targetAngle = m_startAngle + m_angle;
     m_angleController.setSetpoint(m_targetAngle);
+    m_logger.fine("turrning to" + m_targetAngle);
   }
 
   @Override
