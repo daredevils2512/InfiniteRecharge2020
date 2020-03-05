@@ -284,7 +284,10 @@ public class RobotContainer {
 
     // Toggle between having the turret automatically track the target
     // and having the turret be turned manually
-    if (m_limelightEnabled) m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret));
+    if (m_limelightEnabled) {
+      m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET)
+        .toggleWhenPressed(Commands.findTarget(m_turret, m_limelight)); 
+    }
 
     m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
     m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
