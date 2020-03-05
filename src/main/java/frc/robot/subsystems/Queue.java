@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -39,16 +40,16 @@ public class Queue extends PropertySubsystem implements IQueue {
   /**
    * Creates a new Queue.
    */
-  public Queue(QueueMap queueMap) {
+  public Queue(Properties robotMapProperties) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
     m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
-    m_runMotor = new TalonSRX(queueMap.queueRunID);
+    m_runMotor = new TalonSRX(getInteger(robotMapProperties.getProperty("queueRunID")));
     m_runMotor.configFactoryDefault();
     m_runMotor.setInverted(InvertType.None);
 
-    m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(getInteger(robotMapProperties.getProperty("queuePhotoEyeChannel"))) : new DummyDigitalInput();
   }
 
   @Override

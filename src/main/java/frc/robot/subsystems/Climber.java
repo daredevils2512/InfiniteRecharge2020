@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -15,9 +16,9 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final WPI_TalonSRX m_leftClimbMotor;
   private final WPI_TalonSRX m_rightClimbMotor;
 
-  public Climber(ClimberMap climberMap) {
-    m_leftClimbMotor = new WPI_TalonSRX(climberMap.climberLeftID);
-    m_rightClimbMotor = new WPI_TalonSRX(climberMap.climberRightID);
+  public Climber(Properties robotMapProperties) {
+    m_leftClimbMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("climberLeftID")));
+    m_rightClimbMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("climberRightID")));
   }
 
   @Override

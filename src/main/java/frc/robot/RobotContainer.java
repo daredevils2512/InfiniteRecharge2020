@@ -29,13 +29,6 @@ import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickCommand;
 import frc.robot.controlboard.JoystickUtil;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Climber.ClimberMap;
-import frc.robot.subsystems.Drivetrain.DrivetrainMap;
-import frc.robot.subsystems.Intake.IntakeMap;
-import frc.robot.subsystems.Magazine.MagazineMap;
-import frc.robot.subsystems.Queue.QueueMap;
-import frc.robot.subsystems.Shooter.ShooterMap;
-import frc.robot.subsystems.Turret.TurretMap;
 import frc.robot.subsystems.dummy.*;
 import frc.robot.subsystems.interfaces.*;
 import frc.robot.utils.DriveType;
@@ -113,6 +106,8 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
+    putButtons();
+
     m_properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/RobotMap.properties");
@@ -139,57 +134,16 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean("limelight enabled", m_limelightEnabled);
 
-    // m_piTable = m_piTableEnabled ? new PiTable() : null;
-
-    DrivetrainMap drivetrainMap = new Drivetrain.DrivetrainMap();
-    drivetrainMap.driveLeft1ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft1ID"));
-    drivetrainMap.driveLeft2ID = Integer.parseInt(robotMapProperties.getProperty("driveLeft2ID"));
-    drivetrainMap.driveRight1ID = Integer.parseInt(robotMapProperties.getProperty("driveRight1ID"));
-    drivetrainMap.driveRight2ID = Integer.parseInt(robotMapProperties.getProperty("driveRight2ID"));
-    drivetrainMap.pigeonID = Integer.parseInt(robotMapProperties.getProperty("pigeonID"));
-    drivetrainMap.driveLeftEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelA"));
-    drivetrainMap.driveLeftEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveLeftEncoderChannelB"));
-    drivetrainMap.driveRightEncoderChannelA = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelA"));
-    drivetrainMap.driveRightEncoderChannelB = Integer.parseInt(robotMapProperties.getProperty("driveRightEncoderChannelB"));
-    drivetrainMap.shiftForwardChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftForwardChannel"));
-    drivetrainMap.shiftReverseChannel = Integer.parseInt(robotMapProperties.getProperty("drivetrainShiftReverseChannel"));
-
-    IntakeMap intakeMap = new IntakeMap();
-    intakeMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeRunID"));
-    intakeMap.extendMotorID = Integer.parseInt(robotMapProperties.getProperty("intakeExtenderID"));
-    intakeMap.retractedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeRetractedLimitSwitchChannel"));
-    intakeMap.extendedLimitSwitchChannel = Integer.parseInt(robotMapProperties.getProperty("intakeExtendedLimitSwitchChannel"));
-
-    ShooterMap shooterMap = new ShooterMap();
-    shooterMap.shooter1ID = Integer.parseInt(robotMapProperties.getProperty("shooter1ID"));
-    shooterMap.shooter2ID = Integer.parseInt(robotMapProperties.getProperty("shooter2ID"));
-    shooterMap.shooterHoodID = Integer.parseInt(robotMapProperties.getProperty("shooterHoodID"));
-    
-    MagazineMap magazineMap = new MagazineMap();
-    magazineMap.runMotorID = Integer.parseInt(robotMapProperties.getProperty("magazineRunID"));
-    magazineMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("magazinePhotoEyeChannel"));
-
-    QueueMap queueMap = new QueueMap();
-    queueMap.queueRunID = Integer.parseInt(robotMapProperties.getProperty("queueRunID"));
-    queueMap.photoEyeChannel = Integer.parseInt(robotMapProperties.getProperty("queuePhotoEyeChannel"));
-
-    TurretMap turretMap = new TurretMap();
-    turretMap.turretID = Integer.parseInt(robotMapProperties.getProperty("turretID"));
-
-    ClimberMap climberMap = new ClimberMap();
-    climberMap.climberLeftID = Integer.parseInt(robotMapProperties.getProperty("climberLeftID"));
-    climberMap.climberRightID = Integer.parseInt(robotMapProperties.getProperty("climberRightID"));
-
     m_limelight = m_limelightEnabled ? new Limelight(Pipeline.valueOf(m_properties.getProperty("limelight.defaultPipeline"))) : null;
     m_compressor = m_compressorEnabled ? new CompressorManager() : new DummyCompressor();
-    m_drivetrain = m_drivetrainEnabled ? new Drivetrain(drivetrainMap) : new DummyDrivetrain();
-    m_intake = m_intakeEnabled ? new Intake(intakeMap) : new DummyIntake();
-    m_shooter = m_shooterEnabled ? new Shooter(shooterMap) : new DummyShooter();
+    m_drivetrain = m_drivetrainEnabled ? new Drivetrain(robotMapProperties) : new DummyDrivetrain();
+    m_intake = m_intakeEnabled ? new Intake(robotMapProperties) : new DummyIntake();
+    m_shooter = m_shooterEnabled ? new Shooter(robotMapProperties) : new DummyShooter();
     m_spinner = m_spinnerEnabled ? new Spinner() : new DummySpinner();
-    m_magazine = m_magazineEnabled ? new Magazine(magazineMap) : new DummyMagazine();
-    m_queue = m_queueEnabled ? new Queue(queueMap) : new DummyQueue();
-    m_turret = m_turretEnabled ? new Turret(turretMap) : new DummyTurret();
-    m_climber = m_climberEnabled ? new Climber(climberMap) : new DummyClimber();
+    m_magazine = m_magazineEnabled ? new Magazine(robotMapProperties) : new DummyMagazine();
+    m_queue = m_queueEnabled ? new Queue(robotMapProperties) : new DummyQueue();
+    m_turret = m_turretEnabled ? new Turret(robotMapProperties) : new DummyTurret();
+    m_climber = m_climberEnabled ? new Climber(robotMapProperties) : new DummyClimber();
     //not dead code
     if (m_turretEnabled && m_drivetrainEnabled && m_limelightEnabled) {
       logger.log(Level.INFO, "initalized hexagon position");
@@ -218,7 +172,6 @@ public class RobotContainer {
     m_turret.setLogLevel(m_properties.getProperty("turret.logLevel"));
     limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
 
-    putButtons();
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;

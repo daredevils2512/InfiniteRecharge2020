@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -43,16 +44,16 @@ public class Magazine extends PropertySubsystem implements IMagazine {
   /**
    * Creates a new magazine
    */
-  public Magazine(MagazineMap magazineMap) {
+  public Magazine(Properties robotMapProperties) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_directionReversedEntry = m_networkTable.getEntry("Direction reversed");
 
-    m_runMotor = new WPI_TalonSRX(magazineMap.runMotorID);
+    m_runMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("magazineRunID")));
     m_runMotor.setInverted(InvertType.InvertMotorOutput);
 
     m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
-    m_photoEye = m_photoEyeEnabled ? new PhotoEye(magazineMap.photoEyeChannel) : new DummyDigitalInput();
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(getInteger(robotMapProperties.getProperty("magazinePhotoEyeChannel"))) : new DummyDigitalInput();
   }
 
   @Override

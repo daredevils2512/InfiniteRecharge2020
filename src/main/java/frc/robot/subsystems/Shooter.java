@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -100,7 +101,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   /**
    * Creates a new power cell shooter
    */
-  public Shooter(ShooterMap shooterMap) {
+  public Shooter(Properties robotMapProperties) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_shooterOutputEntry = m_networkTable.getEntry("Shooter output");
     m_shooterVelocityEntry = m_networkTable.getEntry("Shooter RPM");
@@ -144,8 +145,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodCircumference = m_hoodRadius * 2 * Math.PI;
     m_hoodGearRatio = 1 / m_hoodCircumference * m_hoodMMPerTooth;
 
-    m_shooter = new TalonSRX(shooterMap.shooter1ID);
-    m_shooterFollower = new TalonSRX(shooterMap.shooter2ID);
+    m_shooter = new TalonSRX(getInteger(robotMapProperties.getProperty("shooter1ID")));
+    m_shooterFollower = new TalonSRX(getInteger(robotMapProperties.getProperty("shooter2ID")));
     m_shooter.configFactoryDefault();
     m_shooterFollower.configFactoryDefault();
 
@@ -170,7 +171,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_shooter.config_kF(m_shooterVelocityPIDSlot, m_shooterVelocityFGain);
 
     if (m_hoodEnabled) {
-      m_hood = new TalonSRX(shooterMap.shooterHoodID);
+      m_hood = new TalonSRX(getInteger(robotMapProperties.getProperty("shooterHoodID")));
       m_hood.setSelectedSensorPosition(0);
       m_hood.configFactoryDefault();
       m_hood.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);

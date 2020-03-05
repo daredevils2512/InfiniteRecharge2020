@@ -36,4 +36,8 @@ public abstract class PropertySubsystem extends LoggingSubsystem implements IPro
         File propertiesFile = new File(Filesystem.getOperatingDirectory() + "/" + m_filename);
         PropertyFiles.saveProperties(savedProperties, propertiesFile);
     }
+
+    protected Integer getInteger(String string) {
+        return Integer.parseInt(string);
+    }
 }

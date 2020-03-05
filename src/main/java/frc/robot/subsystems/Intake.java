@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -77,7 +78,7 @@ public class Intake extends PropertySubsystem implements IIntake {
   /**
    * Creates a new power cell intake
    */
-  public Intake(IntakeMap intakeMap) {
+  public Intake(Properties robotMapProperties) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_extendedEntry = m_networkTable.getEntry("Extended");
     m_motionMagicEnbledEntry = m_networkTable.getEntry("Motion magic enabled");
@@ -108,13 +109,13 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_dGain = Double.parseDouble(m_properties.getProperty("dGain"));
     m_arbitraryFeedforward = Double.parseDouble(m_properties.getProperty("arbitraryFeedforward"));
 
-    m_runMotor = new WPI_TalonSRX(intakeMap.runMotorID);
+    m_runMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("intakeRunID")));
     m_runMotor.configFactoryDefault();
     
     m_runMotor.setInverted(InvertType.None);
     m_runMotor.setNeutralMode(NeutralMode.Brake);
 
-    m_extendMotor = new WPI_TalonSRX(intakeMap.extendMotorID);
+    m_extendMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("intakeExtenderID")));
     m_extendMotor.configFactoryDefault();
 
     // Config PID for extender
@@ -129,8 +130,8 @@ public class Intake extends PropertySubsystem implements IIntake {
     m_extendMotor.setSensorPhase(false);
     m_extendMotor.setSelectedSensorPosition(toEncoderTicks(m_retractedAngle));
 
-    m_retractedLimitSwitch = m_retractedLimitSwitchEnabled ? new LimitSwitch(intakeMap.retractedLimitSwitchChannel) : null;
-    m_extendedLimitSwitch = m_extendedLimitSwitchEnabled ? new LimitSwitch(intakeMap.extendedLimitSwitchChannel) : null;
+    m_retractedLimitSwitch = m_retractedLimitSwitchEnabled ? new LimitSwitch(getInteger(robotMapProperties.getProperty("intakeRetractedLimitSwitchChannel"))) : null;
+    m_extendedLimitSwitch = m_extendedLimitSwitchEnabled ? new LimitSwitch(getInteger(robotMapProperties.getProperty("intakeExtendedLimitSwitchChannel"))) : null;
   }
 
   @Override

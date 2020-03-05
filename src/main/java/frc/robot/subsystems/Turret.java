@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -53,7 +54,7 @@ public class Turret extends PropertySubsystem implements ITurret {
   /**
    * Creates a new turret
    */
-  public Turret(TurretMap turretMap) {
+  public Turret(Properties robotMapProperties) {
     m_encoderResolution = Integer.parseInt(m_properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(m_properties.getProperty("gearRatio"));
     m_maxTurnDegrees = Double.parseDouble(m_properties.getProperty("maxTurnDegrees"));
@@ -72,7 +73,7 @@ public class Turret extends PropertySubsystem implements ITurret {
     m_angleEntry = m_networkTable.getEntry("Angle");
     m_wrappedAngleEntry = m_networkTable.getEntry("Wrapped angle");
 
-    m_turretMaster = new WPI_TalonSRX(turretMap.turretID);
+    m_turretMaster = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("turretID")));
     m_turretMaster.configFactoryDefault();
 
     m_turretMaster.config_IntegralZone(m_positionSlot, 0);
