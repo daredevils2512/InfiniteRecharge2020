@@ -103,6 +103,10 @@ public class RobotContainer {
   private final Map<ButtonCommand, Button> m_buttonMap = new HashMap<>();
   private final Map<JoystickCommand, DoubleSupplier> m_joystickMap = new HashMap<>();
 
+  private boolean extenderMotionMagicButtonState;
+  private boolean motionMagic;
+  private boolean intakeExtended;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -382,18 +386,17 @@ public class RobotContainer {
   public boolean getIntakeExtended() {
     boolean extendButton = m_buttonMap.get(ButtonCommand.EXTEND_INTAKE).get();
     boolean retractButton = m_buttonMap.get(ButtonCommand.RETRACT_INTAKE).get();
-    boolean extended = false;
-    if (extendButton) extended = extendButton;
-    else if(retractButton) extended = !retractButton;
-    return extended;
+    if (extendButton) intakeExtended = extendButton;
+    else if(retractButton) intakeExtended = !retractButton;
+    SmartDashboard.putBoolean("intake extended", intakeExtended);
+    return intakeExtended;
   }
 
   public boolean runExtenderMotionMagic() {
-    boolean toggleButtonState = false;
     boolean toggleButton = m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).get();
-    boolean motionMagic = false;
-    if (toggleButton && toggleButtonState == false) {motionMagic = !motionMagic;}
-    toggleButtonState = toggleButton;
+    if (toggleButton && !extenderMotionMagicButtonState) {motionMagic = !motionMagic;}
+    extenderMotionMagicButtonState = toggleButton;
+    SmartDashboard.putBoolean("motion magic enabled", motionMagic);
     return motionMagic;
   }
 
