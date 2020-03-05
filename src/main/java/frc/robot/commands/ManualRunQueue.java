@@ -25,6 +25,7 @@ public class ManualRunQueue extends RunQueueCommand {
 
     @Override
     public void execute() {
+        m_logger.fine("running queue at" + speed);
         m_queue.run(speed);
     }
 

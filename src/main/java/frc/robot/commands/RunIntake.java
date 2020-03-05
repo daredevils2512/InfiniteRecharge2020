@@ -20,6 +20,7 @@ public class RunIntake extends CommandLogger {
 
   @Override
   public void execute() {
+    m_logger.fine("running intake at" + m_speed);
     m_intake.runIntake(m_speed);
   }
 

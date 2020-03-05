@@ -42,6 +42,7 @@ public class FollowBall extends CommandLogger {
   @Override
   public void execute() {
     if (m_table.hasTarget()) {
+      m_logger.fine("following ball");
       move = m_table.getDistance(m_table.getClosestTarget()) * k_move;
       turn = m_table.getXOffset(m_table.getClosestTarget()) * k_turn;
     }

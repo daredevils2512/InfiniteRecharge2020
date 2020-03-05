@@ -45,7 +45,7 @@ public class RotationControl extends CommandLogger {
       // the segment counter just counts the amount of color CHANGES it detects.
       segmentCounter++;
       // prints out the amount of segments moved in the DRIVER STATION CONSOLE not smart dashboard. 
-      System.out.println("Moved " + segmentCounter + "segments");
+      m_logger.fine("Moved " + segmentCounter + "segments");
       // resets current color to past color
       pastColor = currentColor;
     }

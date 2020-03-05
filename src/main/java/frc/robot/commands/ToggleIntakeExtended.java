@@ -36,6 +36,7 @@ public class ToggleIntakeExtended extends CommandLogger {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    m_logger.fine("setting intake extended to" + wantsExtended);
     m_intake.setExtended(wantsExtended);
   }
 

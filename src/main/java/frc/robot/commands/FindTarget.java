@@ -29,7 +29,6 @@ public class FindTarget extends CommandLogger {
     m_limelight = limelight;
     m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
     addRequirements(m_turret);
-    m_logger.fine("constructed turret tracking");
   }
 
   // Called when the command is initially scheduled.
