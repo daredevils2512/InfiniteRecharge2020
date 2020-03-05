@@ -175,7 +175,7 @@ public class RobotContainer {
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
-    m_autonomousCommand = Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_magazine, m_magazineSpeed, 3, m_drivetrain, 0.0);
+    m_autonomousCommand = Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret, m_limelight, m_magazine, m_magazineSpeed, 3, m_drivetrain, -1.0);
   }
 
   private void putButtons() {
@@ -268,7 +268,7 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.AUTO_RUN_SHOOTER).toggleWhenPressed(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
     m_buttonMap.get(ButtonCommand.STOP_MOTORS).toggleWhenPressed(Commands.stopMotors(m_magazine, m_queue, m_shooter));
 
-    m_buttonMap.get(ButtonCommand.AUTONOMOUS).whileHeld(Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_magazine, m_magazineSpeed, 3, m_drivetrain, 0.0));
+    m_buttonMap.get(ButtonCommand.AUTONOMOUS).whileHeld(Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret, m_limelight, m_magazine, m_magazineSpeed, 3, m_drivetrain, 1.0));
 
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)

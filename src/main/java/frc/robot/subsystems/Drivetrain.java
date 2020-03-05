@@ -94,8 +94,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private final boolean m_pigeonEnabled;
 
   private final DoubleSolenoid m_shifter;
-  private final Value m_highGearValue = Value.kForward;
-  private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
+  private final Value m_highGearValue = Value.kReverse;
+  private final DoubleSolenoid.Value m_lowGearValue = Value.kForward;
   private final boolean m_shiftersEnabled;
 
   private final int m_encoderResolution;
@@ -147,7 +147,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_encoderResolution = Integer.parseInt(m_properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(m_properties.getProperty("gearRatio"));
     m_wheelDiameter = Units.inchesToMeters(Double.parseDouble(m_properties.getProperty("wheelDiameter")));
-    m_wheelCircumference = m_wheelDiameter * Math.PI;
+    m_wheelCircumference = Units.inchesToMeters(m_wheelDiameter) * Math.PI;
     m_trackWidth = Units.inchesToMeters(Double.parseDouble(m_properties.getProperty("trackWidth")));
 
     m_maxSpeedHighGear = Double.parseDouble(m_properties.getProperty("maxSpeedHighGear"));
@@ -225,8 +225,9 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
     m_leftEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelB")));
     m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveRightEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveRightEncoderChannelB")));
-    m_leftEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
-    m_rightEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
+    double distancePerPules = m_wheelCircumference * m_gearRatio / m_encoderResolution;
+    m_leftEncoder.setDistancePerPulse(distancePerPules);
+    m_rightEncoder.setDistancePerPulse(distancePerPules);
 
     if (m_pigeonEnabled) {
       m_pigeon = new PigeonIMU(getInteger(robotMapProperties.getProperty("pigeonID")));
@@ -236,6 +237,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_shifter = m_shiftersEnabled
         ? new DoubleSolenoid(getInteger(robotMapProperties.getProperty("drivetrainShiftForwardChannel")), getInteger(robotMapProperties.getProperty("drivetrainShiftReverseChannel")))
         : null;
+    if (m_shiftersEnabled) {this.setLowGear(false);}
 
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
     m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);

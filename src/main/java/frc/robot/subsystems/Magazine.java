@@ -78,6 +78,7 @@ public class Magazine extends PropertySubsystem implements IMagazine {
   public void setSpeed(double speed) {
     m_logger.fine("set speed to" + speed);
     m_runMotor.set(ControlMode.PercentOutput, speed);
+    m_networkTable.getEntry("running").setBoolean(m_runMotor.getMotorOutputPercent() != 0.0);
   }
 
   @Override

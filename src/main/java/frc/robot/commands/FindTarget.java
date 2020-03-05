@@ -13,6 +13,7 @@ import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.CommandLogger;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightLEDMode;
+import frc.robot.vision.Limelight.Pipeline;
 
 public class FindTarget extends CommandLogger {
   private ITurret m_turret;
@@ -36,6 +37,7 @@ public class FindTarget extends CommandLogger {
   public void initialize() {
     m_logger.fine("initializesed turret tracking");
     m_limelight.setLEDMode(LimelightLEDMode.ON);
+    m_limelight.setPipeline(Pipeline.Hexagon);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

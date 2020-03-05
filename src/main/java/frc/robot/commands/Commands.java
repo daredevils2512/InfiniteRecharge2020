@@ -59,7 +59,7 @@ import frc.robot.sensors.ColorSensor.ColorDetect;
  */
 public final class Commands {
   private static Logger logger = Logger.getLogger(Commands.class.getName());
-  
+
   private Commands() {
   }
 
@@ -242,7 +242,8 @@ public final class Commands {
 
   public static Command stopMotors(IMagazine magazine, IQueue queue, IShooter shooter) {
     logger.info("stopping motors");
-    return Commands.runMagazine(magazine, 0.0).alongWith(Commands.runQueue(queue, 0.0)).alongWith(Commands.runShooter(shooter,() -> 0.0));
+    return Commands.runMagazine(magazine, 0.0).alongWith(Commands.runQueue(queue, 0.0))
+        .alongWith(Commands.runShooter(shooter, () -> 0.0));
   }
 
   /**
@@ -290,22 +291,39 @@ public final class Commands {
     return new InstantCommand(() -> compressor.toggleCompressor());
   }
 
-  public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
-      double magazineSpeed, int balls) {
+  public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
+      Limelight limelight, IMagazine magazine, double magazineSpeed, int balls) {
     double startingCount = MagazinePowerCellCounter.getCount();
-    logger.log(Level.INFO, "Commands::shootBalls(QueueSPeed: "+queueSpeed+", MagazineSpeed: "+magazineSpeed+", balls: "+balls+" starting count: "+startingCount);
+    logger.log(Level.INFO, "Commands::shootBalls(QueueSPeed: " + queueSpeed + ", MagazineSpeed: " + magazineSpeed
+        + ", balls: " + balls + " starting count: " + startingCount);
 
     return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()), shooter)
         .alongWith(Commands.runQueue(queue, queueSpeed), Commands.runMagazine(magazine, magazineSpeed))
-        .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls);
+        .alongWith(Commands.findTarget(turret, limelight))
+        .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls)
+        .andThen(Commands.setShooterVelocity(shooter,() -> 0.0));
   }
 
-  public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
-      double magazineSpeed, int balls, IDrivetrain drivetrain, double distance) {
+  public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
+      Limelight limelight, IMagazine magazine, double magazineSpeed, int balls, IDrivetrain drivetrain,
+      double distance) {
 
     logger.log(Level.INFO, "ran auto command");
-    return Commands.shootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls);
-        // .andThen(Commands.driveStraight(drivetrain, distance));
+    return Commands.shootBalls(shooter, queue, queueSpeed, turret, limelight, magazine, magazineSpeed, balls)
+        .andThen(Commands.driveDistance(drivetrain, distance, 0.1));
+  }
+
+  /**
+   * drives a distance without using pid
+   * @param drivetrain injected drivetrain
+   * @param distance distance
+   * @return command
+   */
+  public static Command driveDistance(IDrivetrain drivetrain, double distance, double speed) {
+    double startPos = (drivetrain.getRightDistance() + drivetrain.getLeftDistance()) / 2;
+    logger.log(Level.INFO, "drive distance with start pos " + startPos + " and distance " + distance + "at speed " + speed);
+    return Commands.simpleArcadeDrive(drivetrain, () -> speed, () -> 0.0)
+        .withInterrupt(() -> Math.abs((drivetrain.getLeftDistance() + drivetrain.getRightDistance()) / 2 - startPos) >= Math.abs(distance));
   }
 
   public static Command findBall(IDrivetrain drivetrain, PiTable table) {
