@@ -146,6 +146,8 @@ public class RobotContainer {
 
     m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.buttonBox.topWhite);
 
+    m_buttonMap.put(ButtonCommand.RESET_SHOOTER_SPEED, m_controlBoard.buttonBox.middleWhite);
+
     
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -342,6 +344,8 @@ public class RobotContainer {
 
     m_buttonMap.get(ButtonCommand.TURRET_TESTING_MOTION_MAGIC).whileHeld(Commands.runTurretPosition(m_turret, 0.0));
     m_buttonMap.get(ButtonCommand.TOGGLE_COMPRESSOR).whenPressed(Commands.toggleCompressor(m_compressor));
+
+    m_buttonMap.get(ButtonCommand.RESET_SHOOTER_SPEED).whenPressed(Commands.resetShooterSpeed(m_shooter));
   }
 
   public void setDriveType(DriveType driveType) {

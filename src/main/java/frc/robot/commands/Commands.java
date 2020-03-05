@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.interfaces.IClimber;
 import frc.robot.subsystems.interfaces.ICompressorManager;
 import frc.robot.subsystems.interfaces.IDrivetrain;
@@ -65,6 +66,10 @@ public final class Commands {
 
   public static Command setLimelightLEDMode(Limelight limelight, LimelightLEDMode ledMode) {
     return new InstantCommand(() -> limelight.setLEDMode(ledMode));
+  }
+
+  public static Command resetShooterSpeed(IShooter shooter) {
+    return new InstantCommand(() -> shooter.makeSpeedChooser());
   }
 
   /**

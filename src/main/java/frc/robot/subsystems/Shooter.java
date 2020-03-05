@@ -83,7 +83,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final double m_hoodStartingPosition;
   private final double m_hoodCircumference;
   private final double m_hoodMMPerTooth;
-  private final SendableChooser<Integer> m_speedChooser = new SendableChooser<>();
+  private SendableChooser<Integer> m_speedChooser;
 
   private final int m_shooterVelocityPIDSlot;
   // TODO: Tune shooter velocity PID
@@ -143,11 +143,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPositionIGain = Double.parseDouble(m_properties.getProperty("hoodPositionIGain"));
     m_hoodPositionDGain = Double.parseDouble(m_properties.getProperty("hoodPositionDGain"));
 
-    m_speedChooser.setDefaultOption("0", 0);
-    for (int i = 5500; i <= 7500; i += 500) {
-      m_speedChooser.addOption(String.valueOf(i), i);
-    }
-    SmartDashboard.putData("shooter speed", m_speedChooser);
+    makeSpeedChooser();
 
     m_hoodCircumference = m_hoodRadius * 2 * Math.PI;
     m_hoodGearRatio = 1 / m_hoodCircumference * m_hoodMMPerTooth;
@@ -318,6 +314,15 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public double getAngle() {
     return m_hoodEnabled ? toAngleHood(m_hood.getSelectedSensorPosition()) : 0.0;
+  }
+
+  public void makeSpeedChooser() {
+    m_speedChooser = new SendableChooser<>();
+    m_speedChooser.setDefaultOption("0", 0);
+    for (int i = 5500; i <= 7500; i += 500) {
+      m_speedChooser.addOption(String.valueOf(i), i);
+    }
+    SmartDashboard.putData("shooter speed", m_speedChooser);
   }
 
   private int toEncoderPulsesPer100Milliseconds(double rpm) {
