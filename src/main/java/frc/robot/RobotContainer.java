@@ -69,12 +69,7 @@ public class RobotContainer {
   private final ICompressorManager m_compressor;
   private final Properties m_properties;
 
-  private final PowerDistributionPanel pdp = new PowerDistributionPanel();
-
-  private String m_pathPath = "paths/auto1.wpilib.json";
-
   private final boolean m_limelightEnabled;
-  private final boolean m_piTableEnabled;
   private final boolean m_compressorEnabled;
   private final boolean m_drivetrainEnabled;
   private final boolean m_intakeEnabled;

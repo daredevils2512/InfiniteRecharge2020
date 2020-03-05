@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems.interfaces;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 

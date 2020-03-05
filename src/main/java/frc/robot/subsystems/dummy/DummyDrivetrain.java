@@ -1,7 +1,6 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;

@@ -16,7 +16,6 @@ import frc.robot.vision.Limelight.Pipeline;
 public class FollowBall extends CommandLogger {
   private Drivetrain m_drivetrain;
   private PiTable m_table;
-  private Pipeline m_pipeline;
 
   //constants to change the moving
   private final double k_move = 0.2;
@@ -28,7 +27,6 @@ public class FollowBall extends CommandLogger {
 
   public FollowBall(Drivetrain drivetrain, PiTable table, Pipeline pipeline) {
     m_table = table;
-    m_pipeline = pipeline;
     m_drivetrain = drivetrain;
     addRequirements(m_drivetrain);
   }

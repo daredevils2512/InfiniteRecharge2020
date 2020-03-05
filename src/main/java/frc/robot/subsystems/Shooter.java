@@ -53,7 +53,6 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_shooterOutputEntry;
-  private final NetworkTableEntry m_hoodPositionEntry;
   private final NetworkTableEntry m_shooterVelocityEntry;
   private final NetworkTableEntry m_shooterPGainEntry;
   private final NetworkTableEntry m_shooterIGainEntry;
@@ -71,8 +70,6 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private final TalonSRX m_shooterFollower;
   private final TalonSRX m_hood;
   private final Boolean m_hoodEnabled;
-  private final double m_hoodForwardSoftLimit;
-  private final double m_hoodReverseSoftLimit;
 
   private final int m_shooterEncoderResolution;
   private final int m_hoodEncoderResolution;

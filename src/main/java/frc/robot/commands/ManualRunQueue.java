@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.utils.DareMathUtil;
@@ -12,14 +11,12 @@ public class ManualRunQueue extends RunQueueCommand {
     private double speed;
 
     private NetworkTable m_networkTable;
-    private final NetworkTableEntry m_shooterVelocity;
 
     public ManualRunQueue(IQueue queue, double speed) {
         super(queue, speed);
         m_queue = queue;
         this.speed = speed;
         m_networkTable = NetworkTableInstance.getDefault().getTable(this.getName());
-        m_shooterVelocity = m_networkTable.getEntry("Shooter RPM");
         addRequirements(m_queue);
     }
 
