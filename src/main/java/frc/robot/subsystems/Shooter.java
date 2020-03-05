@@ -147,7 +147,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
     for (int i = 5500; i <= 7500; i += 500) {
       m_speedChooser.addOption(String.valueOf(i), i);
     }
-    
+    SmartDashboard.putData("shooter speed", m_speedChooser);
+
     m_hoodCircumference = m_hoodRadius * 2 * Math.PI;
     m_hoodGearRatio = 1 / m_hoodCircumference * m_hoodMMPerTooth;
 
