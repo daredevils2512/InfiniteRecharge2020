@@ -235,9 +235,9 @@ public final class Commands {
     return new RunCommand(() -> turret.runPosition(position), turret);
   }
 
-  public static Command findTarget(ITurret turret) {
+  public static Command findTarget(ITurret turret, Limelight limelight) {
     logger.info("finding traget");
-    return new FindTarget(turret);
+    return new FindTarget(turret, limelight);
   }
 
   public static Command stopMotors(IMagazine magazine, IQueue queue, IShooter shooter) {
