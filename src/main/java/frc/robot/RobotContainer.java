@@ -113,59 +113,6 @@ public class RobotContainer {
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
 
-    m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
-
-    m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
-
-    m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
-    m_buttonMap.put(ButtonCommand.RETRACT_INTAKE, m_controlBoard.xbox.yButton);
-
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.extreme.baseFrontLeft);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.extreme.baseFrontRight);
-    m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
-    // m_buttonMap.put(ButtonCommand.INTAKE, );
-
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleRight);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleLeft);
-
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.baseBackLeft);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.baseBackRight);
-
-    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.yellow);
-    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.green);
-    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
-
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);
-    m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.buttonBox.bottomWhite);
-    m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.buttonBox.middleRed);
-
-    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
-    m_buttonMap.put(ButtonCommand.STOP_MOTORS, m_controlBoard.buttonBox.topRed);
-
-    m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontLeft);
-
-    m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.buttonBox.topWhite);
-
-    
-    m_joystickMap.put(JoystickCommand.MOVE, () -> {
-      double move = -m_controlBoard.xbox.getLeftStickY();
-      move = JoystickUtil.deadband(move, 0.05);
-      move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
-      return move;
-    });
-    m_joystickMap.put(JoystickCommand.TURN, () -> {
-      double turn = -m_controlBoard.xbox.getRightStickX();
-      turn = JoystickUtil.deadband(turn, 0.05);
-      turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
-      return turn;
-    });
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> 0.0);
-    m_joystickMap.put(JoystickCommand.INTAKE_IN, () -> m_controlBoard.xbox.getRightTrigger());
-    m_joystickMap.put(JoystickCommand.INTAKE_OUT, () -> m_controlBoard.xbox.getLeftTrigger());
-    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
-    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getTwist() * m_turretSpeed);
-
     m_properties = PropertyFiles.loadProperties(RobotContainer.class.getSimpleName().toLowerCase());
 
     File robotMapPropertiesFile = new File(Filesystem.getDeployDirectory() + "/RobotMap.properties");
@@ -271,10 +218,56 @@ public class RobotContainer {
     m_turret.setLogLevel(m_properties.getProperty("turret.logLevel"));
     limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
 
+    putButtons();
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
     m_autonomousCommand = Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_magazine, m_magazineSpeed, 3, m_drivetrain, 0.0);
+  }
+
+  private void putButtons() {
+    m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.buttonBox.bigRed);
+    m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
+    m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
+    m_buttonMap.put(ButtonCommand.RETRACT_INTAKE, m_controlBoard.xbox.yButton);
+
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.extreme.baseFrontLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.extreme.baseFrontRight);
+    m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.baseBackLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.baseBackRight);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);
+    m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontLeft);
+
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.yellow);
+    m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.green);
+    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.buttonBox.bottomRed);
+    m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.buttonBox.bottomWhite);
+    m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.buttonBox.middleRed);
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
+    m_buttonMap.put(ButtonCommand.STOP_MOTORS, m_controlBoard.buttonBox.topRed);
+    m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.buttonBox.topWhite);
+
+    m_joystickMap.put(JoystickCommand.MOVE, () -> {
+      double move = -m_controlBoard.xbox.getLeftStickY();
+      move = JoystickUtil.deadband(move, 0.05);
+      move = Math.abs(Math.pow(move, 2)) * Math.signum(move);
+      return move;
+    });
+    m_joystickMap.put(JoystickCommand.TURN, () -> {
+      double turn = -m_controlBoard.xbox.getRightStickX();
+      turn = JoystickUtil.deadband(turn, 0.05);
+      turn = Math.abs(Math.pow(turn, 2)) * Math.signum(turn);
+      return turn;
+    });
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_INTAKE_EXTENDER, () -> -m_controlBoard.extreme.getStickY() * m_intakeExtenderSpeed);
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER, () -> 0.0);
+    m_joystickMap.put(JoystickCommand.INTAKE_IN, () -> m_controlBoard.xbox.getRightTrigger());
+    m_joystickMap.put(JoystickCommand.INTAKE_OUT, () -> m_controlBoard.xbox.getLeftTrigger());
+    m_joystickMap.put(JoystickCommand.MANUAL_RUN_SHOOTER_HOOD, () -> m_controlBoard.extreme.getPOVY() * m_shooterHoodSpeed);
+    m_joystickMap.put(JoystickCommand.MANUAL_MOVE_TURRET, () -> m_controlBoard.extreme.getTwist() * m_turretSpeed);
   }
 
   /**
