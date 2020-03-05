@@ -15,6 +15,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.util.Units;
 
 /**
+ * returned 228 in at 208 inches
+ */
+
+/**
  * <h1> Limelight manager for power cell target tracking
  */
 public class Limelight {
@@ -22,7 +26,7 @@ public class Limelight {
   // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
   public static final double RANGE_Y_DEGREES = 24.85;
-  private final double m_angle = 30;
+  private final double m_angle = 20;
   private final double m_heightOffset = 98.25 - 19.25;
   private final Pipeline m_pipeline;
 

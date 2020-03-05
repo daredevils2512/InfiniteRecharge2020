@@ -25,5 +25,6 @@ public enum ButtonCommand {
   HOOD_UP,
   HOOD_DOWN, 
   TOGGLE_COMPRESSOR,
-  STOP_MOTORS, AUTONOMOUS;
+  STOP_MOTORS,
+  AUTONOMOUS;
 }

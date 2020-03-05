@@ -170,7 +170,7 @@ public class RobotContainer {
     m_drivetrain.setLogLevel(m_properties.getProperty("drivetrain.logLevel"));
     m_magazine.setLogLevel(m_properties.getProperty("magazine.logLevel"));
     m_turret.setLogLevel(m_properties.getProperty("turret.logLevel"));
-    limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
+    // limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
 
     configureButtonBindings();
 
@@ -187,8 +187,8 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.extreme.baseFrontLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.extreme.baseFrontRight);
     m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.sideButton);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleRight);
-    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.extreme.baseMiddleLeft);
+    m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.extreme.baseMiddleRight);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.extreme.baseBackLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.extreme.baseBackRight);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);

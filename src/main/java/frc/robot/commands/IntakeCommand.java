@@ -77,6 +77,7 @@ public class IntakeCommand extends CommandLogger {
       if (m_extendedSupplier.get()) m_intake.extend();
       else m_intake.retract();
     } else {
+      m_intake.setMotionMagicEnabled(false);
       m_intake.runExtender(m_extenderSpeedSupplier.get() * m_extenderMaxSpeed);
     }
     m_intake.runIntake(m_runIntake);
