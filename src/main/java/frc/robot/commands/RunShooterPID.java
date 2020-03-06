@@ -18,6 +18,11 @@ public class RunShooterPID extends CommandLogger {
     }
 
     @Override
+    public void initialize() {
+        m_logger.fine("running");
+    }
+
+    @Override
     public void execute() {
         m_shooter.setTargetVelocity(m_speed.get());
 

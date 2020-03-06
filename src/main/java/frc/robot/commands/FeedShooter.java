@@ -16,6 +16,11 @@ public class FeedShooter extends CommandLogger {
   }
 
   @Override
+  public void initialize() {
+    m_logger.fine("running at" + m_queueSpeedSupplier.getAsDouble());
+  }
+
+  @Override
   public void execute() {
     m_queue.run(m_queueSpeedSupplier.getAsDouble());
   }

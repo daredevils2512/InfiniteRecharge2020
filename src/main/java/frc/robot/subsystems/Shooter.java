@@ -237,6 +237,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public void setPercentOutput(double speed) {
+    m_logger.fine("running shooter at " + speed);
     m_shooter.set(ControlMode.PercentOutput, speed);
   }
 
@@ -301,7 +302,12 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   @Override
   public boolean isAtSpeed() {
-    return DareMathUtil.isWithinXOf(getVelocity(), getCalculatedVelocity(), 300);
+    boolean isAtSpeed = false;
+    if (DareMathUtil.isWithinXOf(getVelocity(), getCalculatedVelocity(), 300)) {
+      isAtSpeed = true;
+      m_logger.fine("shooter at target speed");
+    }
+    return isAtSpeed;
   }
 
   /**

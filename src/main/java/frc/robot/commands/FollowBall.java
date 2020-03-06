@@ -36,6 +36,9 @@ public class FollowBall extends CommandLogger {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if (m_table.hasTarget()) {
+      m_logger.fine("following ball");
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.

@@ -31,6 +31,7 @@ public class ToggleIntakeExtended extends CommandLogger {
     m_intake.setMotionMagicEnabled(true);
     wantsExtended = !m_intake.getExtended();
     m_intake.setExtended(wantsExtended);
+    m_logger.fine("setting intake extended to" + wantsExtended);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

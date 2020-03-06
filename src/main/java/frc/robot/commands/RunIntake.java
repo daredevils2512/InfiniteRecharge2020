@@ -16,6 +16,7 @@ public class RunIntake extends CommandLogger {
   @Override
   public void initialize() {
     m_intake.setMotionMagicEnabled(false);
+    m_logger.fine("running intake at" + m_speed);
   }
 
   @Override
