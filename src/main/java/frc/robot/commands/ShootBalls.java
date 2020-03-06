@@ -48,12 +48,14 @@ public class ShootBalls extends CommandLogger {
 
     @Override
     public void end(boolean interrupted) {
+        m_logger.info("shooting ended and interrupted " + interrupted);
         m_magazine.setSpeed(0.0);
         m_queue.run(0.0);
     }
 
     @Override
     public boolean isFinished() {
+        m_logger.fine("shoot balls finished " + (MagazinePowerCellCounter.getCount() <= m_finalBallCount));
         return MagazinePowerCellCounter.getCount() <= m_finalBallCount;
     }
     
