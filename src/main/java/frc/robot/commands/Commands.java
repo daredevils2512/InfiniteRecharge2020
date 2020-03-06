@@ -291,26 +291,29 @@ public final class Commands {
     return new InstantCommand(() -> compressor.toggleCompressor());
   }
 
-  public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
-      Limelight limelight, IMagazine magazine, double magazineSpeed, int balls) {
-    double startingCount = MagazinePowerCellCounter.getCount();
-    logger.log(Level.INFO, "Commands::shootBalls(QueueSPeed: " + queueSpeed + ", MagazineSpeed: " + magazineSpeed
-        + ", balls: " + balls + " starting count: " + startingCount);
+  //made a separate class for this
+  // public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
+  //     Limelight limelight, IMagazine magazine, double magazineSpeed, int balls) {
+  //   double startingCount = MagazinePowerCellCounter.getCount();
+  //   logger.log(Level.INFO, "Commands::shootBalls(QueueSPeed: " + queueSpeed + ", MagazineSpeed: " + magazineSpeed
+  //       + ", balls: " + balls + " starting count: " + startingCount);
 
-    return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()), shooter)
-        .alongWith(Commands.runQueue(queue, queueSpeed), Commands.runMagazine(magazine, magazineSpeed))
-        .alongWith(Commands.findTarget(turret, limelight))
-        .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls)
-        .andThen(Commands.setShooterVelocity(shooter,() -> 0.0));
-  }
+  //   return new RunCommand(() -> shooter.setTargetVelocity(shooter.getCalculatedVelocity()), shooter)
+  //       .alongWith(Commands.runQueue(queue, queueSpeed), Commands.runMagazine(magazine, magazineSpeed))
+  //       .alongWith(Commands.findTarget(turret, limelight))
+  //       .withInterrupt(() -> MagazinePowerCellCounter.getCount() <= startingCount - balls)
+  //       .andThen(Commands.setShooterVelocity(shooter,() -> 0.0));
+  // }
 
   public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
       Limelight limelight, IMagazine magazine, double magazineSpeed, int balls, IDrivetrain drivetrain,
       double distance) {
 
     logger.log(Level.INFO, "ran auto command");
-    return Commands.shootBalls(shooter, queue, queueSpeed, turret, limelight, magazine, magazineSpeed, balls)
-        .andThen(Commands.driveDistance(drivetrain, distance, 0.1));
+    // return Commands.findTarget(turret, limelight)
+    //     .alongWith(new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls))
+    //     .andThen(Commands.driveDistance(drivetrain, distance, 0.1));
+    return Commands.driveDistance(drivetrain, distance, 0.1);
   }
 
   /**
@@ -322,8 +325,8 @@ public final class Commands {
   public static Command driveDistance(IDrivetrain drivetrain, double distance, double speed) {
     double startPos = (drivetrain.getRightDistance() + drivetrain.getLeftDistance()) / 2;
     logger.log(Level.INFO, "drive distance with start pos " + startPos + " and distance " + distance + "at speed " + speed);
-    return Commands.simpleArcadeDrive(drivetrain, () -> speed, () -> 0.0)
-        .withInterrupt(() -> Math.abs((drivetrain.getLeftDistance() + drivetrain.getRightDistance()) / 2 - startPos) >= Math.abs(distance));
+    return Commands.simpleArcadeDrive(drivetrain, () -> speed * Math.signum(distance), () -> 0.0)
+        .withInterrupt(() -> Math.abs(((drivetrain.getLeftDistance() + drivetrain.getRightDistance()) / 2) - startPos) >= Math.abs(distance));
   }
 
   public static Command findBall(IDrivetrain drivetrain, PiTable table) {

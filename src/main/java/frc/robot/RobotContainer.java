@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 import frc.robot.commands.Commands;
+import frc.robot.commands.ShootBalls;
 import frc.robot.controlboard.ButtonCommand;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickCommand;
@@ -175,7 +176,7 @@ public class RobotContainer {
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain, m_pathPath) : null;
-    m_autonomousCommand = Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret, m_limelight, m_magazine, m_magazineSpeed, 3, m_drivetrain, -1.0);
+    m_autonomousCommand = Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret, m_limelight, m_magazine, m_magazineSpeed, 1, m_drivetrain, -1.0);
   }
 
   private void putButtons() {
@@ -202,6 +203,7 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigWhite);
     m_buttonMap.put(ButtonCommand.STOP_MOTORS, m_controlBoard.buttonBox.topRed);
     m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.buttonBox.topWhite);
+    m_buttonMap.put(ButtonCommand.SHOOT_BALL, m_controlBoard.buttonBox.middleWhite);
 
     m_joystickMap.put(JoystickCommand.MOVE, () -> {
       double move = -m_controlBoard.xbox.getLeftStickY();
@@ -270,6 +272,7 @@ public class RobotContainer {
 
     m_buttonMap.get(ButtonCommand.AUTONOMOUS).whileHeld(Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret, m_limelight, m_magazine, m_magazineSpeed, 3, m_drivetrain, 1.0));
 
+    m_buttonMap.get(ButtonCommand.SHOOT_BALL).whileHeld(new ShootBalls(m_shooter, m_queue, m_queueSpeed, m_magazine, m_magazineSpeed, 1));
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)
     // and having the queue be manually run //idk how well this will work

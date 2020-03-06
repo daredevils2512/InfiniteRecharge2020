@@ -58,4 +58,8 @@ public class DummyShooter implements IShooter {
   public boolean isAtSpeed() {
     return true;
   }
+
+  @Override
+  public void setToCalculatedVelocity() {
+  }
 }

@@ -227,11 +227,14 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveRightEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveRightEncoderChannelB")));
     double distancePerPules = m_wheelCircumference * m_gearRatio / m_encoderResolution;
     m_leftEncoder.setDistancePerPulse(distancePerPules);
+    m_leftEncoder.setReverseDirection(true);
     m_rightEncoder.setDistancePerPulse(distancePerPules);
 
     if (m_pigeonEnabled) {
       m_pigeon = new PigeonIMU(getInteger(robotMapProperties.getProperty("pigeonID")));
       m_pigeon.configFactoryDefault();
+      m_pigeon.setYaw(0.0);
+      m_pigeon.setFusedHeading(0.0);
     }
 
     m_shifter = m_shiftersEnabled
