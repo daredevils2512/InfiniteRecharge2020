@@ -15,6 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -47,6 +50,17 @@ import frc.robot.vision.Limelight.Pipeline;
  * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private final NetworkTable m_networkTable;
+  private final NetworkTableEntry m_climberEntry;
+  private final NetworkTableEntry m_compressorEntry;
+  private final NetworkTableEntry m_drivetrainEntry;
+  private final NetworkTableEntry m_intakeEntry;
+  private final NetworkTableEntry m_magazineEntry;
+  private final NetworkTableEntry m_queueEntry;
+  private final NetworkTableEntry m_shooterEntry;
+  private final NetworkTableEntry m_spinnerEntry;
+  private final NetworkTableEntry m_turretEntry;
+
   private final ControlBoard m_controlBoard;
   private final MagazinePowerCellCounter m_magazinePowerCellCounter;
   private final HexagonPosition m_hexagonPosition;
@@ -106,6 +120,18 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_controlBoard = new ControlBoard();
+
+    m_networkTable = NetworkTableInstance.getDefault().getTable(RobotContainer.class.getName());
+
+    m_climberEntry = m_networkTable.getEntry("climber is used");
+    m_compressorEntry = m_networkTable.getEntry("compressor is used");
+    m_drivetrainEntry = m_networkTable.getEntry("drivetrain is used");
+    m_intakeEntry = m_networkTable.getEntry("intake is used");
+    m_magazineEntry = m_networkTable.getEntry("magazine is used");
+    m_queueEntry = m_networkTable.getEntry("queue is used");
+    m_shooterEntry = m_networkTable.getEntry("shooter is used");
+    m_spinnerEntry = m_networkTable.getEntry("spinner is used");
+    m_turretEntry = m_networkTable.getEntry("turret is used");
 
     putButtons();
 
@@ -443,6 +469,15 @@ public class RobotContainer {
 
   //beacuse
   public void robotContainerPeriodic() {
+    if (m_climber.getCurrentCommand() != null) {m_climberEntry.forceSetBoolean(true);} else {m_climberEntry.forceSetBoolean(false);}
+    if (m_compressor.getCurrentCommand() != null) {m_compressorEntry.forceSetBoolean(true);} else {m_compressorEntry.forceSetBoolean(false);}
+    if (m_drivetrain.getCurrentCommand() != null) {m_drivetrainEntry.forceSetBoolean(true);} else {m_drivetrainEntry.forceSetBoolean(false);}
+    if (m_intake.getCurrentCommand() != null) {m_intakeEntry.forceSetBoolean(true);} else {m_intakeEntry.forceSetBoolean(false);}
+    if (m_magazine.getCurrentCommand() != null) {m_magazineEntry.forceSetBoolean(true);} else {m_magazineEntry.forceSetBoolean(false);}
+    if (m_queue.getCurrentCommand() != null) {m_queueEntry.forceSetBoolean(true);} else {m_queueEntry.forceSetBoolean(false);}
+    if (m_shooter.getCurrentCommand() != null) {m_shooterEntry.forceSetBoolean(true);} else {m_shooterEntry.forceSetBoolean(false);}
+    if (m_spinner.getCurrentCommand() != null) {m_spinnerEntry.forceSetBoolean(true);} else {m_spinnerEntry.forceSetBoolean(false);}
+    if (m_turret.getCurrentCommand() != null) {m_turretEntry.forceSetBoolean(true);} else {m_turretEntry.forceSetBoolean(false);}
     m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null) m_hexagonPosition.updatePosition();
