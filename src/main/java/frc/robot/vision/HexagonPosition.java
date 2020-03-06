@@ -9,7 +9,6 @@ package frc.robot.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IDrivetrain;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
@@ -26,12 +25,13 @@ public class HexagonPosition {
     private final double m_tolerance = 5.0; // in degrees probaly shouldnt be here but idk whatever
 
     // {@Link https://www.desmos.com/calculator/6ics7ndnma}
+    // new {@Link https://www.desmos.com/calculator/2wbdygdzb3}
     // where distance = x,
     // rpm = ax^2 * bx + c
 
-    private final double a = 59.3811442707; // constatnts
-    private final double b = -527.36680877;
-    private final double c = 7608.30542107;
+    private final double a = 57.0356654206; // constatnts
+    private final double b = -460.0885934;
+    private final double c = 6843.4512926;
 
     private double m_turretPosition;
     private double m_robotPosition = 0.0;
