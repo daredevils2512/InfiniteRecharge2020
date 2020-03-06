@@ -50,8 +50,9 @@ public class ShootBalls extends CommandLogger {
     public void end(boolean interrupted) {
         m_magazine.setSpeed(0.0);
         m_queue.run(0.0);
+        m_shooter.stop();
     }
-
+    
     @Override
     public boolean isFinished() {
         return MagazinePowerCellCounter.getCount() <= m_finalBallCount;
