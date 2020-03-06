@@ -127,7 +127,6 @@ public class Limelight {
   }
 
   /**
-   * <h1> sets the pipeline to the default pipeline
    * 
    * @return distance in units of something to the tagret
    */

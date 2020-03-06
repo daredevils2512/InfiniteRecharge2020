@@ -310,10 +310,10 @@ public final class Commands {
       double distance) {
 
     logger.log(Level.INFO, "ran auto command");
-    // return Commands.findTarget(turret, limelight)
-    //     .alongWith(new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls))
-    //     .andThen(Commands.driveDistance(drivetrain, distance, 0.1));
-    return Commands.driveDistance(drivetrain, distance, 0.1);
+    return Commands.findTarget(turret, limelight)
+        .alongWith(new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls))
+        .andThen(Commands.driveDistance(drivetrain, distance, 0.1));
+    // return Commands.driveDistance(drivetrain, distance, 0.1);
   }
 
   /**
@@ -323,10 +323,11 @@ public final class Commands {
    * @return command
    */
   public static Command driveDistance(IDrivetrain drivetrain, double distance, double speed) {
-    double startPos = (drivetrain.getRightDistance() + drivetrain.getLeftDistance()) / 2;
-    logger.log(Level.INFO, "drive distance with start pos " + startPos + " and distance " + distance + "at speed " + speed);
-    return Commands.simpleArcadeDrive(drivetrain, () -> speed * Math.signum(distance), () -> 0.0)
-        .withInterrupt(() -> Math.abs(((drivetrain.getLeftDistance() + drivetrain.getRightDistance()) / 2) - startPos) >= Math.abs(distance));
+    // double startPos = (drivetrain.getRightDistance() + drivetrain.getLeftDistance()) / 2;
+    // logger.log(Level.INFO, "drive distance with start pos " + startPos + " and distance " + distance + "at speed " + speed);
+    // return Commands.simpleArcadeDrive(drivetrain, () -> speed * Math.signum(distance), () -> 0.0)
+    //     .withInterrupt(() -> Math.abs(((drivetrain.getLeftDistance() + drivetrain.getRightDistance()) / 2) - startPos) >= Math.abs(distance));
+    return new DriveDistance(drivetrain, distance, speed);
   }
 
   public static Command findBall(IDrivetrain drivetrain, PiTable table) {

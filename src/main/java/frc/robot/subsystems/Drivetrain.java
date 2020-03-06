@@ -337,6 +337,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   @Override
+  public double getAverageDistance() {
+    return (getLeftDistance() + getRightDistance()) / 2;
+   }
+
+  @Override
   public double getLeftVelocity() {
     return m_leftEncoder.getRate();
   }

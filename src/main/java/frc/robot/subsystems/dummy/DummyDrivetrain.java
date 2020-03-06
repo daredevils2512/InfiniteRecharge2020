@@ -143,4 +143,9 @@ public class DummyDrivetrain implements IDrivetrain {
   public PIDController getRightController() {
     return new PIDController(0.0, 0.0, 0.0);
   }
+
+  @Override
+  public double getAverageDistance() {
+    return 0;
+  }
 }
