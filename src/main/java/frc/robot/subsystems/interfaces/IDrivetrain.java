@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems.interfaces;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
@@ -63,6 +61,6 @@ public interface IDrivetrain extends IPropertySubsystem {
   public void setWheelSpeeds(double left, double right);
   public double getAverageDistance();
 
-
+  public void drivetrainClimb(double leftSpeed, double rightSpeed);
 
 }

@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.interfaces.IIntake;
 import frc.robot.subsystems.interfaces.IMagazine;
 import frc.robot.utils.CommandLogger;
-import frc.robot.utils.MagazinePowerCellCounter;
 
 /**
  * Add your docs here.

@@ -5,6 +5,8 @@ import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.subsystems.interfaces.IClimber;
 
 public class Climber extends PropertySubsystem implements IClimber {
@@ -16,9 +18,16 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final WPI_TalonSRX m_leftClimbMotor;
   private final WPI_TalonSRX m_rightClimbMotor;
 
+  private final DoubleSolenoid m_climberExtender;
+  private final Value m_retracted = Value.kReverse;
+  private final Value m_extended = Value.kForward;
+
   public Climber(Properties robotMapProperties) {
     m_leftClimbMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("climberLeftID")));
     m_rightClimbMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("climberRightID")));
+
+    m_climberExtender = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberExtendedChannel")),
+      getInteger(robotMapProperties.getProperty("climberReverseChannel")));
   }
 
   @Override
@@ -28,15 +37,19 @@ public class Climber extends PropertySubsystem implements IClimber {
     m_logger.fine("left speed = " + leftSpeed + "right speed = " + rightSpeed);
   }
 
-  // TODO: Implement climbing
   @Override
-  public void climbLeft(Drivetrain drivetrain, double speed) {
-
+  public void toggleClimberExtended() {
+    extendClimbers(!getExtended());
   }
 
+  // TODO: Implement climbing
   @Override
-  public void climbRight(Drivetrain drivetrain, double speed) {
+  public void extendClimbers(boolean wantsExtended) {
+    m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
+  }
 
+  private boolean getExtended() {
+    return m_climberExtender.get() == m_extended ? true : false;
   }
 
   @Override

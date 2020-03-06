@@ -1,7 +1,6 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -147,5 +146,9 @@ public class DummyDrivetrain implements IDrivetrain {
   @Override
   public double getAverageDistance() {
     return 0;
+  }
+
+  @Override
+  public void drivetrainClimb(double leftSpeed, double rightSpeed) {
   }
 }

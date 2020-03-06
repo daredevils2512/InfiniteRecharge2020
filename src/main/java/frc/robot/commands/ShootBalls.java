@@ -1,8 +1,5 @@
 package frc.robot.commands;
 
-import java.util.logging.Level;
-
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IMagazine;
 import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;

@@ -496,6 +496,12 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   @Override
+  public void drivetrainClimb(double leftSpeed, double rightSpeed) {
+    setLowGear(true);
+    voltageTank(leftSpeed, rightSpeed);
+  }
+
+  @Override
   public Map<String, Object> getValues() {
     final Map<String, Object> values = new HashMap<>();
     values.put("leftPGain", m_leftPGain);

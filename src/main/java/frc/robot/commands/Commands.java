@@ -38,7 +38,6 @@ import frc.robot.subsystems.interfaces.IQueue;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.subsystems.interfaces.ISpinner;
 import frc.robot.subsystems.interfaces.ITurret;
-import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightLEDMode;
@@ -61,6 +60,22 @@ public final class Commands {
   private static Logger logger = Logger.getLogger(Commands.class.getName());
 
   private Commands() {
+  }
+
+  public static Command toggleClimberExtended(IClimber climber) {
+    return new InstantCommand(() -> climber.toggleClimberExtended());
+  }
+
+  public static Command setClimberExtended(IClimber climber, boolean wantsExtended) {
+    return new InstantCommand(() -> climber.extendClimbers(wantsExtended));
+  }
+
+  public static Command runClimber(IClimber climber, double leftSpeed, double rightSpeed) {
+    return new InstantCommand(() -> climber.climb(leftSpeed, rightSpeed));
+  }
+
+  public static Command runDriveClimb(IDrivetrain drivetrain, double leftSpeed, double rightSpeed) {
+    return new InstantCommand(() -> drivetrain.drivetrainClimb(leftSpeed, rightSpeed));
   }
 
   public static Command setLimelightLEDMode(Limelight limelight, LimelightLEDMode ledMode) {
