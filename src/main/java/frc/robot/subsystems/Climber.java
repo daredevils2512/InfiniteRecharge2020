@@ -14,8 +14,8 @@ public class Climber extends PropertySubsystem implements IClimber {
     public int climberLeftID = -1;
     public int climberRightID = -1;
 
-    public int shifterPortForwardID = 2; //need to move to RobotMap.proprties
-    public int shifterportReverseID = 3;
+    public int shifterPortForwardID = -1; //need to move to RobotMap.proprties
+    public int shifterportReverseID = -1;
     
     public int climberExtenderForwardID = 4;
     public int climberExtenderReverseID = 5;
