@@ -13,23 +13,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.subsystems.interfaces.IClimber;
 
-public class Climber extends PropertySubsystem implements IClimber {
-  public static class ClimberMap {
-    public int climberLeftID = -1;
-    public int climberRightID = -1;
-
-    public int shifterPortForwardID = 2; //need to move to RobotMap.proprties
-    public int shifterportReverseID = 3;
-    
-    public int climberExtenderForwardID = 4;
-    public int climberExtenderReverseID = 5;
-
-    public int climberLeftEncoderChannelA = 6;
-    public int climberLeftEncoderChannelB = 7;
-    public int climberrightEncoderChannelA = 8;
-    public int climberrightEncoderChannelB = 9;
-
-  }
+public class Climber extends PropertySubsystem implements IClimber {  
 
   private final WPI_TalonSRX m_leftClimbMotor;
   private final WPI_TalonSRX m_rightClimbMotor;
@@ -58,8 +42,8 @@ public class Climber extends PropertySubsystem implements IClimber {
     m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("climberRightEncoderChannelA")),
       getInteger(robotMapProperties.getProperty("climberRightEncoderChannelB")));
 
-    m_climberExtender = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberExtendedChannel")),
-      getInteger(robotMapProperties.getProperty("climberReverseChannel")));
+    m_climberExtender = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberExtenderForwardID")),
+      getInteger(robotMapProperties.getProperty("climberExtenderReverseID")));
   }
 
   @Override
@@ -83,6 +67,7 @@ public class Climber extends PropertySubsystem implements IClimber {
   // TODO: Implement climbing
   @Override
   public void extendClimbers(boolean wantsExtended) {
+    m_logger.fine("extended to" + wantsExtended);
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
   }
 
