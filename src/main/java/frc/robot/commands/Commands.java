@@ -301,7 +301,12 @@ public final class Commands {
   public static Command precisionControl(ISpinner spinner, ColorDetect targetColor) {
     return new PrecisionControl(spinner, targetColor);
   }
-
+  public static Command extendClimbers(IClimber climber){
+    return new InstantCommand(()-> climber.extendClimbers(true));
+  }
+  public static Command retractClimber(IClimber climber){
+    return new InstantCommand(()-> climber.extendClimbers(false));
+  }
   public static Command toggleCompressor(ICompressorManager compressor) {
     return new InstantCommand(() -> compressor.toggleCompressor());
   }
