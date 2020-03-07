@@ -312,7 +312,7 @@ public final class Commands {
   public static Command extendClimbers(IClimber climber){
     return new InstantCommand(()-> climber.extendClimbers(true));
   }
-  public static Command retractClimber(IClimber climber){
+  public static Command retractClimbers(IClimber climber){
     return new InstantCommand(()-> climber.extendClimbers(false));
   }
   public static Command toggleCompressor(ICompressorManager compressor) {
