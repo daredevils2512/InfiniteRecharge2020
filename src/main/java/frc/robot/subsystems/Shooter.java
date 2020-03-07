@@ -99,6 +99,8 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private double m_hoodPositionIGain = 0;
   private double m_hoodPositionDGain = 0;
 
+  private double m_speedBoost;
+
   /**
    * Creates a new power cell shooter
    */
@@ -142,6 +144,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPositionPGain = Double.parseDouble(m_properties.getProperty("hoodPositionPGain"));
     m_hoodPositionIGain = Double.parseDouble(m_properties.getProperty("hoodPositionIGain"));
     m_hoodPositionDGain = Double.parseDouble(m_properties.getProperty("hoodPositionDGain"));
+
+    m_speedBoost = Double.parseDouble(m_properties.getProperty("speedBoost"));
+    boostSpeed(m_speedBoost);
 
     m_hoodCircumference = m_hoodRadius * 2 * Math.PI;
     m_hoodGearRatio = 1 / m_hoodCircumference * m_hoodMMPerTooth;
@@ -339,7 +344,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
   }
 
   public void boostSpeed(double boost) {
-    HexagonPosition.setSpeedBoost(boost);
+    m_speedBoost = boost;
+    m_logger.info("boosted speed to " + m_speedBoost);
+    HexagonPosition.setSpeedBoost(m_speedBoost);
   }
 
   @Override
@@ -350,6 +357,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
     values.put("shooterVelocityDGain", m_shooterVelocityDGain);
     values.put("shooterVelocityFGain", m_shooterVelocityFGain);
     values.put("arbitraryFeedForward", m_arbitraryFeedForward);
+    values.put("speedBoost", m_speedBoost);
     if (m_hoodEnabled) {
       values.put("hoodPositionPGain", m_hoodPositionPGain);
       values.put("hoodPositionIGain", m_hoodPositionIGain);

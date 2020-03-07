@@ -242,6 +242,7 @@ public class RobotContainer {
 
 
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigRed);
+    
 
     m_buttonMap.put(ButtonCommand.BOOST_SPEED, m_controlBoard.extreme.joystickTopRight);
     m_buttonMap.put(ButtonCommand.CUT_SPEED, m_controlBoard.extreme.joystickBottomRight);
