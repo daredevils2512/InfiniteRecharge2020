@@ -7,6 +7,8 @@
 
 package frc.robot.vision;
 
+import java.util.logging.Logger;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.interfaces.IDrivetrain;
@@ -21,17 +23,20 @@ public class HexagonPosition {
     private final IDrivetrain m_drivetrain;
     private final ITurret m_turret;
     private final Limelight m_limelight;
-    private final NetworkTable m_networkTable;
+    private static NetworkTable m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
+
     private final double m_tolerance = 5.0; // in degrees probaly shouldnt be here but idk whatever
 
     // {@Link https://www.desmos.com/calculator/6ics7ndnma}
-    // new {@Link https://www.desmos.com/calculator/2wbdygdzb3}
+    // new {@Link https://www.desmos.com/calcula;tor/2wbdygdzb3}
     // where distance = x,
     // rpm = ax^2 * bx + c
 
     private final double a = 57.0356654206; // constatnts
     private final double b = -460.0885934;
-    private final double c = 6843.4512926;
+    private final double c = 7593.4512926;
+
+    private static double speedBoost = 0.0;
 
     private double m_turretPosition;
     private double m_robotPosition = 0.0;
@@ -41,7 +46,7 @@ public class HexagonPosition {
         m_drivetrain = drivetrain;
         m_turret = turret;
         m_limelight = limelight;
-        m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
+        m_networkTable.getEntry("speed boost").setDouble(speedBoost);
     }
 
     private void calculatePosition() {
@@ -54,6 +59,7 @@ public class HexagonPosition {
     }
 
     public void updatePosition() {
+        speedBoost = m_networkTable.getEntry("speed boost").getDouble(speedBoost);
         calculatePosition();
         m_networkTable.getEntry("calculated shooter rpm").setDouble(calculateShooterSpeed());
         m_networkTable.getEntry("robot relative position").setDouble(getRobotRelativePosition());
@@ -76,7 +82,20 @@ public class HexagonPosition {
 
     private double calculateShooterSpeed() {
         double x = m_limelight.getDistanceToTarget();
-        return a * Math.pow(x, 2) + b * x + c;
+        double speed = a * Math.pow(x, 2) + b * x + c;
+        m_networkTable.getEntry("unboosted speed").setDouble(speed);
+        speed = speed + speedBoost * speed;
+        return speed;
+    }
+
+    public static void setSpeedBoost(double boostedSpeed, boolean add) {
+        Logger.getGlobal().info("boosting speed with " + boostedSpeed + add);
+        if (add) {
+            speedBoost += boostedSpeed;
+        } else {
+            speedBoost = boostedSpeed;
+        }
+        m_networkTable.getEntry("speed boost").setDouble(boostedSpeed);
     }
 
 }

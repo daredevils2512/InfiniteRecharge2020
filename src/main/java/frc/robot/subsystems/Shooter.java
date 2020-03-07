@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.utils.DareMathUtil;
+import frc.robot.vision.HexagonPosition;
 
 public class Shooter extends PropertySubsystem implements IShooter {
   public static class ShooterMap {
@@ -98,6 +99,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private double m_hoodPositionIGain = 0;
   private double m_hoodPositionDGain = 0;
 
+  private double m_speedBoost;
+  private double m_maxSpeed = 9000;
+
   /**
    * Creates a new power cell shooter
    */
@@ -141,6 +145,9 @@ public class Shooter extends PropertySubsystem implements IShooter {
     m_hoodPositionPGain = Double.parseDouble(m_properties.getProperty("hoodPositionPGain"));
     m_hoodPositionIGain = Double.parseDouble(m_properties.getProperty("hoodPositionIGain"));
     m_hoodPositionDGain = Double.parseDouble(m_properties.getProperty("hoodPositionDGain"));
+
+    m_speedBoost = Double.parseDouble(m_properties.getProperty("speedBoost"));
+    boostSpeed(m_speedBoost);
 
     m_hoodCircumference = m_hoodRadius * 2 * Math.PI;
     m_hoodGearRatio = 1 / m_hoodCircumference * m_hoodMMPerTooth;
@@ -297,7 +304,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public double getCalculatedVelocity() {
     double setShooterSpeed = m_networkTable.getEntry("set shooter speed toggle").getDouble(0.0);
-    return (setShooterSpeed == 0.0) ? NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0) : setShooterSpeed;
+    return (setShooterSpeed == 0.0) ? Math.min(NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0), m_maxSpeed) : setShooterSpeed;
   }
 
   @Override
@@ -335,6 +342,12 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   private double toAngleHood(int encoderPulses) {
     return (double) encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360 + m_hoodStartingPosition;
+  }
+
+  public void boostSpeed(double boost) {
+    m_speedBoost = boost;
+    m_logger.info("boosted speed to " + m_speedBoost);
+    HexagonPosition.setSpeedBoost(m_speedBoost, true);
   }
 
   @Override

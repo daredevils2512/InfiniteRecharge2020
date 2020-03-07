@@ -13,8 +13,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.Faults;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -134,6 +136,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private double m_rightDGain = 0;
 
   private final Logger m_logger;
+  private int logCount = 0;
 
   /**
    * Creates a new drivetrain
@@ -200,14 +203,26 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightDriveFollower.configFactoryDefault();
 
     final SupplyCurrentLimitConfiguration supplyCurrentLimitConfig = new SupplyCurrentLimitConfiguration();
-    supplyCurrentLimitConfig.currentLimit = 40;
-    supplyCurrentLimitConfig.triggerThresholdCurrent = 50;
-    supplyCurrentLimitConfig.triggerThresholdTime = 0.5;
+    supplyCurrentLimitConfig.enable = true;
+    supplyCurrentLimitConfig.currentLimit = 35;
+    supplyCurrentLimitConfig.triggerThresholdCurrent = 60;
+    supplyCurrentLimitConfig.triggerThresholdTime = 0.3;
+
+    final StatorCurrentLimitConfiguration statorCurrentLimitConfiguration = new StatorCurrentLimitConfiguration();
+    statorCurrentLimitConfiguration.enable = true;
+    statorCurrentLimitConfiguration.currentLimit = 65;
+    statorCurrentLimitConfiguration.triggerThresholdCurrent = 100;
+    statorCurrentLimitConfiguration.triggerThresholdTime = 1;
 
     m_leftDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
     m_leftDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);
     m_rightDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
     m_rightDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+
+    m_leftDriveMaster.configStatorCurrentLimit(statorCurrentLimitConfiguration);
+    m_leftDriveFollower.configStatorCurrentLimit(statorCurrentLimitConfiguration);
+    m_rightDriveMaster.configStatorCurrentLimit(statorCurrentLimitConfiguration);
+    m_rightDriveFollower.configStatorCurrentLimit(statorCurrentLimitConfiguration);
 
     // Designate drive masters
     m_leftDriveFollower.follow(m_leftDriveMaster);
@@ -263,7 +278,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
     updateGyroData();
     updateOdometry();
-
+    logCount++;
+    if (logCount%20 == 0) {
+      m_logger.log(Level.INFO, m_rightDriveMaster.getFaults(new Faults()).toString());
+      m_logger.log(Level.INFO, m_leftDriveMaster.getFaults(new Faults()).toString());
+    }
     m_leftPGainEntry.setNumber(m_leftPGain);
     m_leftIGainEntry.setNumber(m_leftIGain);
     m_leftDGainEntry.setNumber(m_leftDGain);

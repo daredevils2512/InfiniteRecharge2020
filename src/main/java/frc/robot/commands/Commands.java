@@ -314,6 +314,27 @@ public final class Commands {
     return new InstantCommand(() -> compressor.toggleCompressor());
   }
 
+  /**
+   * calls shootBalls and FindTarget and ends when shootBalls has shot however many balls balls
+   * @param shooter all theses
+   * @param queue are
+   * @param queueSpeed <h1> INJECTED SUBSYSTEMD
+   * @param magazine
+   * @param magazineSpeed
+   * @param balls
+   * @return a DeadlineCommandGroup that ends and interrupts everything when shootBalls ends
+   */
+  public static Command shootBallsAndAim(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
+      double magazineSpeed, int balls, ITurret turret, Limelight limelight) {
+    return new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls)
+        .alongWith(Commands.findTarget(turret, limelight));
+  }
+
+  public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
+  double magazineSpeed, int balls) {
+    return new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls);
+  }
+
   //made a separate class for this
   // public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
   //     Limelight limelight, IMagazine magazine, double magazineSpeed, int balls) {
@@ -333,10 +354,14 @@ public final class Commands {
       double distance) {
 
     logger.log(Level.INFO, "ran auto command");
-    return Commands.findTarget(turret, limelight)
-        .alongWith(new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls))
-        .andThen(Commands.driveDistance(drivetrain, distance, 0.1));
-    // return Commands.driveDistance(drivetrain, distance, 0.1);
+    return Commands.shootBallsAndAim(shooter, queue, queueSpeed, magazine, magazineSpeed, balls, turret, limelight).withTimeout(5)
+        .andThen(Commands.driveDistance(drivetrain, distance, 0.3));
+    // return Commands.driveDistance(drivetrain, distance, 0.3);
+  }
+
+  public static Command boostSpeed(IShooter shooter, double boost) {
+    logger.info("loaded boost speed command for boost " + boost);
+    return new InstantCommand(() -> shooter.boostSpeed(boost));
   }
 
   /**
