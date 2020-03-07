@@ -32,8 +32,8 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final NetworkTableEntry m_rightClimberEncoderEntry;
 
   public Climber(Properties robotMapProperties) {
-    m_shiftersEnabled = Boolean.parseBoolean(m_properties.getProperty("shiftersEnabled"));
-    m_encodersEnabled = Boolean.parseBoolean(m_properties.getProperty("encodersEnabled"));
+    m_shiftersEnabled = getBoolean(m_properties.getProperty("shiftersEnabled"));
+    m_encodersEnabled = getBoolean(m_properties.getProperty("encodersEnabled"));
 
     m_networktable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftClimberEncoderEntry = m_networktable.getEntry("left climber encoder");

@@ -40,4 +40,8 @@ public abstract class PropertySubsystem extends LoggingSubsystem implements IPro
     protected Integer getInteger(String string) {
         return Integer.parseInt(string);
     }
+
+    protected Boolean getBoolean(String string) {
+        return Boolean.parseBoolean(string);
+    }
 }
