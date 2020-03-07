@@ -337,6 +337,7 @@ public final class Commands {
   }
 
   public static Command boostSpeed(IShooter shooter, double boost) {
+    logger.info("loaded boost speed command for boost " + boost);
     return new InstantCommand(() -> shooter.boostSpeed(boost));
   }
 

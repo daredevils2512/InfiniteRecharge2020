@@ -325,8 +325,8 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE).whileHeld(Commands.runQueue(m_queue, -m_queueSpeed));
 
 
-    m_buttonMap.get(ButtonCommand.BOOST_SPEED).whenPressed(Commands.boostSpeed(m_shooter, 0.1));
-    m_buttonMap.get(ButtonCommand.CUT_SPEED).whenPressed(Commands.boostSpeed(m_shooter, -0.1));
+    // m_buttonMap.get(ButtonCommand.BOOST_SPEED).whenPressed(Commands.boostSpeed(m_shooter, 0.1));
+    // m_buttonMap.get(ButtonCommand.CUT_SPEED).whenPressed(Commands.boostSpeed(m_shooter, -0.1));
 
 
     

@@ -100,6 +100,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   private double m_hoodPositionDGain = 0;
 
   private double m_speedBoost;
+  private double m_maxSpeed = 9000;
 
   /**
    * Creates a new power cell shooter
@@ -303,7 +304,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   @Override
   public double getCalculatedVelocity() {
     double setShooterSpeed = m_networkTable.getEntry("set shooter speed toggle").getDouble(0.0);
-    return (setShooterSpeed == 0.0) ? NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0) : setShooterSpeed;
+    return (setShooterSpeed == 0.0) ? Math.min(NetworkTableInstance.getDefault().getTable("hexagon position").getEntry("calculated shooter rpm").getDouble(0.0), m_maxSpeed) : setShooterSpeed;
   }
 
   @Override
@@ -346,7 +347,7 @@ public class Shooter extends PropertySubsystem implements IShooter {
   public void boostSpeed(double boost) {
     m_speedBoost = boost;
     m_logger.info("boosted speed to " + m_speedBoost);
-    HexagonPosition.setSpeedBoost(m_speedBoost);
+    HexagonPosition.setSpeedBoost(m_speedBoost, true);
   }
 
   @Override
@@ -357,7 +358,6 @@ public class Shooter extends PropertySubsystem implements IShooter {
     values.put("shooterVelocityDGain", m_shooterVelocityDGain);
     values.put("shooterVelocityFGain", m_shooterVelocityFGain);
     values.put("arbitraryFeedForward", m_arbitraryFeedForward);
-    values.put("speedBoost", m_speedBoost);
     if (m_hoodEnabled) {
       values.put("hoodPositionPGain", m_hoodPositionPGain);
       values.put("hoodPositionIGain", m_hoodPositionIGain);
