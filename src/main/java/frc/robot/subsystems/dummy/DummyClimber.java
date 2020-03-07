@@ -26,4 +26,8 @@ public class DummyClimber implements IClimber {
   @Override
   public void toggleClimberExtended() {
   }
+
+  @Override
+  public void resetEncoders() {
+  }
 }
