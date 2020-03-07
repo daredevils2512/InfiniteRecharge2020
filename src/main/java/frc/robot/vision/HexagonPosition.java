@@ -25,13 +25,15 @@ public class HexagonPosition {
     private final double m_tolerance = 5.0; // in degrees probaly shouldnt be here but idk whatever
 
     // {@Link https://www.desmos.com/calculator/6ics7ndnma}
-    // new {@Link https://www.desmos.com/calculator/2wbdygdzb3}
+    // new {@Link https://www.desmos.com/calcula;tor/2wbdygdzb3}
     // where distance = x,
     // rpm = ax^2 * bx + c
 
     private final double a = 57.0356654206; // constatnts
     private final double b = -460.0885934;
-    private final double c = 7193.4512926;
+    private final double c = 7593.4512926;
+
+    private static double speedBoost = 0.0;
 
     private double m_turretPosition;
     private double m_robotPosition = 0.0;
@@ -42,6 +44,7 @@ public class HexagonPosition {
         m_turret = turret;
         m_limelight = limelight;
         m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
+        m_networkTable.getEntry("speed boost").setDouble(speedBoost);
     }
 
     private void calculatePosition() {
@@ -54,6 +57,8 @@ public class HexagonPosition {
     }
 
     public void updatePosition() {
+        speedBoost = m_networkTable.getEntry("speed boost").getDouble(speedBoost);
+        m_networkTable.getEntry("speed boost").setDouble(speedBoost);
         calculatePosition();
         m_networkTable.getEntry("calculated shooter rpm").setDouble(calculateShooterSpeed());
         m_networkTable.getEntry("robot relative position").setDouble(getRobotRelativePosition());
@@ -76,7 +81,13 @@ public class HexagonPosition {
 
     private double calculateShooterSpeed() {
         double x = m_limelight.getDistanceToTarget();
-        return a * Math.pow(x, 2) + b * x + c;
+        double speed = a * Math.pow(x, 2) + b * x + c;
+        speed = speed + speedBoost * speed;
+        return speed;
+    }
+
+    public static void setSpeedBoost(double speedBoost) {
+        HexagonPosition.speedBoost = speedBoost;
     }
 
 }

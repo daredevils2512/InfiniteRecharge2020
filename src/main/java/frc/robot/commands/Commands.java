@@ -304,7 +304,7 @@ public final class Commands {
   public static Command shootBallsAndAim(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
       double magazineSpeed, int balls, ITurret turret, Limelight limelight) {
     return new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls)
-        .deadlineWith(Commands.findTarget(turret, limelight));
+        .alongWith(Commands.findTarget(turret, limelight));
   }
 
   public static Command shootBalls(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
@@ -334,6 +334,10 @@ public final class Commands {
     return Commands.shootBallsAndAim(shooter, queue, queueSpeed, magazine, magazineSpeed, balls, turret, limelight).withTimeout(5)
         .andThen(Commands.driveDistance(drivetrain, distance, 0.3));
     // return Commands.driveDistance(drivetrain, distance, 0.3);
+  }
+
+  public static Command boostSpeed(IShooter shooter, double boost) {
+    return new InstantCommand(() -> shooter.boostSpeed(boost));
   }
 
   /**

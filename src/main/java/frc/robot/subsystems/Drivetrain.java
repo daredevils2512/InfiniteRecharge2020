@@ -202,7 +202,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     final SupplyCurrentLimitConfiguration supplyCurrentLimitConfig = new SupplyCurrentLimitConfiguration();
     supplyCurrentLimitConfig.currentLimit = 40;
     supplyCurrentLimitConfig.triggerThresholdCurrent = 50;
-    supplyCurrentLimitConfig.triggerThresholdTime = 0.5;
+    supplyCurrentLimitConfig.triggerThresholdTime = 0.3;
 
     m_leftDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
     m_leftDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);

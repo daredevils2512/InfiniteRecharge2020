@@ -62,4 +62,8 @@ public class DummyShooter implements IShooter {
   @Override
   public void setToCalculatedVelocity() {
   }
+
+  @Override
+  public void boostSpeed(double boost) {
+  }
 }

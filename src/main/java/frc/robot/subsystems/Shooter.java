@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.interfaces.IShooter;
 import frc.robot.utils.DareMathUtil;
+import frc.robot.vision.HexagonPosition;
 
 public class Shooter extends PropertySubsystem implements IShooter {
   public static class ShooterMap {
@@ -335,6 +336,10 @@ public class Shooter extends PropertySubsystem implements IShooter {
 
   private double toAngleHood(int encoderPulses) {
     return (double) encoderPulses / m_hoodEncoderResolution * m_hoodGearRatio * 360 + m_hoodStartingPosition;
+  }
+
+  public void boostSpeed(double boost) {
+    HexagonPosition.setSpeedBoost(boost);
   }
 
   @Override

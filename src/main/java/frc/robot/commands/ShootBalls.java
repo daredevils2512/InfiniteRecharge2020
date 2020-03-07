@@ -27,6 +27,7 @@ public class ShootBalls extends CommandLogger {
         m_magazine = magazine;
         m_magazineSpeed = magazineSpeed;
         m_balls = balls;
+        addRequirements(m_shooter, m_queue, m_magazine);
     }
 
     @Override
@@ -51,6 +52,7 @@ public class ShootBalls extends CommandLogger {
         m_logger.info("shooting ended and interrupted " + interrupted);
         m_magazine.setSpeed(0.0);
         m_queue.run(0.0);
+        m_shooter.stop();
     }
 
     @Override
