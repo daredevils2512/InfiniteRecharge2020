@@ -67,22 +67,30 @@ public final class Commands {
   }
 
   public static Command setClimberExtended(IClimber climber, boolean wantsExtended) {
-    return new InstantCommand(() -> climber.extendClimbers(wantsExtended));
+    return new InstantCommand(() -> climber.raiseClimbers(wantsExtended));
   }
 
-  public static Command extendClimber(IClimber climber) {
-    return new InstantCommand(() -> climber.extendClimbers(true));
+  public static Command raiseClimbers(IClimber climber) {
+    return new InstantCommand(() -> climber.raiseClimbers(true));
   }
 
   public static Command retractClimber(IClimber climber) {
-    return new InstantCommand(() -> climber.extendClimbers(false));
+    return new InstantCommand(() -> climber.raiseClimbers(false));
   }
 
-  public static Command runClimber(IClimber climber, double leftSpeed, double rightSpeed) {
-    return new InstantCommand(() -> climber.climb(leftSpeed, rightSpeed));
+  public static Command extendClimbers(IClimber climber, double leftSpeed, double rightSpeed) {
+    return new RunCommand(() -> climber.extendClimbers(leftSpeed, rightSpeed), climber);
   }
 
-  public static Command runDriveClimb(IDrivetrain drivetrain, double leftSpeed, double rightSpeed) {
+  public static Command extendLeftClimber(IClimber climber, double speed) {
+    return new RunCommand(() -> climber.extendLeftClimber(speed), climber);
+  }
+
+  public static Command extendRightClimber(IClimber climber, double speed) {
+    return new RunCommand(() -> climber.extendRightClimber(speed));
+  }
+
+  public static Command Climb(IDrivetrain drivetrain, double leftSpeed, double rightSpeed) {
     return new InstantCommand(() -> drivetrain.drivetrainClimb(leftSpeed, rightSpeed));
   }
 
@@ -175,7 +183,7 @@ public final class Commands {
   // probly temporary
   public static Command climberUp(IClimber climber, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
     logger.fine("left speed = " + leftSpeed + "right speed = " + rightSpeed);
-    return new RunCommand(() -> climber.climb(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()), climber);
+    return new RunCommand(() -> climber.extendClimbers(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()), climber);
   }
 
   /**

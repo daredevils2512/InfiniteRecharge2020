@@ -37,20 +37,27 @@ public class Climber extends PropertySubsystem implements IClimber {
   }
 
   @Override
-  public void climb(double leftSpeed, double rightSpeed) {
-    m_leftClimbMotor.set(leftSpeed);
-    m_rightClimbMotor.set(rightSpeed);
+  public void extendClimbers(double leftSpeed, double rightSpeed) {
+    extendLeftClimber(leftSpeed);
+    extendRightClimber(rightSpeed);
     m_logger.fine("left speed = " + leftSpeed + "right speed = " + rightSpeed);
+  }
+
+  public void extendLeftClimber(double speed) {
+    m_leftClimbMotor.set(speed);
+  }
+
+  public void extendRightClimber(double speed) {
+    m_rightClimbMotor.set(speed);
   }
 
   @Override
   public void toggleClimberExtended() {
-    extendClimbers(!getExtended());
+    raiseClimbers(!getExtended());
   }
 
-  // TODO: Implement climbing
   @Override
-  public void extendClimbers(boolean wantsExtended) {
+  public void raiseClimbers(boolean wantsExtended) {
     m_logger.fine("extended to" + wantsExtended);
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
   }

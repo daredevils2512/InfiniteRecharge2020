@@ -238,8 +238,12 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightDriveMaster.setNeutralMode(NeutralMode.Coast);
     m_rightDriveFollower.setNeutralMode(NeutralMode.Coast);
 
-    m_leftEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelB")));
-    m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveRightEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveRightEncoderChannelB")));
+    m_leftEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelA")), 
+      getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelB")));
+
+    m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveRightEncoderChannelA")), 
+      getInteger(robotMapProperties.getProperty("driveRightEncoderChannelB")));
+    
     double distancePerPules = m_wheelCircumference * m_gearRatio / m_encoderResolution;
     m_leftEncoder.setDistancePerPulse(distancePerPules);
     m_leftEncoder.setReverseDirection(true);
@@ -514,6 +518,10 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
   }
 
+  /**
+   * climbs using drivetrain in low gear. uses raaw voltage rather than set() so 
+   * inputs need to be -12 to 12 rather than -1 to 1
+   */
   @Override
   public void drivetrainClimb(double leftSpeed, double rightSpeed) {
     setLowGear(true);

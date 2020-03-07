@@ -7,7 +7,7 @@ import frc.robot.subsystems.interfaces.IClimber;
 public class DummyClimber implements IClimber {
 
   @Override
-  public void climb(double leftSpeed, double rightSpeed) {
+  public void extendClimbers(double leftSpeed, double rightSpeed) {
   }
 
   @Override
@@ -20,10 +20,18 @@ public class DummyClimber implements IClimber {
   }
 
   @Override
-  public void extendClimbers(boolean wantsExtended) {
+  public void raiseClimbers(boolean wantsExtended) {
   }
 
   @Override
   public void toggleClimberExtended() {
+  }
+
+  @Override
+  public void extendLeftClimber(double speed) {
+  }
+
+  @Override
+  public void extendRightClimber(double speed) {
   }
 }

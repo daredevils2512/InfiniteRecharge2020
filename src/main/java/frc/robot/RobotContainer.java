@@ -103,6 +103,7 @@ public class RobotContainer {
   private final double m_queueSpeed = 0.9;
   private final double m_shooterHoodSpeed = 0.4;
   private final double m_turretSpeed = 0.3;
+  private double m_climberSpeed = 0.5;
 
   private static Logger logger = Logger.getGlobal();
   private static Logger commandLogger = Logger.getLogger(Commands.class.getName());
@@ -241,19 +242,20 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.yellow);
 
 
-    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.buttonBox.bigRed);
+    m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.baseBackRight);
     
 
     m_buttonMap.put(ButtonCommand.BOOST_SPEED, m_controlBoard.extreme.joystickTopRight);
     m_buttonMap.put(ButtonCommand.CUT_SPEED, m_controlBoard.extreme.joystickBottomRight);
 
+    m_buttonMap.put(ButtonCommand.RAISE_CLIMBERS, m_controlBoard.buttonBox.bigRed);
+
+    m_buttonMap.put(ButtonCommand.EXTEND_LEFT_CLIMBER, m_controlBoard.extreme.joystickBottomLeft);
+    m_buttonMap.put(ButtonCommand.EXTEND_RIGHT_CLIMBER, m_controlBoard.extreme.joystickBottomRight);
 
 
 
-
-
-
-
+    m_buttonMap.put(ButtonCommand.CLIMB, m_controlBoard.xbox.xButton); 
 
 
 
@@ -270,7 +272,7 @@ public class RobotContainer {
 
     // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.baseBackLeft);
     m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.extreme.baseMiddleRight);
-    m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.extreme.baseMiddleLeft);
+    // m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.extreme.baseMiddleLeft);
     m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.extreme.baseFrontLeft);
     m_buttonMap.put(ButtonCommand.TOGGLE_COMPRESSOR, m_controlBoard.extreme.baseFrontRight);
 
@@ -353,9 +355,11 @@ public class RobotContainer {
     }
 
 
+    m_buttonMap.get(ButtonCommand.RAISE_CLIMBERS).whenPressed(Commands.raiseClimbers(m_climber));
+    m_buttonMap.get(ButtonCommand.EXTEND_LEFT_CLIMBER).whenPressed(Commands.extendLeftClimber(m_climber, m_climberSpeed));
+    m_buttonMap.get(ButtonCommand.EXTEND_RIGHT_CLIMBER).whenPressed(Commands.extendRightClimber(m_climber, m_climberSpeed));
 
-
-
+    m_buttonMap.get(ButtonCommand.CLIMB).whileHeld(Commands.Climb(m_drivetrain, 0.5, 0.5));
 
 
 
