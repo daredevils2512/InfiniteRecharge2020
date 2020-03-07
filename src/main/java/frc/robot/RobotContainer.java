@@ -359,7 +359,7 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.EXTEND_LEFT_CLIMBER).whenPressed(Commands.extendLeftClimber(m_climber, m_climberSpeed));
     m_buttonMap.get(ButtonCommand.EXTEND_RIGHT_CLIMBER).whenPressed(Commands.extendRightClimber(m_climber, m_climberSpeed));
 
-    m_buttonMap.get(ButtonCommand.CLIMB).whileHeld(Commands.Climb(m_drivetrain, 0.5, 0.5));
+    m_buttonMap.get(ButtonCommand.CLIMB).whileHeld(Commands.Climb(m_drivetrain, 0.2, 0.2));
 
 
 

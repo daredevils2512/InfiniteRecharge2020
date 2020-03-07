@@ -34,4 +34,7 @@ public class DummyClimber implements IClimber {
   @Override
   public void extendRightClimber(double speed) {
   }
+  
+  public void resetEncoders() {
+  }
 }

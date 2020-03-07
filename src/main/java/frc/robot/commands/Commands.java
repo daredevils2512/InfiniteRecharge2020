@@ -317,7 +317,6 @@ public final class Commands {
   public static Command precisionControl(ISpinner spinner, ColorDetect targetColor) {
     return new PrecisionControl(spinner, targetColor);
   }
-
   public static Command toggleCompressor(ICompressorManager compressor) {
     return new InstantCommand(() -> compressor.toggleCompressor());
   }
