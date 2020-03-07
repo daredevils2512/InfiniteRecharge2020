@@ -41,6 +41,7 @@ public class Climber extends PropertySubsystem implements IClimber {
   // TODO: Implement climbing
   @Override
   public void extendClimbers(boolean wantsExtended) {
+    m_logger.fine("extended to" + wantsExtended);
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
   }
 
