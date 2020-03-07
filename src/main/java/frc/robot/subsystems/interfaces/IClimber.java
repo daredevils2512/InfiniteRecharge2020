@@ -5,4 +5,6 @@ public interface IClimber extends IPropertySubsystem {
   public void extendClimbers(boolean wantsExtended);
   public void toggleClimberExtended();
   public void resetEncoders();
+  public int getLeftEncoder();
+  public int getRightEncoder();
 }

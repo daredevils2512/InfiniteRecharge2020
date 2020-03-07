@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.subsystems.interfaces.IClimber;
 
 public class Climber extends PropertySubsystem implements IClimber {  
+  private final Boolean m_shiftersEnabled;
+  private final Boolean m_encodersEnabled;
 
   private final WPI_TalonSRX m_leftClimbMotor;
   private final WPI_TalonSRX m_rightClimbMotor;
@@ -30,6 +32,9 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final NetworkTableEntry m_rightClimberEncoderEntry;
 
   public Climber(Properties robotMapProperties) {
+    m_shiftersEnabled = Boolean.parseBoolean(m_properties.getProperty("shiftersEnabled"));
+    m_encodersEnabled = Boolean.parseBoolean(m_properties.getProperty("encodersEnabled"));
+
     m_networktable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftClimberEncoderEntry = m_networktable.getEntry("left climber encoder");
     m_rightClimberEncoderEntry = m_networktable.getEntry("right climber encoder");
@@ -48,8 +53,20 @@ public class Climber extends PropertySubsystem implements IClimber {
 
   @Override
   public void periodic() {
-    m_leftClimberEncoderEntry.setDouble(m_leftEncoder.get());
-    m_rightClimberEncoderEntry.setDouble(m_rightEncoder.get());
+    if (m_encodersEnabled) {
+      m_leftClimberEncoderEntry.setDouble(getLeftEncoder());
+      m_rightClimberEncoderEntry.setDouble(getRightEncoder());
+    }
+  }
+
+  @Override
+  public int getLeftEncoder() {
+    return m_leftEncoder.get();
+  }
+
+  @Override
+  public int getRightEncoder() {
+    return m_rightEncoder.get();
   }
 
   @Override
@@ -72,13 +89,19 @@ public class Climber extends PropertySubsystem implements IClimber {
   }
 
   private boolean getExtended() {
-    return m_climberExtender.get() == m_extended ? true : false;
+    if (m_shiftersEnabled) {
+      return m_climberExtender.get() == m_extended ? true : false;
+    } else {
+      return false;
+    }
   }
 
   @Override
   public void resetEncoders() {
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
+    if (m_encodersEnabled) {
+      m_leftEncoder.reset();
+      m_rightEncoder.reset();
+    }
   }
 
   @Override
