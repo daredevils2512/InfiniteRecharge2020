@@ -70,6 +70,14 @@ public final class Commands {
     return new InstantCommand(() -> climber.extendClimbers(wantsExtended));
   }
 
+  public static Command extendClimber(IClimber climber) {
+    return new InstantCommand(() -> climber.extendClimbers(true));
+  }
+
+  public static Command retractClimber(IClimber climber) {
+    return new InstantCommand(() -> climber.extendClimbers(false));
+  }
+
   public static Command runClimber(IClimber climber, double leftSpeed, double rightSpeed) {
     return new InstantCommand(() -> climber.climb(leftSpeed, rightSpeed));
   }

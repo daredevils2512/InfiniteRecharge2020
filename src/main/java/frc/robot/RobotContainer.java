@@ -262,13 +262,13 @@ public class RobotContainer {
     m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.RETRACT_INTAKE, m_controlBoard.xbox.yButton);
 
-    m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.joystickTopLeft);
+    // m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC, m_controlBoard.extreme.joystickTopLeft);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_SHOOTER, m_controlBoard.extreme.trigger);
     m_buttonMap.put(ButtonCommand.STOP_MOTORS, m_controlBoard.extreme.sideButton);
     // m_buttonMap.put(ButtonCommand.TURRET_TESTING_MOTION_MAGIC, m_controlBoard.extreme.baseFrontLeft);
     
 
-    m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.baseBackLeft);
+    // m_buttonMap.put(ButtonCommand.AUTO_REFILL_QUEUE, m_controlBoard.extreme.baseBackLeft);
     m_buttonMap.put(ButtonCommand.AUTO_RUN_SHOOTER, m_controlBoard.extreme.baseMiddleRight);
     m_buttonMap.put(ButtonCommand.AUTO_SHOOT, m_controlBoard.extreme.baseMiddleLeft);
     m_buttonMap.put(ButtonCommand.AUTONOMOUS, m_controlBoard.extreme.baseFrontLeft);
@@ -385,7 +385,8 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_SHOOTER).whileHeld(Commands.setShooterVelocity(m_shooter, m_shooter::getCalculatedVelocity));
     m_buttonMap.get(ButtonCommand.STOP_MOTORS).toggleWhenPressed(Commands.stopMotors(m_magazine, m_queue, m_shooter));
 
-    m_buttonMap.get(ButtonCommand.AUTONOMOUS).whileHeld(Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret, m_limelight, m_magazine, m_magazineSpeed, 3, m_drivetrain, 1.0));
+    m_buttonMap.get(ButtonCommand.AUTONOMOUS).whileHeld(Commands.autoCommand(m_shooter, m_queue, m_queueSpeed, m_turret,
+        m_limelight, m_magazine, m_magazineSpeed, 3, m_drivetrain, 1.0));
 
     // Toggle between having the queue automatically feed the shooter
     // (which should check if the shooter and turret are ready to shoot)
@@ -459,11 +460,12 @@ public class RobotContainer {
   }
 
   public boolean runExtenderMotionMagic() {
-    boolean toggleButton = m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).get();
-    if (toggleButton && !extenderMotionMagicButtonState) {motionMagic = !motionMagic;}
-    extenderMotionMagicButtonState = toggleButton;
-    SmartDashboard.putBoolean("motion magic enabled", motionMagic);
-    return motionMagic;
+    // boolean toggleButton = m_buttonMap.get(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC).get();
+    // if (toggleButton && !extenderMotionMagicButtonState) {motionMagic = !motionMagic;}
+    // extenderMotionMagicButtonState = toggleButton;
+    // SmartDashboard.putBoolean("motion magic enabled", motionMagic);
+    // return motionMagic;
+    return false;
   }
 
   /**
