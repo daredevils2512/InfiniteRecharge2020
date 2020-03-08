@@ -47,15 +47,16 @@ public class Climber extends PropertySubsystem implements IClimber {
       getInteger(robotMapProperties.getProperty("climberRightEncoderChannelB")));
 
     m_climberExtender = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberExtenderForwardID")),
-      getInteger(robotMapProperties.getProperty("climberExtenderReverseID")));
-    m_climbShifter = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberShifterForwardID")),
-        getInteger(robotMapProperties.getProperty("climberShifterForwardID")));
+        getInteger(robotMapProperties.getProperty("climberExtenderReverseID")));
+    m_climbShifter = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("shifterPortForwardID")),
+        getInteger(robotMapProperties.getProperty("shifterPortReverseID")));
   }
 
   @Override
   public void periodic() {
     m_leftClimberEncoderEntry.setDouble(m_leftEncoder.get());
     m_rightClimberEncoderEntry.setDouble(m_rightEncoder.get());
+    m_networktable.getEntry("climbers raised").setBoolean(getExtended());
   }
 
   @Override
@@ -80,12 +81,12 @@ public class Climber extends PropertySubsystem implements IClimber {
 
   @Override
   public void raiseClimbers(boolean wantsExtended) {
-    m_logger.fine("extended to" + wantsExtended);
+    m_logger.info("extended to" + wantsExtended);
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
   }
 
   private boolean getExtended() {
-    return m_climberExtender.get() == m_extended ? true : false;
+    return m_climberExtender.get() == m_extended;
   }
 
 

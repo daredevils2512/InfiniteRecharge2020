@@ -282,11 +282,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
     updateGyroData();
     updateOdometry();
-    logCount++;
-    if (logCount%20 == 0) {
-      m_logger.log(Level.INFO, m_rightDriveMaster.getFaults(new Faults()).toString());
-      m_logger.log(Level.INFO, m_leftDriveMaster.getFaults(new Faults()).toString());
-    }
+    // logCount++;
+    // if (logCount%20 == 0) {
+    //   m_logger.log(Level.INFO, m_rightDriveMaster.getFaults(new Faults()).toString());
+    //   m_logger.log(Level.INFO, m_leftDriveMaster.getFaults(new Faults()).toString());
+    // }
     m_leftPGainEntry.setNumber(m_leftPGain);
     m_leftIGainEntry.setNumber(m_leftIGain);
     m_leftDGainEntry.setNumber(m_leftDGain);
