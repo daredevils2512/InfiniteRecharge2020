@@ -7,4 +7,6 @@ public interface IClimber extends IPropertySubsystem {
   public void extendLeftClimber(double speed);
   public void extendRightClimber(double speed);
   public void resetEncoders();
+  public int getLeftEncoder();
+  public int getRightEncoder();
 }

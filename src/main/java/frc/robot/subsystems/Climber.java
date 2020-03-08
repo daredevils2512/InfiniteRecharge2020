@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.subsystems.interfaces.IClimber;
 
 public class Climber extends PropertySubsystem implements IClimber {  
+  private final Boolean m_shiftersEnabled;
+  private final Boolean m_encodersEnabled;
 
   private final WPI_TalonSRX m_leftClimbMotor;
   private final WPI_TalonSRX m_rightClimbMotor;
@@ -34,6 +36,9 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final NetworkTableEntry m_rightClimberEncoderEntry;
 
   public Climber(Properties robotMapProperties) {
+    m_shiftersEnabled = getBoolean(m_properties.getProperty("shiftersEnabled"));
+    m_encodersEnabled = getBoolean(m_properties.getProperty("encodersEnabled"));
+
     m_networktable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftClimberEncoderEntry = m_networktable.getEntry("left climber encoder");
     m_rightClimberEncoderEntry = m_networktable.getEntry("right climber encoder");
@@ -85,20 +90,35 @@ public class Climber extends PropertySubsystem implements IClimber {
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
   }
 
-  private boolean getExtended() {
+  public boolean getExtended() {
     return m_climberExtender.get() == m_extended;
   }
 
-
+  public boolean getShifted() {
+    return m_climbShifter.get() == m_climbing;
+  }
 
   @Override
   public void resetEncoders() {
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
+    if (m_encodersEnabled) {
+      m_leftEncoder.reset();
+      m_rightEncoder.reset();
+    }
+  }
+
+  @Override
+  public int getLeftEncoder() {
+    return m_encodersEnabled ? m_leftEncoder.get() : 0;
+  }
+
+  @Override
+  public int getRightEncoder() {
+    return m_encodersEnabled ? m_rightEncoder.get() : 0;
   }
 
   @Override
   public Map<String, Object> getValues() {
     return null;
   }
+
 }

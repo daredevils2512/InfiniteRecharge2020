@@ -37,4 +37,14 @@ public class DummyClimber implements IClimber {
   
   public void resetEncoders() {
   }
+
+  @Override
+  public int getLeftEncoder() {
+    return 0;
+  }
+
+  @Override
+  public int getRightEncoder() {
+    return 0;
+  }
 }
