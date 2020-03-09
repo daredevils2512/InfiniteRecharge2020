@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 import frc.robot.commands.Commands;
-import frc.robot.commands.ShootBalls;
 import frc.robot.controlboard.ButtonCommand;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickCommand;
@@ -98,7 +97,7 @@ public class RobotContainer {
   private Command m_autonomousCommand;
 
   private final double m_intakeExtenderSpeed = 0.3;
-  private final double m_intakeSpeed = 0.7;
+  private final double m_intakeSpeed = 0.8;
   private final double m_magazineSpeed = 0.8;
   private final double m_queueSpeed = 0.9;
   private final double m_shooterHoodSpeed = 0.4;
