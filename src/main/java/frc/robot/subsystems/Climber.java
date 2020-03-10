@@ -72,10 +72,21 @@ public class Climber extends PropertySubsystem implements IClimber {
   }
 
   public void extendLeftClimber(double speed) {
+    if (speed < 0 && m_leftEncoder.get() > 330) {
+      speed = 0;
+    } else if (speed > 0 && m_leftEncoder.get() < -2700) {
+      speed = 0;
+    }
+    m_logger.info("climber speed = " + speed);
     m_leftClimbMotor.set(speed);
   }
 
   public void extendRightClimber(double speed) {
+    if (speed < 0 && m_rightEncoder.get() > 330) {
+      speed = 0;
+    } else if (speed > 0 && m_rightEncoder.get() < -2700) {
+      speed = 0;
+    }
     m_rightClimbMotor.set(speed);
   }
 
@@ -86,7 +97,7 @@ public class Climber extends PropertySubsystem implements IClimber {
 
   @Override
   public void raiseClimbers(boolean wantsExtended) {
-    m_logger.info("extended to" + wantsExtended);
+    m_logger.info("extended to " + wantsExtended);
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
   }
 
