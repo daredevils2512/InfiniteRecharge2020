@@ -3,9 +3,8 @@ package frc.robot.subsystems.dummy;
 import java.util.Map;
 
 import frc.robot.subsystems.interfaces.IIntake;
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 
-public class DummyIntake implements IIntake, IPropertySubsystem {
+public class DummyIntake implements IIntake {
 
   @Override
   public void runIntake(double speed) {
@@ -54,5 +53,18 @@ public class DummyIntake implements IIntake, IPropertySubsystem {
 
   @Override
   public void saveProperties() {
+  }
+
+  @Override
+  public void extend() {
+  }
+
+  @Override
+  public void retract() {
+  }
+
+  @Override
+  public boolean isMotionMagicFinished() {
+    return true;
   }
 }

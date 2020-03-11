@@ -7,11 +7,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.interfaces.ISpinner;
+import frc.robot.utils.CommandLogger;
 
-public class PrecisionControl extends CommandBase {
+public class PrecisionControl extends CommandLogger {
   private final ISpinner m_spinner;
   private ColorDetect m_targetColor;
   // TODO: get the color of the percision control dispaed in the part of the smart dashboard 

@@ -4,9 +4,8 @@ import java.util.Map;
 
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.interfaces.IClimber;
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 
-public class DummyClimber implements IClimber, IPropertySubsystem {
+public class DummyClimber implements IClimber {
 
   @Override
   public void climb(double leftSpeed, double rightSpeed) {

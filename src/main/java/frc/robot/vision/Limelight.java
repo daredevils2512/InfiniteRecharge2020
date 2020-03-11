@@ -12,15 +12,22 @@ import java.util.logging.Logger;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.util.Units;
 
 /**
- * Limelight manager for power cell target tracking
+ * returned 228 in at 208 inches
+ */
+
+/**
+ * <h1> Limelight manager for power cell target tracking
  */
 public class Limelight {
   private static Logger logger = Logger.getLogger(Limelight.class.getName());
   // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
   public static final double RANGE_Y_DEGREES = 24.85;
+  private final double m_angle = 20;
+  private final double m_heightOffset = 98.25 - 19.25;
   private final Pipeline m_pipeline;
 
   public enum Pipeline {
@@ -47,6 +54,7 @@ public class Limelight {
   public Limelight(Pipeline defaultPipeline) {
     m_pipeline = defaultPipeline;
     m_table = NetworkTableInstance.getDefault().getTable("limelight");
+    this.setPipeline(defaultPipeline);
     lastPostion = 1.0;
   }
 
@@ -59,6 +67,15 @@ public class Limelight {
 
   public void setPipeline(Pipeline pipeline) {
     m_table.getEntry("pipeline").setNumber(pipeline.getID());
+  }
+
+  public void setLEDMode(LimelightLEDMode ledMode) {
+    m_table.getEntry("ledMode").setNumber(ledMode.getIntValue());
+  }
+
+  public LimelightLEDMode getLEDMode() {
+    int intValue = m_table.getEntry("ledMode").getNumber(0).intValue();
+    return LimelightLEDMode.fromIntValue(intValue);
   }
 
   public boolean hasTarget() {
@@ -107,5 +124,13 @@ public class Limelight {
     }
     logger.log(Level.FINER, "last pos", lastPostion);
     return lastPostion;
+  }
+
+  /**
+   * 
+   * @return distance in units of something to the tagret
+   */
+  public double getDistanceToTarget() {
+    return Units.inchesToMeters(m_heightOffset) / Math.tan(Math.toRadians(m_angle + this.ty()));
   }
 }

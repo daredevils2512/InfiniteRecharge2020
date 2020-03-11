@@ -2,18 +2,15 @@ package frc.robot.subsystems.dummy;
 
 import java.util.Map;
 
+import frc.robot.sensors.DummyDigitalInput;
+import frc.robot.sensors.IDigitalInput;
 import frc.robot.subsystems.interfaces.IMagazine;
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 
-public class DummyMagazine implements IMagazine, IPropertySubsystem {
+public class DummyMagazine implements IMagazine {
 
   @Override
   public boolean getPowerCellDetected() {
     return false;
-  }
-
-  @Override
-  public void updatePowerCellCount() {
   }
 
   @Override
@@ -36,5 +33,10 @@ public class DummyMagazine implements IMagazine, IPropertySubsystem {
 
   @Override
   public void saveProperties() {
+  }
+
+  @Override
+  public IDigitalInput getPhotoEye() {
+    return new DummyDigitalInput();
   }
 }

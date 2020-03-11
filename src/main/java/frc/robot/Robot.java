@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.RobotController;
@@ -25,7 +26,7 @@ import frc.robot.utils.DriveType;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static Logger logger = Logger.getLogger(Robot.class.getName());
+  private static Logger logger = Logger.getGlobal();
   private final SendableChooser<DriveType> m_driveTypeChooser = new SendableChooser<>();
   private DriveType m_currentDriveType = null;
 
@@ -66,6 +67,7 @@ public class Robot extends TimedRobot {
     if (newDriveType != m_currentDriveType) {
       m_robotContainer.setDriveType(newDriveType);
     }
+    m_robotContainer.robotContainerPeriodic();
 
     if (RobotController.getBatteryVoltage() <= 7 || RobotController.isBrownedOut()) logger.severe("ROBOT IS BROWNING OUT");
 
@@ -101,6 +103,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
+      logger.log(Level.INFO, "auto caommand wasnt null");
       m_autonomousCommand.schedule();
     }
     logger.config("initialized auton");

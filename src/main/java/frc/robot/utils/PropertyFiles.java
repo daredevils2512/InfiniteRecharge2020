@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 public class PropertyFiles {
   private static Logger logger = Logger.getLogger(PropertyFiles.class.getName());
 
-  public static void loadProperties(Properties properties, File propertiesFile) {
+  public static Properties loadProperties(Properties properties, File propertiesFile) {
     try {
       InputStream inputStream = new FileInputStream(propertiesFile);
       properties.load(inputStream);
@@ -26,6 +27,14 @@ public class PropertyFiles {
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to load properties from " + propertiesFile.getPath() + "!", e);
     }
+
+    return properties;
+  }
+
+  public static Properties loadProperties(File propertiesFile) {
+    Properties properties = new Properties();
+    loadProperties(properties, propertiesFile);
+    return properties;
   }
 
   public static Properties loadProperties(File defaultPropertiesFile, File propertiesFile) {
@@ -41,14 +50,13 @@ public class PropertyFiles {
     Properties properties = null;
     Properties defaultProperties = new Properties();
     try {
+      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
+      defaultProperties.load(deployStream);
+      properties = new Properties(defaultProperties);
       if (loadDefault) {
         InputStream robotStream = new FileInputStream(Filesystem.getOperatingDirectory() + location);
-        defaultProperties.load(robotStream);
+        properties.load(robotStream);
       }
-      properties = new Properties(defaultProperties);
-      InputStream deployStream = new FileInputStream(Filesystem.getDeployDirectory() + location);
-      properties.load(deployStream);
-
       logger.info("successfully loadded " + name);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "failed to load " + name, e);
@@ -59,6 +67,17 @@ public class PropertyFiles {
 
   public static Properties loadProperties(String name) {
     return PropertyFiles.loadProperties(name, false);
+  }
+
+  public static Properties loadFromString(String propertiesString) {
+    Properties properties = new Properties();
+    try {
+      InputStream inputStream = new ByteArrayInputStream(propertiesString.getBytes());
+      properties.load(inputStream);
+    } catch(IOException e) {
+      logger.log(Level.WARNING, "failed to load properties string : ", e);
+    }
+    return properties;
   }
 
   public static void saveProperties(Properties properties, File propertiesFile) {
@@ -73,6 +92,7 @@ public class PropertyFiles {
   }
 
   public static void saveProperties(Properties properties, Map<String, Object> values, String name) {
+    properties.clear();
       try {
         String location = "/" + name + ".properties";
         for (String key : values.keySet()) {
@@ -84,6 +104,7 @@ public class PropertyFiles {
       } catch(IOException e) {
         logger.log(Level.SEVERE, "failed to save " + name, e);
       }
+      properties = PropertyFiles.loadProperties(name);
   }
 
 }

@@ -1,33 +1,29 @@
 package frc.robot.commands;
 
-import java.util.function.IntSupplier;
-
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IQueue;
+import frc.robot.subsystems.interfaces.IShooter;
 
-public class AutoFeedShooter extends CommandBase {
-  private final IQueue m_queue;
-  private final double m_queueSpeed;
-  private final IntSupplier m_magazinePowerCellCountSupplier;
+public class AutoFeedShooter extends RunQueueCommand {
 
-  public AutoFeedShooter(IQueue queue, double queueSpeed, IntSupplier magazinePowerCellCountSupplier) {
-    m_queue = queue;
-    m_queueSpeed = queueSpeed;
-    m_magazinePowerCellCountSupplier = magazinePowerCellCountSupplier;
-    addRequirements(queue);
+  private final IShooter m_shooter;
+
+  /**
+   * auto feed shooter
+   * @param queue queue object to run
+   * @param queueSpeed set speed for the queue to run at
+   * @param shooter shooter object to get speed
+   * @param targetVelocitySupplier supplier for target velocity
+   * @param maxVelocityError a tolerance of sorts
+   */
+  public AutoFeedShooter(IQueue queue, double queueSpeed, IShooter shooter) {
+    super(queue, queueSpeed);
+    m_shooter = shooter;
   }
 
   @Override
-  public void execute() {
-    if (m_queue.hasPowerCell() || m_magazinePowerCellCountSupplier.getAsInt() > 0) {
-      m_queue.run(m_queueSpeed);
-    } else {
-      m_queue.run(0);
-    }
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    m_queue.run(0);
+  protected boolean shouldRunQueue() {
+    boolean shouldRunQueue = m_queue.hasPowerCell()
+        && m_shooter.isAtSpeed();
+    return shouldRunQueue;
   }
 }

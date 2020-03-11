@@ -7,4 +7,5 @@ public interface ITurret extends IPropertySubsystem {
   public void runPosition(double degrees);
   public double wrapDegrees(double degrees);
   public void setTargetAngle(double angle);
+  public boolean isAtSetpoint();
 }

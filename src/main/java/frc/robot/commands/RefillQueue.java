@@ -3,10 +3,10 @@ package frc.robot.commands;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IMagazine;
+import frc.robot.utils.CommandLogger;
 
-public class RefillQueue extends CommandBase {
+public class RefillQueue extends CommandLogger {
   private final IMagazine m_magazine;
   private final double m_magazineSpeed;
   private final IntSupplier m_magazinePowerCellCountSupplier;
@@ -18,6 +18,11 @@ public class RefillQueue extends CommandBase {
     m_magazinePowerCellCountSupplier = magazinePowerCellCountSupplier;
     m_queueHasPowerCellSupplier = queueHasPowerCellSupplier;
     addRequirements(m_magazine);
+  }
+
+  @Override
+  public void initialize() {
+    m_logger.fine("refilling queue");
   }
 
   @Override

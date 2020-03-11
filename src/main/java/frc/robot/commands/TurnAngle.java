@@ -1,11 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.utils.CommandLogger;
 import frc.robot.utils.DareMathUtil;
 
-public class TurnAngle extends CommandBase {
+public class TurnAngle extends CommandLogger {
   private final Drivetrain m_drivetrain;
   private final double m_angle;
 
@@ -33,6 +33,7 @@ public class TurnAngle extends CommandBase {
     m_startAngle = getWrappedHeading();
     m_targetAngle = m_startAngle + m_angle;
     m_angleController.setSetpoint(m_targetAngle);
+    m_logger.fine("turrning to" + m_targetAngle);
   }
 
   @Override

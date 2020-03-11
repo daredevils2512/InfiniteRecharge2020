@@ -7,8 +7,9 @@
 
 package frc.robot.subsystems;
 
-import java.util.logging.*;
-
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Compressor;
 import frc.robot.subsystems.interfaces.ICompressorManager;
 
@@ -16,13 +17,38 @@ import frc.robot.subsystems.interfaces.ICompressorManager;
  * Add your docs here.
  */
 public class CompressorManager extends LoggingSubsystem implements ICompressorManager {
-  private Compressor compressor = new Compressor();
-  private boolean m_compressorEnabled; 
+  private final NetworkTable m_networkTable;
+  private final NetworkTableEntry m_isRunningEntry;
+  private final NetworkTableEntry m_closedLoopControlEntry;
+
+  private Compressor m_compressor = new Compressor();
+
+  public CompressorManager() {
+    m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
+    m_isRunningEntry = m_networkTable.getEntry("Is running");
+    m_closedLoopControlEntry = m_networkTable.getEntry("closed loop contorl");
+  
+  }
+
+  @Override
+  public void periodic() {
+    m_isRunningEntry.setBoolean(m_compressor.enabled());
+    m_closedLoopControlEntry.setBoolean(getClosedLoopControl());
+  }
+
+  @Override
+  public void setClosedLoopControl(boolean wantsClosedLoopControl) {
+    m_compressor.setClosedLoopControl(wantsClosedLoopControl);
+    m_logger.fine("Compressor closed loop control: " + getClosedLoopControl());
+  }
+
+  @Override
+  public boolean getClosedLoopControl() {
+    return m_compressor.getClosedLoopControl();
+  }
   
   @Override
   public void toggleCompressor() {
-    m_compressorEnabled = !m_compressorEnabled;
-    m_logger.log(Level.FINE, "compressor = ", m_compressorEnabled);
-    compressor.setClosedLoopControl(m_compressorEnabled);
-  } 
+    m_compressor.setClosedLoopControl(!getClosedLoopControl());
+  }
 }

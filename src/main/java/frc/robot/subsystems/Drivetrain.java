@@ -10,9 +10,14 @@ package frc.robot.subsystems;
 import java.util.logging.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.Faults;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -90,9 +95,9 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private PigeonIMU m_pigeon;
   private final boolean m_pigeonEnabled;
 
-  private DoubleSolenoid m_shifter;
-  private final Value m_highGearValue = Value.kForward;
-  private final DoubleSolenoid.Value m_lowGearValue = Value.kReverse;
+  private final DoubleSolenoid m_shifter;
+  private final Value m_highGearValue = Value.kReverse;
+  private final DoubleSolenoid.Value m_lowGearValue = Value.kForward;
   private final boolean m_shiftersEnabled;
 
   private final int m_encoderResolution;
@@ -111,7 +116,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   private boolean m_isDrivingInverted = false;
 
-  private double[] m_gyroData = new double[3]; // Yaw, pitch, and roll in degrees
+  private final double[] m_gyroData = new double[3]; // Yaw, pitch, and roll in degrees
 
   private final DifferentialDriveKinematics m_kinematics;
   private final DifferentialDriveOdometry m_odometry;
@@ -130,10 +135,14 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private double m_rightIGain = 0;
   private double m_rightDGain = 0;
 
+  private final Logger m_logger;
+  private int logCount = 0;
+
   /**
    * Creates a new drivetrain
    */
-  public Drivetrain(DrivetrainMap drivetrainMap) {
+  public Drivetrain(final Properties robotMapProperties) {
+    
     m_pigeonEnabled = Boolean.parseBoolean(m_properties.getProperty("pigeonEnabled"));
 
     m_shiftersEnabled = Boolean.parseBoolean(m_properties.getProperty("shiftersEnabled"));
@@ -141,7 +150,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_encoderResolution = Integer.parseInt(m_properties.getProperty("encoderResolution"));
     m_gearRatio = Double.parseDouble(m_properties.getProperty("gearRatio"));
     m_wheelDiameter = Units.inchesToMeters(Double.parseDouble(m_properties.getProperty("wheelDiameter")));
-    m_wheelCircumference = m_wheelDiameter * Math.PI;
+    m_wheelCircumference = Units.inchesToMeters(m_wheelDiameter) * Math.PI;
     m_trackWidth = Units.inchesToMeters(Double.parseDouble(m_properties.getProperty("trackWidth")));
 
     m_maxSpeedHighGear = Double.parseDouble(m_properties.getProperty("maxSpeedHighGear"));
@@ -180,16 +189,40 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
     m_lowGearEntry = m_networkTable.getEntry("Low gear");
 
-    m_leftDriveMaster = new WPI_TalonFX(drivetrainMap.driveLeft1ID);
-    m_leftDriveFollower = new WPI_TalonFX(drivetrainMap.driveLeft2ID);
-    m_rightDriveMaster = new WPI_TalonFX(drivetrainMap.driveRight1ID);
-    m_rightDriveFollower = new WPI_TalonFX(drivetrainMap.driveRight2ID);
+    m_logger = Logger.getLogger(Drivetrain.class.getName());
+
+    m_leftDriveMaster = new WPI_TalonFX(getInteger(robotMapProperties.getProperty("driveLeft1ID")));
+    m_leftDriveFollower = new WPI_TalonFX(getInteger(robotMapProperties.getProperty("driveLeft2ID")));
+    m_rightDriveMaster = new WPI_TalonFX(getInteger(robotMapProperties.getProperty("driveRight1ID")));
+    m_rightDriveFollower = new WPI_TalonFX(getInteger(robotMapProperties.getProperty("driveRight2ID")));
 
     // Config to factory defaults to prevent unexpected behavior
     m_leftDriveMaster.configFactoryDefault();
     m_leftDriveFollower.configFactoryDefault();
     m_rightDriveMaster.configFactoryDefault();
     m_rightDriveFollower.configFactoryDefault();
+
+    final SupplyCurrentLimitConfiguration supplyCurrentLimitConfig = new SupplyCurrentLimitConfiguration();
+    supplyCurrentLimitConfig.enable = true;
+    supplyCurrentLimitConfig.currentLimit = 35;
+    supplyCurrentLimitConfig.triggerThresholdCurrent = 60;
+    supplyCurrentLimitConfig.triggerThresholdTime = 0.3;
+
+    final StatorCurrentLimitConfiguration statorCurrentLimitConfiguration = new StatorCurrentLimitConfiguration();
+    statorCurrentLimitConfiguration.enable = true;
+    statorCurrentLimitConfiguration.currentLimit = 65;
+    statorCurrentLimitConfiguration.triggerThresholdCurrent = 100;
+    statorCurrentLimitConfiguration.triggerThresholdTime = 1;
+
+    m_leftDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+    m_leftDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+    m_rightDriveMaster.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+    m_rightDriveFollower.configSupplyCurrentLimit(supplyCurrentLimitConfig);
+
+    m_leftDriveMaster.configStatorCurrentLimit(statorCurrentLimitConfiguration);
+    m_leftDriveFollower.configStatorCurrentLimit(statorCurrentLimitConfiguration);
+    m_rightDriveMaster.configStatorCurrentLimit(statorCurrentLimitConfiguration);
+    m_rightDriveFollower.configStatorCurrentLimit(statorCurrentLimitConfiguration);
 
     // Designate drive masters
     m_leftDriveFollower.follow(m_leftDriveMaster);
@@ -200,17 +233,29 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightDriveMaster.setInverted(InvertType.None);
     m_rightDriveFollower.setInverted(InvertType.FollowMaster);
 
-    m_leftEncoder = new Encoder(drivetrainMap.driveLeftEncoderChannelA, drivetrainMap.driveLeftEncoderChannelB);
-    m_rightEncoder = new Encoder(drivetrainMap.driveRightEncoderChannelA, drivetrainMap.driveRightEncoderChannelB);
-    m_leftEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
-    m_rightEncoder.setDistancePerPulse(m_gearRatio * m_wheelCircumference / m_encoderResolution);
+    m_leftDriveMaster.setNeutralMode(NeutralMode.Coast);
+    m_leftDriveFollower.setNeutralMode(NeutralMode.Coast);
+    m_rightDriveMaster.setNeutralMode(NeutralMode.Coast);
+    m_rightDriveFollower.setNeutralMode(NeutralMode.Coast);
+
+    m_leftEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveLeftEncoderChannelB")));
+    m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("driveRightEncoderChannelA")), getInteger(robotMapProperties.getProperty("driveRightEncoderChannelB")));
+    double distancePerPules = m_wheelCircumference * m_gearRatio / m_encoderResolution;
+    m_leftEncoder.setDistancePerPulse(distancePerPules);
+    m_leftEncoder.setReverseDirection(true);
+    m_rightEncoder.setDistancePerPulse(distancePerPules);
 
     if (m_pigeonEnabled) {
-      m_pigeon = new PigeonIMU(drivetrainMap.pigeonID);
+      m_pigeon = new PigeonIMU(getInteger(robotMapProperties.getProperty("pigeonID")));
       m_pigeon.configFactoryDefault();
+      m_pigeon.setYaw(0.0);
+      m_pigeon.setFusedHeading(0.0);
     }
 
-    m_shifter = m_shiftersEnabled ? new DoubleSolenoid(drivetrainMap.shiftForwardChannel, drivetrainMap.shiftReverseChannel) : null;
+    m_shifter = m_shiftersEnabled
+        ? new DoubleSolenoid(getInteger(robotMapProperties.getProperty("drivetrainShiftForwardChannel")), getInteger(robotMapProperties.getProperty("drivetrainShiftReverseChannel")))
+        : null;
+    if (m_shiftersEnabled) {this.setLowGear(false);}
 
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
     m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);
@@ -233,7 +278,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
     updateGyroData();
     updateOdometry();
-
+    logCount++;
+    if (logCount%20 == 0) {
+      m_logger.log(Level.INFO, m_rightDriveMaster.getFaults(new Faults()).toString());
+      m_logger.log(Level.INFO, m_leftDriveMaster.getFaults(new Faults()).toString());
+    }
     m_leftPGainEntry.setNumber(m_leftPGain);
     m_leftIGainEntry.setNumber(m_leftIGain);
     m_leftDGainEntry.setNumber(m_leftDGain);
@@ -241,6 +290,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightIGainEntry.setNumber(m_leftIGain);
     m_rightDGainEntry.setNumber(m_leftDGain);
 
+    m_networkTable.getEntry("heading").setDouble(getHeading());
     m_invertedDrivingEntry.setBoolean(m_isDrivingInverted);
     m_leftDistanceEntry.setNumber(getLeftDistance());
     m_rightDistanceEntry.setNumber(getRightDistance());
@@ -279,6 +329,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private void resetEncoders() {
+    m_logger.fine("encoders reset");
     m_leftEncoder.reset();
     m_rightEncoder.reset();
   }
@@ -289,7 +340,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   @Override
-  public void setDrivingInverted(boolean wantsInverted) {
+  public void setDrivingInverted(final boolean wantsInverted) {
+    m_logger.fine("inverted to" + wantsInverted);
     m_isDrivingInverted = wantsInverted;
   }
 
@@ -302,6 +354,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   public double getRightDistance() {
     return m_rightEncoder.getDistance();
   }
+
+  @Override
+  public double getAverageDistance() {
+    return (getLeftDistance() + getRightDistance()) / 2;
+   }
 
   @Override
   public double getLeftVelocity() {
@@ -319,28 +376,29 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   private double getYaw() {
-    m_logger.log(Level.FINER, "yaw = ", m_gyroData[0]);
+    m_logger.log(Level.FINE, "yaw = ", m_gyroData[0]);
     return m_gyroData[0];
   }
 
   private double getPitch() {
-    m_logger.log(Level.FINER, "pitch = ", m_gyroData[1]);
+    m_logger.log(Level.FINE, "pitch = ", m_gyroData[1]);
     return m_gyroData[1];
   }
 
   private double getRoll() {
-    m_logger.log(Level.FINER, "roll = ", m_gyroData[2]);
+    m_logger.log(Level.FINE, "roll = ", m_gyroData[2]);
     return m_gyroData[2];
   }
 
   private double getFusedHeading() {
-    m_logger.log(Level.FINE, "fused heading = ", m_pigeon.getFusedHeading());
+    if (m_pigeonEnabled)
+      m_logger.fine("fused heading = " + m_pigeon.getFusedHeading());
     return m_pigeonEnabled ? m_pigeon.getFusedHeading() : 0.0;
   }
 
   @Override
   public double getHeading() {
-    return m_pigeonEnabled ? getFusedHeading() : 0.0;
+    return m_pigeonEnabled ? -getFusedHeading() % 360 : 0.0;
   }
 
   /**
@@ -353,7 +411,7 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   }
 
   @Override
-  public void setLowGear(boolean wantsLowGear) {
+  public void setLowGear(final boolean wantsLowGear) {
     if (m_shiftersEnabled) {
       m_shifter.set(wantsLowGear ? m_lowGearValue : m_highGearValue);
     } else {
@@ -379,28 +437,32 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   @Override
   public void resetPose() {
     resetEncoders();
-    Pose2d newPose = new Pose2d();
+    final Pose2d newPose = new Pose2d();
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   @Override
-  public void resetPose(Translation2d translation) {
+  public void resetPose(final Translation2d translation) {
     resetEncoders();
-    Pose2d newPose = new Pose2d(translation, getPose().getRotation());
+    final Pose2d newPose = new Pose2d(translation, getPose().getRotation());
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   @Override
-  public void resetPose(Rotation2d rotation) {
+  public void resetPose(final Rotation2d rotation) {
     resetEncoders();
-    Pose2d newPose = new Pose2d(getPose().getTranslation(), rotation);
+    final Pose2d newPose = new Pose2d(getPose().getTranslation(), rotation);
     m_odometry.resetPosition(newPose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   @Override
-  public void resetPose(Pose2d pose) {
+  public void resetPose(final Pose2d pose) {
     resetEncoders();
     m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getFusedHeading()));
+    m_logger.fine("reset pose");
   }
 
   /**
@@ -413,12 +475,14 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   @Override
   public void simpleArcadeDrive(double move, double turn) {
+    move = 0.75 * move;
+    turn = 0.75 * turn;
     m_leftDriveMaster.set(ControlMode.PercentOutput, move - turn);
     m_rightDriveMaster.set(ControlMode.PercentOutput, move + turn);
   }
 
   @Override
-  public void voltageTank(double left, double right) {
+  public void voltageTank(final double left, final double right) {
     m_leftDriveMaster.setVoltage(left);
     m_rightDriveMaster.setVoltage(right);
   }
@@ -430,21 +494,21 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
    * @param angularVelocity Angular velocity in radians per second
    */
   @Override
-  public void velocityArcadeDrive(double velocity, double angularVelocity) {
+  public void velocityArcadeDrive(double velocity, final double angularVelocity) {
     velocity = m_isDrivingInverted ? -velocity : velocity;
     setSpeeds(m_kinematics.toWheelSpeeds(new ChassisSpeeds(velocity, 0, angularVelocity)));
   }
 
   @Override
-  public void setWheelSpeeds(double left, double right) {
+  public void setWheelSpeeds(final double left, final double right) {
     setSpeeds(new DifferentialDriveWheelSpeeds(left, right));
   }
 
-  private void setSpeeds(DifferentialDriveWheelSpeeds wheelSpeeds) {
-    double leftFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
-    double rightFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
-    double leftPIDOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
-    double rightPIDOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
+  private void setSpeeds(final DifferentialDriveWheelSpeeds wheelSpeeds) {
+    final double leftFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
+    final double rightFeedforward = m_driveMotorFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
+    final double leftPIDOutput = m_leftPIDController.calculate(m_leftEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
+    final double rightPIDOutput = m_rightPIDController.calculate(m_rightEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
 
     m_leftDriveMaster.set(leftFeedforward + leftPIDOutput);
     m_rightDriveMaster.set(rightFeedforward + rightPIDOutput);
@@ -452,15 +516,36 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
   @Override
   public Map<String, Object> getValues() {
-    Map<String, Object> values = new HashMap<>();
+    final Map<String, Object> values = new HashMap<>();
     values.put("leftPGain", m_leftPGain);
     values.put("leftIGain", m_leftIGain);
     values.put("leftDGain", m_leftDGain);
     values.put("rightPGain", m_rightPGain);
     values.put("rightIGain", m_rightIGain);
     values.put("rightDGain", m_rightDGain);
+    m_logger.fine("put values");
     return values;
   }
 
+  @Override
+  public SimpleMotorFeedforward getFeedForward() {
+    return m_driveMotorFeedforward;
+  }
 
+  @Override
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
+  }
+
+  @Override
+  public PIDController getLeftController() {
+    return m_leftPIDController;
+  }
+
+  @Override
+  public PIDController getRightController() {
+    return m_rightPIDController;
+  }
+
+  
 }

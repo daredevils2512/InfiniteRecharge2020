@@ -3,10 +3,10 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.SlewRateLimiter;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IDrivetrain;
+import frc.robot.utils.CommandLogger;
 
-public final class AccelerationLimitedSimpleArcadeDrive extends CommandBase {
+public final class AccelerationLimitedSimpleArcadeDrive extends CommandLogger {
   private final double m_maxAcceleration;
   private final double m_maxAngularAcceleration; 
 

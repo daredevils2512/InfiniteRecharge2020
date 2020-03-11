@@ -7,11 +7,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.ColorSensor.ColorDetect;
 import frc.robot.subsystems.interfaces.ISpinner;
+import frc.robot.utils.CommandLogger;
 
-public class RotationControl extends CommandBase {
+public class RotationControl extends CommandLogger {
   private final ISpinner m_spinner;
   private final double m_rotations;
   private ColorDetect pastColor;
@@ -45,7 +45,7 @@ public class RotationControl extends CommandBase {
       // the segment counter just counts the amount of color CHANGES it detects.
       segmentCounter++;
       // prints out the amount of segments moved in the DRIVER STATION CONSOLE not smart dashboard. 
-      System.out.println("Moved " + segmentCounter + "segments");
+      m_logger.fine("Moved " + segmentCounter + "segments");
       // resets current color to past color
       pastColor = currentColor;
     }

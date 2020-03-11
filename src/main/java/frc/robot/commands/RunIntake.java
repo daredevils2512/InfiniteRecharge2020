@@ -1,9 +1,9 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.interfaces.IIntake;
+import frc.robot.utils.CommandLogger;
 
-public class RunIntake extends CommandBase {
+public class RunIntake extends CommandLogger {
   private final IIntake m_intake;
   private final double m_speed;
 
@@ -15,7 +15,8 @@ public class RunIntake extends CommandBase {
 
   @Override
   public void initialize() {
-    m_intake.setExtended(true);
+    m_intake.setMotionMagicEnabled(false);
+    m_logger.fine("running intake at" + m_speed);
   }
 
   @Override

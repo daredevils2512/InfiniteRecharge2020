@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import java.util.Map;
+import java.util.Properties;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -36,45 +37,29 @@ public class Queue extends PropertySubsystem implements IQueue {
 
   private final TalonSRX m_runMotor;
 
-  private final Runnable m_incrementMagazinePowerCellCount;
-  private final Runnable m_decrementMagazinePowerCellCount;
-
-  private boolean m_powerCellPreviouslyDetected = false;
-
   /**
    * Creates a new Queue.
    */
-  public Queue(QueueMap queueMap, Runnable incrementMagazinePowerCellCount, Runnable decrementMagazinePowerCellCount) {
+  public Queue(Properties robotMapProperties) {
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_runSpeedEntry = m_networkTable.getEntry("Run speed");
+    m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
-    m_runMotor = new TalonSRX(queueMap.queueRunID);
+    m_runMotor = new TalonSRX(getInteger(robotMapProperties.getProperty("queueRunID")));
     m_runMotor.configFactoryDefault();
-    m_runMotor.setInverted(InvertType.InvertMotorOutput);
+    m_runMotor.setInverted(InvertType.None);
 
-    m_photoEye = m_photoEyeEnabled ? new PhotoEye(queueMap.photoEyeChannel) : new DummyDigitalInput();
-
-    m_incrementMagazinePowerCellCount = incrementMagazinePowerCellCount;
-    m_decrementMagazinePowerCellCount = decrementMagazinePowerCellCount;
+    m_photoEye = m_photoEyeEnabled ? new PhotoEye(getInteger(robotMapProperties.getProperty("queuePhotoEyeChannel"))) : new DummyDigitalInput();
   }
 
   @Override
   public void periodic() {
-    updateMagazinePowerCellCount();
-
     m_runSpeedEntry.setNumber(m_runMotor.getMotorOutputPercent());
-  }
-
-  private void updateMagazinePowerCellCount() {
-    if (m_photoEye.get() && !m_powerCellPreviouslyDetected && !getDirectionReversed()) {
-      m_decrementMagazinePowerCellCount.run();
-    } else if (!m_photoEye.get() && m_powerCellPreviouslyDetected && getDirectionReversed()) {
-      m_incrementMagazinePowerCellCount.run();
-    }
   }
 
   @Override
   public void run(double speed) {
+    m_logger.fine("set queue speed to" + speed);
     m_runMotor.set(ControlMode.PercentOutput, speed);
   }
 
@@ -92,5 +77,10 @@ public class Queue extends PropertySubsystem implements IQueue {
   @Override
   public Map<String, Object> getValues() {
     return null;
+  }
+
+  @Override
+  public IDigitalInput getPhotoEye() {
+    return this.m_photoEye;
   }
 }

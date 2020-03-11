@@ -1,11 +1,9 @@
 package frc.robot.subsystems.dummy;
 
 import java.util.Map;
-
-import frc.robot.subsystems.interfaces.IPropertySubsystem;
 import frc.robot.subsystems.interfaces.IShooter;
 
-public class DummyShooter implements IShooter, IPropertySubsystem {
+public class DummyShooter implements IShooter {
 
   @Override
   public void resetHoodAngle(double angle) {
@@ -21,6 +19,11 @@ public class DummyShooter implements IShooter, IPropertySubsystem {
 
   @Override
   public void stop() {
+  }
+
+  @Override
+  public void setHoodSpeed(double speed) {
+    
   }
 
   @Override
@@ -44,5 +47,23 @@ public class DummyShooter implements IShooter, IPropertySubsystem {
 
   @Override
   public void saveProperties() {
+  }
+
+  @Override
+  public double getCalculatedVelocity() {
+    return 0;
+  }
+
+  @Override
+  public boolean isAtSpeed() {
+    return true;
+  }
+
+  @Override
+  public void setToCalculatedVelocity() {
+  }
+
+  @Override
+  public void boostSpeed(double boost) {
   }
 }
