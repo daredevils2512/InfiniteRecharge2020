@@ -23,6 +23,8 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final Encoder m_leftEncoder;
   private final Encoder m_rightEncoder;
 
+  private final double m_gearRatio = 1.0 / 30.0;
+
   private final DoubleSolenoid m_climberExtender;
   private final Value m_retracted = Value.kReverse;
   private final Value m_extended = Value.kForward;
@@ -99,6 +101,12 @@ public class Climber extends PropertySubsystem implements IClimber {
   public void raiseClimbers(boolean wantsExtended) {
     m_logger.info("extended to " + wantsExtended);
     m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
+  }
+  
+  @Override
+  public void shiftToClimbing(boolean wantsClimbing) {
+    m_logger.info("shifted to climbing " + wantsClimbing);
+    m_climbShifter.set(wantsClimbing ? m_climbing : m_driving);
   }
 
   public boolean getExtended() {

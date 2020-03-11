@@ -98,12 +98,13 @@ public class RobotContainer {
   private Command m_autonomousCommand;
 
   private final double m_intakeExtenderSpeed = 0.3;
-  private final double m_intakeSpeed = 0.7;
+  private final double m_intakeSpeed = 0.85;
+  private final double m_intakeReverseSpeed = -1.0;
   private final double m_magazineSpeed = 0.8;
   private final double m_queueSpeed = 0.9;
   private final double m_shooterHoodSpeed = 0.4;
   private final double m_turretSpeed = 0.3;
-  private double m_climberSpeed = 0.5;
+  private double m_climberSpeed = 1.0;
 
   private static Logger logger = Logger.getGlobal();
   private static Logger commandLogger = Logger.getLogger(Commands.class.getName());
@@ -209,8 +210,6 @@ public class RobotContainer {
     m_turret.setLogLevel(m_properties.getProperty("turret.logLevel"));
     // limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
 
-    m_climber.raiseClimbers(false);
-
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain,
@@ -221,43 +220,79 @@ public class RobotContainer {
 
   private void putButtons() {
 
+
+
+
+
+
+
     // important buttons
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE, m_controlBoard.buttonBox.topWhite);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE, m_controlBoard.buttonBox.topRed);
 
+
+
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE, m_controlBoard.buttonBox.middleWhite);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE, m_controlBoard.buttonBox.middleRed);
+
+
 
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE, m_controlBoard.buttonBox.bottomWhite);
     m_buttonMap.put(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE, m_controlBoard.buttonBox.bottomRed);
 
+
+
     m_buttonMap.put(ButtonCommand.SHOOT_BALL, m_controlBoard.buttonBox.bigWhite);
+
+
 
     m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS, m_controlBoard.buttonBox.green);
     m_buttonMap.put(ButtonCommand.MOVE_POWER_CELLS_REVERSE, m_controlBoard.buttonBox.yellow);
 
     m_buttonMap.put(ButtonCommand.AUTO_AIM_TURRET, m_controlBoard.extreme.baseBackRight);
 
+
+
+
+
+
+
     // m_buttonMap.put(ButtonCommand.BOOST_SPEED,
     // m_controlBoard.extreme.joystickTopRight);
     // m_buttonMap.put(ButtonCommand.CUT_SPEED,
     // m_controlBoard.extreme.joystickBottomRight);
 
+
+
+
     m_buttonMap.put(ButtonCommand.RAISE_CLIMBERS, m_controlBoard.extreme.baseMiddleRight);
     m_buttonMap.put(ButtonCommand.LOWER_CLIMBERS, m_controlBoard.extreme.baseMiddleLeft);
+
+
 
     m_buttonMap.put(ButtonCommand.EXTEND_LEFT_CLIMBER, m_controlBoard.extreme.joystickTopLeft);
     m_buttonMap.put(ButtonCommand.RETRACT_LEFT_CLIMBER, m_controlBoard.extreme.joystickBottomLeft);
 
+
+
     m_buttonMap.put(ButtonCommand.EXTEND_RIGHT_CLIMBER, m_controlBoard.extreme.joystickTopRight);
-    m_buttonMap.put(ButtonCommand.RETRACT_RIGHT_CLLIMBER, m_controlBoard.extreme.joystickBottomRight);
+    m_buttonMap.put(ButtonCommand.RETRACT_RIGHT_CLIMBER, m_controlBoard.extreme.joystickBottomRight);
+
+
 
     m_buttonMap.put(ButtonCommand.CLIMB, m_controlBoard.xbox.xButton);
+
+
 
     m_buttonMap.put(ButtonCommand.SHIFT_DRIVETRAIN, m_controlBoard.xbox.rightBumper);
     m_buttonMap.put(ButtonCommand.EXTEND_INTAKE, m_controlBoard.xbox.aButton);
     m_buttonMap.put(ButtonCommand.RETRACT_INTAKE, m_controlBoard.xbox.yButton);
+
+
+
+
+
 
     // m_buttonMap.put(ButtonCommand.INTAKE_EXTENDER_MOTION_MAGIC,
     // m_controlBoard.extreme.joystickTopLeft);
@@ -306,17 +341,29 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
+
+
+
+
+
+
+
     // the actually important ones
 
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE).whileHeld(Commands.runIntake(m_intake, m_intakeSpeed));
-    m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed));
+    m_buttonMap.get(ButtonCommand.MANUAL_RUN_INTAKE_REVERSE).whileHeld(Commands.runIntake(m_intake, m_intakeReverseSpeed));
+
 
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE)
         .whileHeld(Commands.runMagazine(m_magazine, -m_magazineSpeed));
 
+        
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE).whileHeld(Commands.runQueue(m_queue, -m_queueSpeed));
+
+
+
 
     // m_buttonMap.get(ButtonCommand.BOOST_SPEED).whenPressed(Commands.boostSpeed(m_shooter,
     // 0.1));
@@ -327,7 +374,7 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS).whileHeld(Commands.runMagazine(m_magazine, m_magazineSpeed)
         .alongWith(Commands.runQueue(m_queue, m_queueSpeed)).alongWith(Commands.runIntake(m_intake, m_intakeSpeed)));
     m_buttonMap.get(ButtonCommand.MOVE_POWER_CELLS_REVERSE)
-        .whileHeld(Commands.runIntake(m_intake, -m_intakeSpeed).alongWith(
+        .whileHeld(Commands.runIntake(m_intake, m_intakeReverseSpeed).alongWith(
             Commands.runMagazine(m_magazine, -m_magazineSpeed).alongWith(Commands.runQueue(m_queue, -m_queueSpeed))));
 
     m_buttonMap.get(ButtonCommand.SHOOT_BALL).whileHeld(Commands.shootBallsAndAim(m_shooter, m_queue, m_queueSpeed,
@@ -343,16 +390,22 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.LOWER_CLIMBERS).whenPressed(Commands.retractClimber(m_climber));
 
     m_buttonMap.get(ButtonCommand.EXTEND_LEFT_CLIMBER)
-        .whenPressed(Commands.extendLeftClimber(m_climber, m_climberSpeed));
+        .whenPressed(Commands.extendLeftClimber(m_climber, m_climberSpeed))
+        .whenReleased(Commands.extendLeftClimber(m_climber, 0.0));
+
     m_buttonMap.get(ButtonCommand.RETRACT_LEFT_CLIMBER)
-        .whenPressed(Commands.extendLeftClimber(m_climber, -m_climberSpeed));
+        .whenPressed(Commands.extendLeftClimber(m_climber, -m_climberSpeed))
+        .whenReleased(Commands.extendLeftClimber(m_climber, 0.0));
 
     m_buttonMap.get(ButtonCommand.EXTEND_RIGHT_CLIMBER)
-        .whenPressed(Commands.extendRightClimber(m_climber, m_climberSpeed));
-    m_buttonMap.get(ButtonCommand.RETRACT_RIGHT_CLLIMBER)
-        .whenPressed(Commands.extendLeftClimber(m_climber, -m_climberSpeed));
+        .whenPressed(Commands.extendRightClimber(m_climber, m_climberSpeed))
+        .whenReleased(Commands.extendRightClimber(m_climber, 0.0));
 
-    m_buttonMap.get(ButtonCommand.CLIMB).whileHeld(Commands.Climb(m_drivetrain, 0.2, 0.2));
+    m_buttonMap.get(ButtonCommand.RETRACT_RIGHT_CLIMBER)
+        .whenPressed(Commands.extendRightClimber(m_climber, -m_climberSpeed))
+        .whenReleased(Commands.extendRightClimber(m_climber, 0.0));
+
+    m_buttonMap.get(ButtonCommand.CLIMB).whileHeld(Commands.Climb(m_climber ,m_drivetrain, 0.2, 0.2));
 
     // everything else
 

@@ -29,15 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.interfaces.IClimber;
-import frc.robot.subsystems.interfaces.ICompressorManager;
-import frc.robot.subsystems.interfaces.IDrivetrain;
-import frc.robot.subsystems.interfaces.IIntake;
-import frc.robot.subsystems.interfaces.IMagazine;
-import frc.robot.subsystems.interfaces.IQueue;
-import frc.robot.subsystems.interfaces.IShooter;
-import frc.robot.subsystems.interfaces.ISpinner;
-import frc.robot.subsystems.interfaces.ITurret;
+import frc.robot.subsystems.interfaces.*;
 import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightLEDMode;
@@ -90,8 +82,9 @@ public final class Commands {
     return new RunCommand(() -> climber.extendRightClimber(speed), climber);
   }
 
-  public static Command Climb(IDrivetrain drivetrain, double leftSpeed, double rightSpeed) {
-    return new InstantCommand(() -> drivetrain.drivetrainClimb(leftSpeed, rightSpeed));
+  public static Command Climb(IClimber climber ,IDrivetrain drivetrain, double leftSpeed, double rightSpeed) {
+    return new InstantCommand(() -> climber.shiftToClimbing(true))
+        .andThen(new RunCommand(() -> drivetrain.drivetrainClimb(leftSpeed, rightSpeed)));
   }
 
   public static Command setLimelightLEDMode(Limelight limelight, LimelightLEDMode ledMode) {

@@ -47,4 +47,8 @@ public class DummyClimber implements IClimber {
   public int getRightEncoder() {
     return 0;
   }
+
+  @Override
+  public void shiftToClimbing(boolean wantsClimbing) {
+  }
 }

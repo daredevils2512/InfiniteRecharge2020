@@ -62,7 +62,7 @@ public class IntakeCommand extends CommandLogger {
     if (
       //MagazinePowerCellCounter.getCount() <= 3 && 
         m_intakeAxis.get() != 0.0) {
-      m_runMagazine = m_magazineSpeed;
+      m_runMagazine = m_magazineSpeed * Math.signum(m_intakeAxis.get());
       magazineRunState = true;
       m_magazine.setSpeed(m_runMagazine);
     } else if(magazineRunState) {
