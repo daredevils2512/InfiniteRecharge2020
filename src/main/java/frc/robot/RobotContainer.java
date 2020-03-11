@@ -97,14 +97,14 @@ public class RobotContainer {
 
   private Command m_autonomousCommand;
 
-  private final double m_intakeExtenderSpeed = 0.3;
-  private final double m_intakeSpeed = 0.85;
-  private final double m_intakeReverseSpeed = -1.0;
-  private final double m_magazineSpeed = 0.8;
-  private final double m_queueSpeed = 0.9;
-  private final double m_shooterHoodSpeed = 0.4;
-  private final double m_turretSpeed = 0.3;
-  private double m_climberSpeed = 1.0;
+  private final double m_intakeExtenderSpeed;
+  private final double m_intakeSpeed;
+  private final double m_intakeReverseSpeed;
+  private final double m_magazineSpeed;
+  private final double m_queueSpeed;
+  private final double m_shooterHoodSpeed;
+  private final double m_turretSpeed;
+  private final double m_climberSpeed;
 
   private static Logger logger = Logger.getGlobal();
   private static Logger commandLogger = Logger.getLogger(Commands.class.getName());
@@ -144,6 +144,15 @@ public class RobotContainer {
 
     m_limelightEnabled = Boolean.parseBoolean(m_properties.getProperty("limelight.isEnabled"));
     m_piTableEnabled = Boolean.parseBoolean(m_properties.getProperty("piTable.isEnabled"));
+
+    m_intakeExtenderSpeed = Double.parseDouble(m_properties.getProperty("intakeExtenderSpeed"));
+    m_intakeSpeed = Double.parseDouble(m_properties.getProperty("intakeSpeed"));
+    m_intakeReverseSpeed = Double.parseDouble(m_properties.getProperty("intakeReverseSpeed"));
+    m_magazineSpeed = Double.parseDouble(m_properties.getProperty("magazineSpeed"));
+    m_queueSpeed = Double.parseDouble(m_properties.getProperty("queueSpeed"));
+    m_shooterHoodSpeed = Double.parseDouble(m_properties.getProperty("shooterHoodSpeed"));
+    m_turretSpeed = Double.parseDouble(m_properties.getProperty("turretSpeed"));
+    m_climberSpeed = Double.parseDouble(m_properties.getProperty("climberSpeed"));
 
     m_compressorEnabled = Boolean.parseBoolean(m_properties.getProperty("compressor.isEnabled"));
     m_drivetrainEnabled = Boolean.parseBoolean(m_properties.getProperty("drivetrain.isEnabled"));
@@ -550,7 +559,7 @@ public class RobotContainer {
     m_shooterEntry.forceSetValue(m_shooter.getCurrentCommand());
     m_spinnerEntry.forceSetValue(m_spinner.getCurrentCommand());
     m_turretEntry.forceSetValue(m_turret.getCurrentCommand());
-    
+
     m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null)
