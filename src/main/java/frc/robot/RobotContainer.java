@@ -210,6 +210,7 @@ public class RobotContainer {
     m_turret.setLogLevel(m_properties.getProperty("turret.logLevel"));
     // limelightLogger.setLevel(Level.parse(m_properties.getProperty("limelight.logLevel")));
 
+    putButtons();
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain,
@@ -358,7 +359,7 @@ public class RobotContainer {
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_MAGAZINE_REVERSE)
         .whileHeld(Commands.runMagazine(m_magazine, -m_magazineSpeed));
 
-        
+
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE).whileHeld(Commands.runQueue(m_queue, m_queueSpeed));
     m_buttonMap.get(ButtonCommand.MANUAL_RUN_QUEUE_REVERSE).whileHeld(Commands.runQueue(m_queue, -m_queueSpeed));
 
