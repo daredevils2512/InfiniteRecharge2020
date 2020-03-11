@@ -71,11 +71,11 @@ public final class Commands {
   }
 
   public static Command raiseClimbers(IClimber climber) {
-    return new InstantCommand(() -> climber.raiseClimbers(true));
+    return new InstantCommand(() -> climber.raiseClimbers(true), climber);
   }
 
   public static Command retractClimber(IClimber climber) {
-    return new InstantCommand(() -> climber.raiseClimbers(false));
+    return new InstantCommand(() -> climber.raiseClimbers(false), climber);
   }
 
   public static Command extendClimbers(IClimber climber, double leftSpeed, double rightSpeed) {
@@ -87,7 +87,7 @@ public final class Commands {
   }
 
   public static Command extendRightClimber(IClimber climber, double speed) {
-    return new RunCommand(() -> climber.extendRightClimber(speed));
+    return new RunCommand(() -> climber.extendRightClimber(speed), climber);
   }
 
   public static Command Climb(IDrivetrain drivetrain, double leftSpeed, double rightSpeed) {
