@@ -541,51 +541,16 @@ public class RobotContainer {
 
   // beacuse
   public void robotContainerPeriodic() {
-    if (m_climber.getCurrentCommand() != null) {
-      m_climberEntry.forceSetBoolean(true);
-    } else {
-      m_climberEntry.forceSetBoolean(false);
-    }
-    if (m_compressor.getCurrentCommand() != null) {
-      m_compressorEntry.forceSetBoolean(true);
-    } else {
-      m_compressorEntry.forceSetBoolean(false);
-    }
-    if (m_drivetrain.getCurrentCommand() != null) {
-      m_drivetrainEntry.forceSetBoolean(true);
-    } else {
-      m_drivetrainEntry.forceSetBoolean(false);
-    }
-    if (m_intake.getCurrentCommand() != null) {
-      m_intakeEntry.forceSetBoolean(true);
-    } else {
-      m_intakeEntry.forceSetBoolean(false);
-    }
-    if (m_magazine.getCurrentCommand() != null) {
-      m_magazineEntry.forceSetBoolean(true);
-    } else {
-      m_magazineEntry.forceSetBoolean(false);
-    }
-    if (m_queue.getCurrentCommand() != null) {
-      m_queueEntry.forceSetBoolean(true);
-    } else {
-      m_queueEntry.forceSetBoolean(false);
-    }
-    if (m_shooter.getCurrentCommand() != null) {
-      m_shooterEntry.forceSetBoolean(true);
-    } else {
-      m_shooterEntry.forceSetBoolean(false);
-    }
-    if (m_spinner.getCurrentCommand() != null) {
-      m_spinnerEntry.forceSetBoolean(true);
-    } else {
-      m_spinnerEntry.forceSetBoolean(false);
-    }
-    if (m_turret.getCurrentCommand() != null) {
-      m_turretEntry.forceSetBoolean(true);
-    } else {
-      m_turretEntry.forceSetBoolean(false);
-    }
+    m_climberEntry.forceSetValue(m_climber.getCurrentCommand());
+    m_compressorEntry.forceSetValue(m_compressor.getCurrentCommand());
+    m_drivetrainEntry.forceSetValue(m_drivetrain.getCurrentCommand());
+    m_intakeEntry.forceSetValue(m_intake.getCurrentCommand());
+    m_magazineEntry.forceSetValue(m_magazine.getCurrentCommand());
+    m_queueEntry.forceSetValue(m_queue.getCurrentCommand());
+    m_shooterEntry.forceSetValue(m_shooter.getCurrentCommand());
+    m_spinnerEntry.forceSetValue(m_spinner.getCurrentCommand());
+    m_turretEntry.forceSetValue(m_turret.getCurrentCommand());
+    
     m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null)
