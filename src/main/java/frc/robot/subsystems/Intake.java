@@ -24,13 +24,6 @@ import frc.robot.sensors.LimitSwitch;
 import frc.robot.subsystems.interfaces.IIntake;
 
 public class Intake extends PropertySubsystem implements IIntake {
-  public static class IntakeMap {
-    public int runMotorID = -1;
-    public int extendMotorID = -1;
-    public int retractedLimitSwitchChannel = -1;
-    public int extendedLimitSwitchChannel = -1;
-  }
-
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_extendedEntry;
   private final NetworkTableEntry m_motionMagicEnbledEntry;

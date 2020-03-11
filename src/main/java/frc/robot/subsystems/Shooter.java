@@ -29,12 +29,6 @@ import frc.robot.utils.DareMathUtil;
 import frc.robot.vision.HexagonPosition;
 
 public class Shooter extends PropertySubsystem implements IShooter {
-  public static class ShooterMap {
-    public int shooter1ID = -1;
-    public int shooter2ID = -1;
-    public int shooterHoodID = -1;
-  }
-
   //{@Link https://www.desmos.com/calculator/bxirdukkdg}
 
   /**

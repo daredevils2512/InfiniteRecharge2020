@@ -24,11 +24,6 @@ import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IMagazine;
 
 public class Magazine extends PropertySubsystem implements IMagazine {
-  public static class MagazineMap {
-    public int runMotorID = -1;
-    public int photoEyeChannel = -1;
-  }
-  
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_directionReversedEntry;
   

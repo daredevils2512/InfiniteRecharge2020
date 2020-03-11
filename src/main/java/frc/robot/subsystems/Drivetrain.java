@@ -48,20 +48,6 @@ import frc.robot.subsystems.interfaces.IDrivetrain;
  * distance calculation, and a {@link PigeonIMU} for heading calculation.
  */
 public class Drivetrain extends PropertySubsystem implements IDrivetrain {
-  public static class DrivetrainMap {
-    public int driveLeft1ID;
-    public int driveLeft2ID;
-    public int driveRight1ID;
-    public int driveRight2ID;
-    public int pigeonID;
-    public int driveLeftEncoderChannelA;
-    public int driveLeftEncoderChannelB;
-    public int driveRightEncoderChannelA;
-    public int driveRightEncoderChannelB;
-    public int shiftForwardChannel;
-    public int shiftReverseChannel;
-  }
-
   /**
    * All network table enties are stored as variables so they can be referenced
    * more reliably (instead of by name via string)
@@ -135,9 +121,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
   private double m_rightIGain = 0;
   private double m_rightDGain = 0;
 
-  private final Logger m_logger;
-  private int logCount = 0;
-
+  private int logFrequency = 0;
+  private final boolean m_logFalconFaults;
   /**
    * Creates a new drivetrain
    */
@@ -171,6 +156,8 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rightIGain = Double.parseDouble(m_properties.getProperty("rightIGain"));
     m_rightDGain = Double.parseDouble(m_properties.getProperty("rightDGain"));
 
+    m_logFalconFaults = getBoolean(m_properties.getProperty("logFalconFaults"));
+
     m_networkTable = NetworkTableInstance.getDefault().getTable(getName());
     m_leftPGainEntry = m_networkTable.getEntry("Left P gain");
     m_leftIGainEntry = m_networkTable.getEntry("Left I gain");
@@ -188,8 +175,6 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
     m_rollEntry = m_networkTable.getEntry("Roll");
     m_fusedHeadingEntry = m_networkTable.getEntry("Gyro fused heading");
     m_lowGearEntry = m_networkTable.getEntry("Low gear");
-
-    m_logger = Logger.getLogger(Drivetrain.class.getName());
 
     m_leftDriveMaster = new WPI_TalonFX(getInteger(robotMapProperties.getProperty("driveLeft1ID")));
     m_leftDriveFollower = new WPI_TalonFX(getInteger(robotMapProperties.getProperty("driveLeft2ID")));
@@ -282,11 +267,12 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
 
     updateGyroData();
     updateOdometry();
-    // logCount++;
-    // if (logCount%20 == 0) {
-    //   m_logger.log(Level.INFO, m_rightDriveMaster.getFaults(new Faults()).toString());
-    //   m_logger.log(Level.INFO, m_leftDriveMaster.getFaults(new Faults()).toString());
-    // }
+
+    //ike told me to ad this
+    if (m_logFalconFaults && logFrequency % 20 == 0) {
+      m_logger.log(Level.INFO, m_rightDriveMaster.getFaults(new Faults()).toString());
+      m_logger.log(Level.INFO, m_leftDriveMaster.getFaults(new Faults()).toString());
+    }
     m_leftPGainEntry.setNumber(m_leftPGain);
     m_leftIGainEntry.setNumber(m_leftIGain);
     m_leftDGainEntry.setNumber(m_leftDGain);

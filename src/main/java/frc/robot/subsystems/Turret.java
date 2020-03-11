@@ -24,10 +24,6 @@ import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
 
 public class Turret extends PropertySubsystem implements ITurret {
-  public static class TurretMap {
-    public int turretID = -1;
-  }
-
   private final NetworkTable m_networkTable;
   private final NetworkTableEntry m_angleEntry;
   private final NetworkTableEntry m_wrappedAngleEntry;

@@ -24,11 +24,6 @@ import frc.robot.sensors.PhotoEye;
 import frc.robot.subsystems.interfaces.IQueue;
 
 public class Queue extends PropertySubsystem implements IQueue {
-  public static class QueueMap {
-    public int queueRunID = -1;
-    public int photoEyeChannel = -1;
-  }
-
   private boolean m_photoEyeEnabled;
   private final IDigitalInput m_photoEye;
 
