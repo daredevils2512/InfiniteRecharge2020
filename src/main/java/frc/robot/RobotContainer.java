@@ -211,6 +211,7 @@ public class RobotContainer {
 
     m_climber.raiseClimbers(false);
 
+    putButtons();
     configureButtonBindings();
 
     // m_autonomousCommand = m_drivetrainEnabled ? Commands.followPath(m_drivetrain,

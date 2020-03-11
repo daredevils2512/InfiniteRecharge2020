@@ -14,6 +14,10 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.subsystems.interfaces.IClimber;
 
 public class Climber extends PropertySubsystem implements IClimber {  
+
+  //TODO: max left climber encoder value = -2900 min = 235 min while retracted = 311
+
+
   private final Boolean m_shiftersEnabled;
   private final Boolean m_encodersEnabled;
 
