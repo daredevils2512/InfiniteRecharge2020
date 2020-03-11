@@ -15,7 +15,7 @@ import frc.robot.subsystems.interfaces.IClimber;
 
 public class Climber extends PropertySubsystem implements IClimber {  
 
-  //TODO: max left climber encoder value = -2900 min = 235 min while retracted = 311
+  //TODO: max left climber encoder value = -2578 min = 235 min while retracted = 311
 
 
   private final Boolean m_shiftersEnabled;
@@ -38,6 +38,9 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final NetworkTable m_networktable;
   private final NetworkTableEntry m_leftClimberEncoderEntry;
   private final NetworkTableEntry m_rightClimberEncoderEntry;
+
+  private final int m_maxClimberPos = -2578;
+  private final int m_minClimberPos = 0;
 
   public Climber(Properties robotMapProperties) {
     m_shiftersEnabled = getBoolean(m_properties.getProperty("shiftersEnabled"));
@@ -76,9 +79,9 @@ public class Climber extends PropertySubsystem implements IClimber {
   }
 
   public void extendLeftClimber(double speed) {
-    if (speed < 0 && m_leftEncoder.get() > 330) {
+    if (speed < 0 && m_leftEncoder.get() > m_minClimberPos) {
       speed = 0;
-    } else if (speed > 0 && m_leftEncoder.get() < -2700) {
+    } else if (speed > 0 && m_leftEncoder.get() < m_maxClimberPos) {
       speed = 0;
     }
     m_logger.info("climber speed = " + speed);
@@ -86,9 +89,9 @@ public class Climber extends PropertySubsystem implements IClimber {
   }
 
   public void extendRightClimber(double speed) {
-    if (speed < 0 && m_rightEncoder.get() > 330) {
+    if (speed < 0 && m_rightEncoder.get() > m_minClimberPos) {
       speed = 0;
-    } else if (speed > 0 && m_rightEncoder.get() < -2700) {
+    } else if (speed > 0 && m_rightEncoder.get() < m_maxClimberPos) {
       speed = 0;
     }
     m_rightClimbMotor.set(speed);
