@@ -34,6 +34,8 @@ public class Climber extends PropertySubsystem implements IClimber {
   private final NetworkTable m_networktable;
   private final NetworkTableEntry m_leftClimberEncoderEntry;
   private final NetworkTableEntry m_rightClimberEncoderEntry;
+  private final NetworkTableEntry m_resetEncoderEntry;
+
 
   public Climber(Properties robotMapProperties) {
     m_shiftersEnabled = getBoolean(m_properties.getProperty("shiftersEnabled"));
@@ -55,6 +57,8 @@ public class Climber extends PropertySubsystem implements IClimber {
         getInteger(robotMapProperties.getProperty("climberExtenderReverseID")));
     m_climbShifter = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("shifterPortForwardID")),
         getInteger(robotMapProperties.getProperty("shifterPortReverseID")));
+    
+    m_resetEncoderEntry = m_networktable.getEntry("Reset encoder");
   }
 
   @Override
@@ -62,6 +66,11 @@ public class Climber extends PropertySubsystem implements IClimber {
     m_leftClimberEncoderEntry.setDouble(m_leftEncoder.get());
     m_rightClimberEncoderEntry.setDouble(m_rightEncoder.get());
     m_networktable.getEntry("climbers raised").setBoolean(getExtended());
+
+    if (m_resetEncoderEntry.getBoolean(false)) {
+      resetEncoders();
+      m_resetEncoderEntry.setBoolean(false);
+    }
   }
 
   @Override
@@ -70,6 +79,8 @@ public class Climber extends PropertySubsystem implements IClimber {
     extendRightClimber(rightSpeed);
     m_logger.fine("left speed = " + leftSpeed + "right speed = " + rightSpeed);
   }
+
+
 
   public void extendLeftClimber(double speed) {
     m_leftClimbMotor.set(speed);
