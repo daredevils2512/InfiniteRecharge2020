@@ -56,16 +56,16 @@ public class Climber extends PropertySubsystem implements IClimber {
 
     m_leftClimbMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("climberLeftID")));
     m_rightClimbMotor = new WPI_TalonSRX(getInteger(robotMapProperties.getProperty("climberRightID")));
-     
-    m_leftEncoder = new Encoder(getInteger(robotMapProperties.getProperty("climberLeftEncoderChannelA")),
-      getInteger(robotMapProperties.getProperty("climberLeftEncoderChannelB")));
-    m_rightEncoder = new Encoder(getInteger(robotMapProperties.getProperty("climberRightEncoderChannelA")),
-      getInteger(robotMapProperties.getProperty("climberRightEncoderChannelB")));
+    
+    m_leftEncoder = m_encodersEnabled ? new Encoder(getInteger(robotMapProperties.getProperty("climberLeftEncoderChannelA")),
+      getInteger(robotMapProperties.getProperty("climberLeftEncoderChannelB"))) : null;
+    m_rightEncoder = m_encodersEnabled ? new Encoder(getInteger(robotMapProperties.getProperty("climberRightEncoderChannelA")),
+      getInteger(robotMapProperties.getProperty("climberRightEncoderChannelB"))) : null;
 
-    m_climberExtender = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberExtenderForwardID")),
-        getInteger(robotMapProperties.getProperty("climberExtenderReverseID")));
-    m_climbShifter = new DoubleSolenoid(getInteger(robotMapProperties.getProperty("shifterPortForwardID")),
-        getInteger(robotMapProperties.getProperty("shifterPortReverseID")));
+    m_climberExtender = m_shiftersEnabled ? new DoubleSolenoid(getInteger(robotMapProperties.getProperty("climberExtenderForwardID")),
+        getInteger(robotMapProperties.getProperty("climberExtenderReverseID"))) : null;
+    m_climbShifter = m_shiftersEnabled ? new DoubleSolenoid(getInteger(robotMapProperties.getProperty("shifterPortForwardID")),
+        getInteger(robotMapProperties.getProperty("shifterPortReverseID"))) : null;
     
     m_resetEncoderEntry = m_networktable.getEntry("Reset encoder");
   }
@@ -118,21 +118,25 @@ public class Climber extends PropertySubsystem implements IClimber {
   @Override
   public void raiseClimbers(boolean wantsExtended) {
     m_logger.info("extended to " + wantsExtended);
-    m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
+    if (m_shiftersEnabled) {
+      m_climberExtender.set(wantsExtended ? m_extended : m_retracted);
+    }
   }
   
   @Override
   public void shiftToClimbing(boolean wantsClimbing) {
     m_logger.info("shifted to climbing " + wantsClimbing);
-    m_climbShifter.set(wantsClimbing ? m_climbing : m_driving);
+    if (m_shiftersEnabled) {
+      m_climbShifter.set(wantsClimbing ? m_climbing : m_driving);
+    }
   }
 
   public boolean getExtended() {
-    return m_climberExtender.get() == m_extended;
+    return m_shiftersEnabled ? m_climberExtender.get() == m_climbing : false;
   }
 
   public boolean getShifted() {
-    return m_climbShifter.get() == m_climbing;
+    return m_shiftersEnabled ? m_climbShifter.get() == m_climbing : false;
   }
 
   @Override
