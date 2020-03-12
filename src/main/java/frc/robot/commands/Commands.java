@@ -259,7 +259,7 @@ public final class Commands {
     return new RunCommand(() -> turret.runPosition(position), turret);
   }
 
-  public static Command findTarget(ITurret turret, Limelight limelight) {
+  public static Command findTarget(ITurret turret, ILimelight limelight) {
     logger.info("finding traget");
     return new FindTarget(turret, limelight);
   }
@@ -325,7 +325,7 @@ public final class Commands {
    * @return a DeadlineCommandGroup that ends and interrupts everything when shootBalls ends
    */
   public static Command shootBallsAndAim(IShooter shooter, IQueue queue, double queueSpeed, IMagazine magazine,
-      double magazineSpeed, int balls, ITurret turret, Limelight limelight) {
+      double magazineSpeed, int balls, ITurret turret, ILimelight limelight) {
     return new ShootBalls(shooter, queue, queueSpeed, magazine, magazineSpeed, balls)
         .alongWith(Commands.findTarget(turret, limelight));
   }
@@ -350,7 +350,7 @@ public final class Commands {
   // }
 
   public static Command autoCommand(IShooter shooter, IQueue queue, double queueSpeed, ITurret turret,
-      Limelight limelight, IMagazine magazine, double magazineSpeed, int balls, IDrivetrain drivetrain,
+      ILimelight limelight, IMagazine magazine, double magazineSpeed, int balls, IDrivetrain drivetrain,
       double distance) {
 
     logger.log(Level.INFO, "ran auto command");

@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 import frc.robot.commands.Commands;
-import frc.robot.commands.ShootBalls;
 import frc.robot.controlboard.ButtonCommand;
 import frc.robot.controlboard.ControlBoard;
 import frc.robot.controlboard.JoystickCommand;
@@ -64,7 +63,7 @@ public class RobotContainer {
   private final ControlBoard m_controlBoard;
   private final MagazinePowerCellCounter m_magazinePowerCellCounter;
   private final HexagonPosition m_hexagonPosition;
-  private final Limelight m_limelight;
+  private final ILimelight m_limelight;
   // private final PiTable m_piTable;
   private final IDrivetrain m_drivetrain;
   private final IIntake m_intake;
@@ -174,7 +173,7 @@ public class RobotContainer {
 
     m_limelight = m_limelightEnabled
         ? new Limelight(Pipeline.valueOf(m_properties.getProperty("limelight.defaultPipeline")))
-        : null;
+        : new DummyLimelight();
     m_compressor = m_compressorEnabled ? new CompressorManager() : new DummyCompressor();
     m_drivetrain = m_drivetrainEnabled ? new Drivetrain(robotMapProperties) : new DummyDrivetrain();
     m_intake = m_intakeEnabled ? new Intake(robotMapProperties) : new DummyIntake();
@@ -184,13 +183,9 @@ public class RobotContainer {
     m_queue = m_queueEnabled ? new Queue(robotMapProperties) : new DummyQueue();
     m_turret = m_turretEnabled ? new Turret(robotMapProperties) : new DummyTurret();
     m_climber = m_climberEnabled ? new Climber(robotMapProperties) : new DummyClimber();
-    // not dead code
-    if (m_turretEnabled && m_drivetrainEnabled && m_limelightEnabled) {
-      logger.log(Level.INFO, "initalized hexagon position");
-      m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
-    } else {
-      m_hexagonPosition = null;
-    }
+    
+    m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
+    
     m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(),
         m_magazine);
 

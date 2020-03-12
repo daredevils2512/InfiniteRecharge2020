@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.util.Units;
+import frc.robot.subsystems.interfaces.ILimelight;
 
 /**
  * returned 228 in at 208 inches
@@ -21,7 +22,7 @@ import edu.wpi.first.wpilibj.util.Units;
 /**
  * <h1> Limelight manager for power cell target tracking
  */
-public class Limelight {
+public class Limelight implements ILimelight {
   private static Logger logger = Logger.getLogger(Limelight.class.getName());
   // Center is (0,0)
   public static final double RANGE_X_DEGREES = 29.8;
@@ -58,6 +59,7 @@ public class Limelight {
     lastPostion = 1.0;
   }
 
+  @Override
   public Pipeline getDefaultPipeline() {
     logger.log(Level.FINE, "default pipeline = ", m_pipeline);
     return m_pipeline;
@@ -65,59 +67,73 @@ public class Limelight {
 
   //Limelight table getters
 
+  @Override
   public void setPipeline(Pipeline pipeline) {
     m_table.getEntry("pipeline").setNumber(pipeline.getID());
   }
 
+  @Override
   public void setLEDMode(LimelightLEDMode ledMode) {
     m_table.getEntry("ledMode").setNumber(ledMode.getIntValue());
   }
 
+  @Override
   public LimelightLEDMode getLEDMode() {
     int intValue = m_table.getEntry("ledMode").getNumber(0).intValue();
     return LimelightLEDMode.fromIntValue(intValue);
   }
 
+  @Override
   public boolean hasTarget() {
     return m_table.getEntry("tv").getNumber(0).intValue() == 1;
   }
 
+  @Override
   public double tx() {
     return m_table.getEntry("tx").getNumber(0).doubleValue();
   }
 
+  @Override
   public double ty() {
     return m_table.getEntry("ty").getNumber(0).doubleValue();
   }
 
+  @Override
   public double ta() {
     return m_table.getEntry("ta").getNumber(0).doubleValue();
   }
 
+  @Override
   public double ts() {
     return m_table.getEntry("ts").getNumber(0).doubleValue();
   }
 
+  @Override
   public double tl() {
     return m_table.getEntry("tl").getNumber(0).doubleValue();
   }
 
+  @Override
   public int tshort() {
     return m_table.getEntry("tshort").getNumber(0).intValue();
   }
 
+  @Override
   public int tlong() {
     return m_table.getEntry("tlong").getNumber(0).intValue();
   }
 
+  @Override
   public int thor() {
     return m_table.getEntry("thor").getNumber(0).intValue();
   }
 
+  @Override
   public int tvert() {
     return m_table.getEntry("tvert").getNumber(0).intValue();
   }
 
+  @Override
   public double getLastPosition() {
     if (tx() != 0) { 
       lastPostion = tx(); 
@@ -130,6 +146,7 @@ public class Limelight {
    * 
    * @return distance in units of something to the tagret
    */
+  @Override
   public double getDistanceToTarget() {
     return Units.inchesToMeters(m_heightOffset) / Math.tan(Math.toRadians(m_angle + this.ty()));
   }

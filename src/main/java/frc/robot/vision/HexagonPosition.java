@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.interfaces.IDrivetrain;
+import frc.robot.subsystems.interfaces.ILimelight;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
-import frc.robot.vision.Limelight;
 
 /**
  * <h6>Add your docs here.
@@ -22,7 +22,7 @@ import frc.robot.vision.Limelight;
 public class HexagonPosition {
     private final IDrivetrain m_drivetrain;
     private final ITurret m_turret;
-    private final Limelight m_limelight;
+    private final ILimelight m_limelight;
     private static NetworkTable m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
 
     private final double m_tolerance = 5.0; // in degrees probaly shouldnt be here but idk whatever
@@ -42,7 +42,7 @@ public class HexagonPosition {
     private double m_robotPosition = 0.0;
     private double m_lastRobotPosition = 0.0;
 
-    public HexagonPosition(IDrivetrain drivetrain, ITurret turret, Limelight limelight) {
+    public HexagonPosition(IDrivetrain drivetrain, ITurret turret, ILimelight limelight) {
         m_drivetrain = drivetrain;
         m_turret = turret;
         m_limelight = limelight;

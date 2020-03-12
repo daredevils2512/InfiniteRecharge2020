@@ -9,22 +9,22 @@ package frc.robot.commands;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.subsystems.interfaces.ILimelight;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.CommandLogger;
-import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightLEDMode;
 import frc.robot.vision.Limelight.Pipeline;
 
 public class FindTarget extends CommandLogger {
   private ITurret m_turret;
-  private Limelight m_limelight;
+  private ILimelight m_limelight;
   private NetworkTable m_networkTable;
 
 
   /**
    * Creates a new FindTarget.
    */
-  public FindTarget(ITurret turret, Limelight limelight) {
+  public FindTarget(ITurret turret, ILimelight limelight) {
     m_turret = turret;
     m_limelight = limelight;
     m_networkTable = NetworkTableInstance.getDefault().getTable("hexagon position");
