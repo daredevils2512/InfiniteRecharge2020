@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.subsystems.interfaces.IDrivetrain;
+import frc.robot.subsystems.interfaces.IHexagonPosition;
 import frc.robot.subsystems.interfaces.ILimelight;
 import frc.robot.subsystems.interfaces.ITurret;
 import frc.robot.utils.DareMathUtil;
@@ -19,7 +20,7 @@ import frc.robot.utils.DareMathUtil;
 /**
  * <h6>Add your docs here.
  */
-public class HexagonPosition {
+public class HexagonPosition implements IHexagonPosition {
     private final IDrivetrain m_drivetrain;
     private final ITurret m_turret;
     private final ILimelight m_limelight;

@@ -5,8 +5,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
+import frc.robot.subsystems.interfaces.IPiTable;
 
-public class PiTable {
+public class PiTable implements IPiTable {
 
     private NetworkTable m_table;
 

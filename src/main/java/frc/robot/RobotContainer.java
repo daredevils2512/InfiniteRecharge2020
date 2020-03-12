@@ -39,6 +39,7 @@ import frc.robot.utils.MagazinePowerCellCounter;
 import frc.robot.utils.PropertyFiles;
 import frc.robot.vision.HexagonPosition;
 import frc.robot.vision.Limelight;
+import frc.robot.vision.PiTable;
 import frc.robot.vision.Limelight.Pipeline;
 
 /**
@@ -62,9 +63,9 @@ public class RobotContainer {
 
   private final ControlBoard m_controlBoard;
   private final MagazinePowerCellCounter m_magazinePowerCellCounter;
-  private final HexagonPosition m_hexagonPosition;
+  private final IHexagonPosition m_hexagonPosition;
   private final ILimelight m_limelight;
-  // private final PiTable m_piTable;
+  private final IPiTable m_piTable;
   private final IDrivetrain m_drivetrain;
   private final IIntake m_intake;
   private final IShooter m_shooter;
@@ -81,6 +82,7 @@ public class RobotContainer {
   private String m_pathPath = "paths/auto1.wpilib.json";
 
   private final boolean m_limelightEnabled;
+  private final boolean m_hexagonPositionEnabld;
   private final boolean m_piTableEnabled;
   private final boolean m_compressorEnabled;
   private final boolean m_drivetrainEnabled;
@@ -142,6 +144,7 @@ public class RobotContainer {
     Properties robotMapProperties = PropertyFiles.loadProperties(robotMapPropertiesFile);
 
     m_limelightEnabled = Boolean.parseBoolean(m_properties.getProperty("limelight.isEnabled"));
+    m_hexagonPositionEnabld = Boolean.parseBoolean(m_properties.getProperty("hexagon.isEnabled"));
     m_piTableEnabled = Boolean.parseBoolean(m_properties.getProperty("piTable.isEnabled"));
 
     m_intakeExtenderSpeed = Double.parseDouble(m_properties.getProperty("intakeExtenderSpeed"));
@@ -172,8 +175,8 @@ public class RobotContainer {
     SmartDashboard.putBoolean("limelight enabled", m_limelightEnabled);
 
     m_limelight = m_limelightEnabled
-        ? new Limelight(Pipeline.valueOf(m_properties.getProperty("limelight.defaultPipeline")))
-        : new DummyLimelight();
+      ? new Limelight(Pipeline.valueOf(m_properties.getProperty("limelight.defaultPipeline")))
+      : new DummyLimelight();
     m_compressor = m_compressorEnabled ? new CompressorManager() : new DummyCompressor();
     m_drivetrain = m_drivetrainEnabled ? new Drivetrain(robotMapProperties) : new DummyDrivetrain();
     m_intake = m_intakeEnabled ? new Intake(robotMapProperties) : new DummyIntake();
@@ -183,8 +186,14 @@ public class RobotContainer {
     m_queue = m_queueEnabled ? new Queue(robotMapProperties) : new DummyQueue();
     m_turret = m_turretEnabled ? new Turret(robotMapProperties) : new DummyTurret();
     m_climber = m_climberEnabled ? new Climber(robotMapProperties) : new DummyClimber();
+
+    m_piTable = m_piTableEnabled 
+      ? new PiTable()
+      : new DummyPiTable();
     
-    m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
+    m_hexagonPosition = m_hexagonPositionEnabld 
+      ? new HexagonPosition(m_drivetrain, m_turret, m_limelight)
+      : new DummyHexagonPosition();
     
     m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(),
         m_magazine);
@@ -386,10 +395,7 @@ public class RobotContainer {
         m_magazine, m_magazineSpeed, MagazinePowerCellCounter.getCount(), m_turret, m_limelight));
 
     // auto aim
-
-    if (m_limelightEnabled) {
-      m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret, m_limelight));
-    }
+    m_buttonMap.get(ButtonCommand.AUTO_AIM_TURRET).toggleWhenPressed(Commands.findTarget(m_turret, m_limelight));
 
     m_buttonMap.get(ButtonCommand.RAISE_CLIMBERS).whenPressed(Commands.raiseClimbers(m_climber));
     m_buttonMap.get(ButtonCommand.LOWER_CLIMBERS).whenPressed(Commands.retractClimber(m_climber));
@@ -557,10 +563,8 @@ public class RobotContainer {
 
     m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
-    if (m_hexagonPosition != null)
-      m_hexagonPosition.updatePosition();
-    if (m_limelightEnabled)
-      SmartDashboard.putNumber("distance", m_limelight.getDistanceToTarget());
+    m_hexagonPosition.updatePosition();
+    SmartDashboard.putNumber("distance", m_limelight.getDistanceToTarget());
   }
 
   /**
