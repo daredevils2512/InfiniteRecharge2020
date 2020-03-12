@@ -33,7 +33,9 @@ public class Magazine extends PropertySubsystem implements IMagazine {
   private final NetworkTableEntry m_directionReversedEntry;
   
   private boolean m_photoEyeEnabled;
-  private final IDigitalInput m_photoEye;
+  private final IDigitalInput m_photoEye1;
+  private final IDigitalInput m_photoEye2;
+  private final IDigitalInput m_photoEye3;
 
   private final WPI_TalonSRX m_runMotor;
   
@@ -53,7 +55,15 @@ public class Magazine extends PropertySubsystem implements IMagazine {
 
     m_photoEyeEnabled = Boolean.parseBoolean(m_properties.getProperty("photoEyeEnabled"));
 
-    m_photoEye = m_photoEyeEnabled ? new PhotoEye(getInteger(robotMapProperties.getProperty("magazinePhotoEyeChannel"))) : new DummyDigitalInput();
+    m_photoEye1 = m_photoEyeEnabled
+        ? new PhotoEye(getInteger(robotMapProperties.getProperty("magazinePhotoEye1Channel")))
+        : new DummyDigitalInput();
+    m_photoEye2 = m_photoEyeEnabled
+        ? new PhotoEye(getInteger(robotMapProperties.getProperty("magazinePhotoEye2Channel")))
+        : new DummyDigitalInput();
+    m_photoEye3 = m_photoEyeEnabled
+        ? new PhotoEye(getInteger(robotMapProperties.getProperty("magazinePhotoEye3Channel")))
+        : new DummyDigitalInput();
   }
 
   @Override
@@ -61,13 +71,26 @@ public class Magazine extends PropertySubsystem implements IMagazine {
     m_directionReversedEntry.setBoolean(getDirectionReversed());
   }
 
-  @Override
-  public boolean getPowerCellDetected() {
-    if (m_photoEye.get())
-      m_logger.fine("power cell detected");
-    return m_photoEye.get();
+  public Boolean[] getPhotoEyeStatus() {
+    Boolean[] photoEyes = new Boolean[]{m_photoEye1.get(), m_photoEye2.get(), m_photoEye3.get()};
+
+    //log photoeyes at fine
+    int i = 0;
+    for (Boolean photoEye : photoEyes) {
+      i++;
+      m_logger.fine("photoEye " + i + " status " + photoEye);
+      m_networkTable.getEntry("photoEye" + i).setBoolean(photoEye);
+    }
+    return photoEyes;
   }
 
+  public int getCount() {
+    int i = 0;
+    for (Boolean photoEye : getPhotoEyeStatus()) {
+      if (photoEye) i++; 
+    }
+    return i;
+  }
 
   @Override
   public boolean getDirectionReversed() {
@@ -94,6 +117,11 @@ public class Magazine extends PropertySubsystem implements IMagazine {
 
   @Override
   public IDigitalInput getPhotoEye() {
-    return this.m_photoEye;
+    return this.m_photoEye1;
+  }
+
+  @Override
+  public boolean getPowerCellDetected() {
+    return m_photoEye1.get();
   }
 }

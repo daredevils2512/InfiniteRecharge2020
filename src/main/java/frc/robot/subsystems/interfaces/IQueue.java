@@ -10,4 +10,5 @@ public interface IQueue extends IPropertySubsystem {
   public boolean hasPowerCell();
   public Map<String, Object> getValues();
   public IDigitalInput getPhotoEye();
+  public int getCount();
 }

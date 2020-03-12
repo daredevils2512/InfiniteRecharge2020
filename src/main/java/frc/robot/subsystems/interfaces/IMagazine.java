@@ -10,6 +10,7 @@ public interface IMagazine extends IPropertySubsystem {
 
   public void setSpeed(double speed);
   public void feedBalls(int amount);
+  public int getCount();
 
   public Map<String, Object> getValues();
   public IDigitalInput getPhotoEye();

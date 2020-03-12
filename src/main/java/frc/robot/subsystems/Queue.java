@@ -83,4 +83,9 @@ public class Queue extends PropertySubsystem implements IQueue {
   public IDigitalInput getPhotoEye() {
     return this.m_photoEye;
   }
+
+  @Override
+  public int getCount() {
+    return hasPowerCell() ? 1 : 0;
+  }
 }

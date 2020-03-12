@@ -176,7 +176,8 @@ public class RobotContainer {
       logger.log(Level.INFO, "initalized hexagon position");
       m_hexagonPosition = new HexagonPosition(m_drivetrain, m_turret, m_limelight);
     } else {m_hexagonPosition = null;}
-    m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(), m_magazine);
+    // m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_magazine.getPhotoEye(), m_queue.getPhotoEye(), m_magazine);
+    m_magazinePowerCellCounter = new MagazinePowerCellCounter(m_queue, m_magazine);
 
     m_defaultDriveCommand = Commands.simpleArcadeDrive(m_drivetrain, m_joystickMap.get(JoystickCommand.MOVE), m_joystickMap.get(JoystickCommand.TURN));
     
@@ -487,7 +488,7 @@ public class RobotContainer {
     if (m_shooter.getCurrentCommand() != null) {m_shooterEntry.forceSetBoolean(true);} else {m_shooterEntry.forceSetBoolean(false);}
     if (m_spinner.getCurrentCommand() != null) {m_spinnerEntry.forceSetBoolean(true);} else {m_spinnerEntry.forceSetBoolean(false);}
     if (m_turret.getCurrentCommand() != null) {m_turretEntry.forceSetBoolean(true);} else {m_turretEntry.forceSetBoolean(false);}
-    m_magazinePowerCellCounter.updateCount();
+    // m_magazinePowerCellCounter.updateCount();
     SmartDashboard.putNumber("power cell count", MagazinePowerCellCounter.getCount());
     if (m_hexagonPosition != null) m_hexagonPosition.updatePosition();
     if (m_limelightEnabled) SmartDashboard.putNumber("distance", m_limelight.getDistanceToTarget());

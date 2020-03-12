@@ -39,4 +39,9 @@ public class DummyMagazine implements IMagazine {
   public IDigitalInput getPhotoEye() {
     return new DummyDigitalInput();
   }
+
+  @Override
+  public int getCount() {
+    return 0;
+  }
 }
