@@ -246,6 +246,11 @@ public class Drivetrain extends PropertySubsystem implements IDrivetrain {
         : null;
     if (m_shiftersEnabled) {this.setLowGear(false);}
 
+    m_leftDriveMaster.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 10, 0.5));
+    m_leftDriveFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 10, 0.5));
+    m_rightDriveMaster.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 10, 0.5));
+    m_rightDriveFollower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 10, 0.5));
+
     m_kinematics = new DifferentialDriveKinematics(m_trackWidth);
     m_driveMotorFeedforward = new SimpleMotorFeedforward(m_staticGain, m_velocityGain, m_accelerationGain);
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getYaw()));
